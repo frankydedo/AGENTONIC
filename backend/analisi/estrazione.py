@@ -30,9 +30,9 @@ from backend.modelli import (
     PassoRegistro, PuntoOscuro, Sconosciuto, Segmento, Sicurezza, TaskEstratto,
 )
 
-VERSIONE_TASK = "task-v2"
-VERSIONE_FATTI = "fatti-v1"
-VERSIONE_LACUNE = "lacune-v2"
+VERSIONE_TASK = "task-v3"
+VERSIONE_FATTI = "fatti-v2"
+VERSIONE_LACUNE = "lacune-v3"
 MAX_BLOCCHI = 10          # oltre, il documento è troppo lungo: errore chiaro, nessuna chiamata
 
 
@@ -168,16 +168,16 @@ _SICUREZZA = {
 
 _COMPITO = {
     "task": """Compito: estrai
-- "task": attività concrete che qualcuno deve fare. rif "t1", "t2", ... in ordine; titolo breve all'infinito (es. "Preparare la lista dei tag del PLC"); assegnatario_detto = il nome come detto nel testo, null se nessuno; scadenza AAAA-MM-GG o null; dipende_da = rif di altri task di questa risposta o id di task approvati che devono finire prima.
-- "aggiornamenti": cambi a un task approvato del contesto. task_id = id del task approvato; campo = stato, scadenza, assegnatario o titolo; valore: per stato uno tra da_fare, in_corso, bloccato, fatto, annullato; per scadenza AAAA-MM-GG; per assegnatario il nome come detto. Non ripetere come nuovo task un task già approvato.
+- "task": attività concrete che qualcuno deve fare. rif "t1", "t2", ... in ordine; titolo breve all'infinito (es. "Preparare la lista dei tag del PLC"); assegnatario_detto = copia ESATTAMENTE le parole della frase che assegna il task (es. se Giulia dice "Marco, prepari tu…" scrivi "Marco", anche se dopo risponde Marco Bianchi o se dal contesto sembra chiaro chi sia: le persone le risolve il codice), null se nessuno; scadenza AAAA-MM-GG o null; dipende_da = rif di altri task di questa risposta o id di task approvati che devono finire prima.
+- "aggiornamenti": cambi a un task approvato del contesto. task_id = id del task approvato; campo = stato, scadenza, assegnatario o titolo; valore: per stato uno tra da_fare, in_corso, bloccato, fatto, annullato; per scadenza AAAA-MM-GG; per assegnatario il nome come detto. Se cambia qualcosa di un task approvato (es. una scadenza che slitta) scrivi SOLO l'aggiornamento: non creare un nuovo task per lo stesso lavoro né un task del tipo "aggiornare la data".
 Formato: {"task":[{"rif":"t1","titolo":"...","assegnatario_detto":"...","scadenza":"AAAA-MM-GG","aree":["sviluppo"],"segmenti":["<id>"],"sicurezza":"alta","dipende_da":[]}],"aggiornamenti":[{"task_id":"<id dal contesto>","campo":"scadenza","valore":"AAAA-MM-GG","segmenti":["<id>"],"sicurezza":"alta"}]}""",
-    "fatti": """Compito: estrai "fatti", cioè informazioni stabili del progetto (non attività da fare): soggetto breve (es. "progetto", "PLC", "inverter", "cliente"), attributo, valore breve con numeri e unità come nel testo.
+    "fatti": """Compito: estrai "fatti", cioè informazioni stabili del progetto (non attività da fare): soggetto breve (es. "progetto", "PLC", "inverter", "cliente"), attributo, valore completo e comprensibile da solo, con numeri, unità e il loro significato come nel testo (es. "48.000 € approvati, 12.500 € già impegnati", non solo "48.000 euro"). NON creare fatti per scadenze, responsabili o stato dei task (un'attività con chi la fa e quando): li gestisce già l'agente dei task.
 attributo (lista chiusa): scadenza (data del progetto o di una sua parte), responsabile (chi risponde di qualcosa), budget (approvato, speso o impegnato), costo (prezzo di un acquisto o di un'attività), stato (avanzamento), fornitore (da chi si compra), decisione (scelta presa), requisito (richiesta o vincolo del cliente), rischio (problema possibile), altro.
-Se una frase contiene più informazioni (es. fornitore e costo), fai un fatto per ciascuna.
+Se una frase contiene informazioni di tipo diverso (es. fornitore e costo), fai un fatto per ciascuna; ma importi che descrivono la stessa cosa (es. budget approvato e già impegnato) stanno in UN fatto.
 Formato: {"fatti":[{"soggetto":"...","attributo":"decisione","valore":"...","aree":["sviluppo"],"segmenti":["<id>"],"sicurezza":"alta"}]}""",
     "lacune": """Compito: trova
-- "punti_oscuri": ciò che il manager deve chiarire: una scadenza vaga, una decisione rimandata, informazioni in contraddizione, un rischio non risolto. descrizione = una frase in italiano su cosa non è chiaro. NON segnalare i responsabili ambigui o mancanti dei task (un nome che può indicare più membri, un'attività senza responsabile): li segnala già il codice.
-- "sconosciuti": persone citate che non sono tra i nomi noti (anche colleghi esterni al progetto), oppure progetti, clienti o impianti mai visti nel contesto. nome come scritto nel testo; descrizione = chi o cosa sembra e perché è citato. Non sono sconosciuti i membri, il cliente del progetto, i soggetti noti, i fornitori e i prodotti citati per un acquisto o una decisione. Non scrivere persona_id.
+- "punti_oscuri": SOLO ambiguità concrete scritte nel testo che il manager deve chiarire: una scadenza vaga ("a breve", "più avanti"), una decisione esplicitamente rimandata, due informazioni in contraddizione. Niente ipotesi, domande generiche o informazioni che semplicemente non ci sono (es. NON "non è chiaro se il budget basta"). Se non ce ne sono, lista vuota. descrizione = una frase in italiano su cosa non è chiaro. NON segnalare i responsabili ambigui o mancanti dei task (un nome che può indicare più membri, un'attività senza responsabile): li segnala già il codice.
+- "sconosciuti": controlla OGNI persona nominata nel testo (anche con un titolo: "l'ingegner Rossi", "il dottor Bianchi") contro i nomi noti: ogni persona che non è tra i nomi noti è uno sconosciuto, anche se compare dentro un task. Inoltre: persone citate che non sono tra i nomi noti (anche colleghi esterni al progetto), oppure progetti, clienti o impianti mai visti nel contesto. nome come scritto nel testo; descrizione = chi o cosa sembra e perché è citato. Non sono sconosciuti i membri, il cliente del progetto, i soggetti noti, i fornitori e i prodotti citati per un acquisto o una decisione. Non scrivere persona_id.
 Formato: {"punti_oscuri":[{"descrizione":"...","segmenti":["<id>"]}],"sconosciuti":[{"nome":"...","descrizione":"...","segmenti":["<id>"]}]}""",
 }
 

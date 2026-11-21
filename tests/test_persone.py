@@ -108,3 +108,15 @@ def test_paola_greco_fuori_progetto():
 def test_sconosciuto_vero_e_persona_id_del_modello_ignorato():
     s = Sconosciuto(nome="Ing. Venturi", descrizione="referente", segmenti=["riu-002#s001"], persona_id="p-01")
     assert classifica_sconosciuto(s, FUORI).persona_id is None
+
+
+def test_sconosciuti_con_titolo_regola_deterministica():
+    from backend.analisi.ingestione import segmenta
+    from backend.analisi.persone import sconosciuti_con_titolo
+    doc = segmenta("---\nid: riu-099\ntitolo: t\ndata: 2026-11-23\n---\n"
+                   "**Giulia Ferraris:** L'ingegner Venturi del cliente vuole le schermate.\n\n"
+                   "**Giulia Ferraris:** Ne parlo con l'ing. Rinaldi e con il dott. Rossi.")
+    nomi = [s.nome for s in sconosciuti_con_titolo(doc, MEMBRI, [])]
+    assert nomi == ["ingegner Venturi", "dott. Rossi"]          # Rinaldi è un membro
+    gia = [s for s in sconosciuti_con_titolo(doc, MEMBRI, [])][:1]
+    assert [s.nome for s in sconosciuti_con_titolo(doc, MEMBRI, gia)] == ["dott. Rossi"]   # niente doppioni

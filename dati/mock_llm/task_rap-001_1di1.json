@@ -1,0 +1,4 @@
+{"task": [
+ {"rif": "t1", "titolo": "Quadro elettrico pronto per il collaudo in officina", "assegnatario_detto": "Rinaldi", "scadenza": "2026-12-10", "aree": ["sviluppo"], "segmenti": ["rap-001#s002", "rap-001#s003"], "sicurezza": "alta", "dipende_da": []},
+ {"rif": "t2", "titolo": "Preparare la lista dei tag del PLC", "assegnatario_detto": "Marco", "scadenza": "2026-11-25", "aree": ["sviluppo"], "segmenti": ["rap-001#s004", "rap-001#s005"], "sicurezza": "media", "dipende_da": []}],
+ "aggiornamenti": []}
