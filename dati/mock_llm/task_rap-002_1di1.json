@@ -1,0 +1,29 @@
+{
+ "task": [
+  {
+   "rif": "t1",
+   "titolo": "Show the HMI screens to the client before Christmas",
+   "assegnatario_detto": null,
+   "scadenza": null,
+   "aree": [
+    "sviluppo"
+   ],
+   "segmenti": [
+    "rap-002#s003"
+   ],
+   "sicurezza": "media",
+   "dipende_da": []
+  }
+ ],
+ "aggiornamenti": [
+  {
+   "task_id": "task-001",
+   "campo": "scadenza",
+   "valore": "2026-12-18",
+   "segmenti": [
+    "rap-002#s001"
+   ],
+   "sicurezza": "alta"
+  }
+ ]
+}

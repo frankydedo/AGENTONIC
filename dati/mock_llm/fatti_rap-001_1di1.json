@@ -1,0 +1,16 @@
+{
+ "fatti": [
+  {
+   "soggetto": "project",
+   "attributo": "budget",
+   "valore": "€48,000 approved, €12,500 already committed",
+   "aree": [
+    "budget"
+   ],
+   "segmenti": [
+    "rap-001#s001"
+   ],
+   "sicurezza": "alta"
+  }
+ ]
+}

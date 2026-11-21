@@ -1,0 +1,35 @@
+{
+ "task": [
+  {
+   "rif": "t1",
+   "titolo": "Get the control panel ready for the factory acceptance test",
+   "assegnatario_detto": "Rinaldi",
+   "scadenza": "2026-12-10",
+   "aree": [
+    "sviluppo"
+   ],
+   "segmenti": [
+    "rap-001#s002",
+    "rap-001#s003"
+   ],
+   "sicurezza": "alta",
+   "dipende_da": []
+  },
+  {
+   "rif": "t2",
+   "titolo": "Prepare the PLC tag list",
+   "assegnatario_detto": "Marco",
+   "scadenza": "2026-11-25",
+   "aree": [
+    "sviluppo"
+   ],
+   "segmenti": [
+    "rap-001#s004",
+    "rap-001#s005"
+   ],
+   "sicurezza": "media",
+   "dipende_da": []
+  }
+ ],
+ "aggiornamenti": []
+}

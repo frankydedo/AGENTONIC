@@ -1,0 +1,29 @@
+{
+ "fatti": [
+  {
+   "soggetto": "inverters",
+   "attributo": "costo",
+   "valore": "€7,400 (updated Elettrotecnica Piemonte quote)",
+   "aree": [
+    "fornitori",
+    "budget"
+   ],
+   "segmenti": [
+    "rap-102#s003"
+   ],
+   "sicurezza": "alta"
+  },
+  {
+   "soggetto": "Davide Conti",
+   "attributo": "altro",
+   "valore": "on vacation next week",
+   "aree": [
+    "personale"
+   ],
+   "segmenti": [
+    "rap-102#s005"
+   ],
+   "sicurezza": "alta"
+  }
+ ]
+}
