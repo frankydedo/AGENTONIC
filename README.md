@@ -83,6 +83,10 @@ output validated by Pydantic. The provider is chosen in `.env`:
   **Qwen3-30B-A3B** (`qwen/qwen3-30b-a3b-2507`) on LM Studio, locally:
   `LLM_BASE_URL=http://<host>:1234/v1`.
 
+The backend does not read `.env` by itself: to use the real model, start it with
+`.venv/bin/uvicorn backend.app:app --env-file .env`. At startup it prints the provider in use
+(`mock` or `locale`). Without `--env-file` it runs with the mock.
+
 ## Limitations
 
 This is a one-day prototype. What it does not do yet, and what to keep in mind:
@@ -115,7 +119,7 @@ web/                interface: React 19 + TypeScript + Vite + Tailwind v4
 scripts/            crea_db.py, demo_check.py and utilities
 tests/              pytest tests
 dati/               synthetic data, recorded answers of the mock model, expected outcomes
-docs/               API, contract, pitch, submission description
+docs/               API and data contract (api.md), internal workflow of the Brain (analisi.md), UI contract notes
 Vault/              team knowledge base: brief, rules, decisions (log.md)
 ```
 
