@@ -28,6 +28,7 @@ from backend.analisi.ingestione import DocumentoNonValido, neutralizza, segmenta
 from backend.analisi.ingestione_pdf import segmenta_pdf                           # F11, di Franky
 from backend.analisi.persone import abbina_speaker                                # F4, di Franky
 from backend.analisi.proposte import data_valida
+from backend.voce import da_elevenlabs                                            # P10: trascrizione ElevenLabs
 from backend.domande import (risposta_neutra, rispondi_tracciato, voce_da_fatto,  # I3, di Franky
                              voce_da_task, voci_visibili)
 from backend.llm import Config
@@ -59,11 +60,11 @@ async def avvio(app: FastAPI):
     carica_env()
     db.inizializza()
     cfg = Config.da_ambiente()
-    print(f"Company Brain: modello «{cfg.modello or '-'}» con il provider «{cfg.provider}»; db {db.percorso_db()}", flush=True)
+    print(f"Agentonic: modello «{cfg.modello or '-'}» con il provider «{cfg.provider}»; db {db.percorso_db()}", flush=True)
     yield
 
 
-app = FastAPI(title="Company Brain · Automazioni Dora", version="0.3.0", lifespan=avvio)
+app = FastAPI(title="Agentonic · Automazioni Dora", version="0.3.0", lifespan=avvio)
 
 
 def get_db():
@@ -260,7 +261,10 @@ def _leggi_documento(conn: sqlite3.Connection, file: UploadFile, prj: Progetto, 
             titolo_pdf = neutralizza(" ".join((titolo or PurePath(nome).stem or "Documento").split()))[:200]
             return segmenta_pdf(dati, doc_id or _prossimo_id_pdf(conn), titolo_pdf,
                                 data or date.today().isoformat(), prj.id)
-        doc = segmenta(dati.decode("utf-8"))   # senza progetto: resta quello scritto nell'intestazione
+        if nome.lower().endswith(".json") or dati[:1024].lstrip().startswith(b"{"):   # una minuta inizia con ---
+            doc = da_elevenlabs(dati)          # trascrizione nel formato di ElevenLabs (vera o finta)
+        else:
+            doc = segmenta(dati.decode("utf-8"))   # senza progetto: resta quello scritto nell'intestazione
     except DocumentoNonValido as errore:
         raise HTTPException(422, f"Documento non valido. {errore}")
     except UnicodeDecodeError:

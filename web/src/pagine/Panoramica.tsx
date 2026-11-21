@@ -40,8 +40,8 @@ export function Panoramica() {
         <h1 className="titolo-grande mt-1 text-[34px] sm:text-[40px]">{saluto}, {io.nome.split(' ')[0]}</h1>
       </div>
 
-      {/* il Brain parla per primo */}
-      <section aria-label="Il Brain ti dice" className={clsx('alone', !haDaDire && 'alone-spento')}>
+      {/* Agentonic parla per primo */}
+      <section aria-label="Agentonic ti dice" className={clsx('alone', !haDaDire && 'alone-spento')}>
         <div className="rounded-[22.5px] bg-superficie">
           <div className="flex items-start gap-3.5 px-5 pt-5 sm:px-6">
             <MarchioBrain size={38} parla={haDaDire} />
@@ -75,10 +75,10 @@ export function Panoramica() {
           {sonoManager ? (
             <Card>
               <IntestazioneCard icona={Gavel} titolo="Da decidere"
-                sottotitolo="Il Brain propone, tu decidi. Niente entra nella memoria senza la tua approvazione."
+                sottotitolo="Agentonic propone, tu decidi. Niente entra nella memoria senza la tua approvazione."
                 azioni={<LinkSobrio a="/documenti">Per documento</LinkSobrio>} />
               {!pronto ? <Scheletro /> : proposte.length === 0
-                ? <Vuoto icona={Inbox} titolo="Nessuna proposta" testo="Carica una riunione: il Brain la legge e ti propone task e fatti." />
+                ? <Vuoto icona={Inbox} titolo="Nessuna proposta" testo="Carica una riunione: Agentonic la legge e ti propone task e fatti." />
                 : <ProposteACassetti proposte={proposte} mostraDocumento />}
             </Card>
           ) : (
@@ -152,12 +152,12 @@ function DomandaRapida() {
     <Card className="p-5">
       <div className="flex items-center gap-2.5">
         <MarchioBrain size={24} />
-        <h2 className="text-[17px] font-semibold">Chiedi al Brain</h2>
+        <h2 className="text-[17px] font-semibold">Chiedi ad Agentonic</h2>
       </div>
       <p className="mt-1.5 text-sm text-testo-2">Risponde solo con ciò che è approvato e che puoi vedere, e ti dice da dove lo sa.</p>
       <form onSubmit={(e) => { e.preventDefault(); if (testo.trim()) vai('/chiedi', { state: { domanda: testo } }) }}
         className="mt-4 flex h-11 items-center gap-2 rounded-full bg-riempimento pr-1.5 pl-4 focus-within:ring-3 focus-within:ring-accento/30">
-        <input value={testo} onChange={(e) => setTesto(e.target.value)} placeholder="Quanto budget resta?" aria-label="Domanda per il Brain"
+        <input value={testo} onChange={(e) => setTesto(e.target.value)} placeholder="Quanto budget resta?" aria-label="Domanda per Agentonic"
           className="min-w-0 flex-1 bg-transparent text-[15px] placeholder:text-testo-3 focus:outline-none" />
         <button disabled={!testo.trim()} aria-label="Chiedi"
           className="grid h-8 w-8 place-items-center rounded-full bg-accento text-su-accento transition hover:bg-accento-premuto disabled:opacity-35">

@@ -1,5 +1,5 @@
 // Posta: client delle rotte /posta/... (specchio di backend/posta). La UI non sa quale provider
-// c'è dietro (casella finta, Gmail o Outlook): vede solo cartelle, mail e risposte del Brain.
+// c'è dietro (casella finta, Gmail o Outlook): vede solo cartelle, mail e risposte di Agentonic.
 import { useEffect, useState } from 'react'
 import { chiama } from './api'
 import type { Citazione } from './tipi'

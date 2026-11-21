@@ -106,7 +106,7 @@ export default function App() {
       <div className="grid min-h-screen place-items-center">
         <div className="flex flex-col items-center gap-4" role="status">
           <MarchioBrain size={56} parla />
-          <p className="text-[15px] text-testo-2">{fase === 'carico' ? 'Il Brain prepara la tua giornata…' : 'Accensione…'}</p>
+          <p className="text-[15px] text-testo-2">{fase === 'carico' ? 'Agentonic prepara la tua giornata…' : 'Accensione…'}</p>
         </div>
       </div>
     )
@@ -125,7 +125,7 @@ export default function App() {
     return (
       <div className="mx-auto max-w-xl px-4 py-16">
         <h1 className="text-2xl font-semibold tracking-tight">Ciao {io.nome.split(' ')[0]}, non ci sono ancora progetti</h1>
-        <p className="mt-2 text-testo-2">Crea il primo: scegli chi ci lavora e chi lo guida. Poi carica la minuta di una riunione e il Brain inizia a lavorare.</p>
+        <p className="mt-2 text-testo-2">Crea il primo: scegli chi ci lavora e chi lo guida. Poi carica la minuta di una riunione e Agentonic inizia a lavorare.</p>
         <div className="mt-8 rounded-2xl bg-superficie p-6 shadow-alta">
           <ModuloProgetto progetto={null} io={io} tutte={persone} ricaricaProgetti={ricaricaProgetti}
             scegliProgetto={scegliProgetto} onFatto={() => {}} />
@@ -137,7 +137,7 @@ export default function App() {
   if (fase === 'non_membro' || !ctx) {
     return (
       <Schermo icona={<UserRoundX size={26} />} titolo={`${io.nome.split(' ')[0]}, non fai parte di nessun progetto`}
-        testo="Il Brain non ti mostra nulla dei progetti di cui non sei membro: né i dati, né che esistono. Chiedi a un manager di aggiungerti.">
+        testo="Agentonic non ti mostra nulla dei progetti di cui non sei membro: né i dati, né che esistono. Chiedi a un manager di aggiungerti.">
         <div className="flex items-center gap-3"><Avatar persona={io} size={32} /><Bottone onClick={esci}>Cambia persona</Bottone></div>
       </Schermo>
     )

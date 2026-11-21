@@ -93,7 +93,7 @@ export function TodoOggi() {
       <IntestazioneCard
         icona={Sun}
         titolo="La tua giornata"
-        sottotitolo={todo?.accettata ? 'Accettata: è il tuo piano di oggi.' : 'Il Brain l\'ha preparata dai task approvati. Togli ciò che non fai oggi e accettala.'}
+        sottotitolo={todo?.accettata ? 'Accettata: è il tuo piano di oggi.' : 'Agentonic l\'ha preparata dai task approvati. Togli ciò che non fai oggi e accettala.'}
         azioni={todo && (todo.accettata ? <Badge tono="verde" icona={Check}>Accettata</Badge> : <Badge tono="giallo">Da accettare</Badge>)}
       />
       {!todo ? <Scheletro righe={2} /> : todo.task.length === 0 ? (

@@ -65,7 +65,7 @@ export function riassuntoOutput(o: Record<string, unknown>): string[] {
 
 /** Una frase per il manager, senza gergo: chi ha fatto cosa, su quale documento. */
 export function descriviPasso(p: PassoRegistro, nomePersona: (id: string) => string, titoloDoc: (id: string) => string | null): string {
-  const chi = p.attore === 'brain' ? 'Il Brain' : nomePersona(p.attore)
+  const chi = p.attore === 'brain' ? 'Agentonic' : nomePersona(p.attore)
   const docId = p.documento_id ?? (typeof p.input.documento_id === 'string' ? p.input.documento_id : null)
   const doc = docId ? `«${titoloDoc(docId) ?? docId}»` : 'il documento'
   const proposta = typeof p.input.proposta_id === 'string' ? ` ${p.input.proposta_id}` : ''
@@ -81,7 +81,7 @@ export function descriviPasso(p: PassoRegistro, nomePersona: (id: string) => str
   if (step.includes('inoltr')) return `${chi} ha inoltrato un avviso`
   if (step.includes('mail')) return `${chi} ha risposto a una domanda su una mail${typeof p.input.chi === 'string' ? ` di ${nomePersona(p.input.chi)}` : ''}`
   if (p.tipo === 'caricamento') return `${chi} ha caricato ${doc}`
-  if (p.tipo === 'domanda') return `${chi} ha fatto una domanda al Brain`
+  if (p.tipo === 'domanda') return `${chi} ha fatto una domanda ad Agentonic`
   return `${chi}: ${leggibile(p.step)}`
 }
 

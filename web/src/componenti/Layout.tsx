@@ -32,7 +32,7 @@ export function Layout() {
     { a: '/posta', etichetta: 'Posta', breve: 'Posta', icona: Mail, conteggio: nonLette || undefined },
     { a: '/documenti', etichetta: 'Documenti', breve: 'Documenti', icona: FileText, conteggio: sonoManager ? inAttesa : undefined, attenzione: true },
     { a: '/team', etichetta: 'Team e scadenze', breve: 'Team', icona: ChartGantt },
-    { a: '/chiedi', etichetta: 'Chiedi al Brain', breve: 'Chiedi', icona: MessageCircle },
+    { a: '/chiedi', etichetta: 'Chiedi ad Agentonic', breve: 'Chiedi', icona: MessageCircle },
     { a: '/registro', etichetta: 'Registro', breve: 'Registro', icona: History, soloManager: true },
     { a: '/impostazioni', etichetta: 'Impostazioni', breve: 'Impostazioni', icona: Settings },
   ].filter((v) => !v.soloManager || sonoManager)
@@ -46,7 +46,7 @@ export function Layout() {
         <div className="flex items-center gap-2.5 px-2">
           <MarchioBrain size={30} parla={segnalazioni + inAttesa > 0} />
           <div>
-            <p className="text-[15px] leading-tight font-semibold tracking-[-0.01em]">Company Brain</p>
+            <p className="text-[15px] leading-tight font-semibold tracking-[-0.01em]">Agentonic</p>
             <p className="text-xs text-testo-2">Automazioni Dora</p>
           </div>
         </div>
@@ -207,7 +207,7 @@ function VoceScheda({ v }: { v: Voce }) {
   )
 }
 
-/** Il manager carica una riunione da qualunque pagina e guarda il Brain lavorare. */
+/** Il manager carica una riunione da qualunque pagina e guarda Agentonic lavorare. */
 function CaricaRiunione() {
   const [aperto, setAperto] = useState(false)
   return (

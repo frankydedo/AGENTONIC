@@ -20,7 +20,7 @@ const TIPI: Record<Proposta['tipo'], [string, LucideIcon]> = {
 }
 
 /**
- * Una proposta del Brain. Il manager la approva, la rifiuta o la CORREGGE prima di approvarla
+ * Una proposta di Agentonic. Il manager la approva, la rifiuta o la CORREGGE prima di approvarla
  * (assegnatario, scadenza, titolo, aree): così si risolvono i punti oscuri.
  */
 export function CartaProposta({ p, correggiSubito = false, mostraDocumento = false, onDecisa, onEvidenzia }: {
@@ -148,7 +148,7 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
       {inAttesa && dubbio && (
         <div className="mt-3 flex gap-2.5 rounded-2xl bg-arancio-tenue px-3.5 py-2.5 text-sm leading-snug">
           <TriangleAlert size={16} strokeWidth={2.2} className="mt-0.5 shrink-0 text-arancio-testo" />
-          <span>{avviso?.testo ?? 'Il Brain non è sicuro di questa voce: controllala prima di approvarla.'}</span>
+          <span>{avviso?.testo ?? 'Agentonic non è sicuro di questa voce: controllala prima di approvarla.'}</span>
         </div>
       )}
 

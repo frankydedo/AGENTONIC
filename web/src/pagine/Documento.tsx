@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { ChevronLeft, BellRing, Gavel, Inbox, ListTodo, Quote } from 'lucide-react'
+import { AudioLines, ChevronLeft, BellRing, Gavel, Inbox, ListTodo, Quote } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { api } from '../api'
@@ -60,6 +60,9 @@ export function Documento() {
 
   const [formato, Icona] = FORMATI[doc.formato] ?? FORMATI.minuta
   const conMedia = doc.url_file && (doc.formato === 'audio' || doc.formato === 'video')
+  // Segmenti con orari = trascrizione automatica. Oggi è simulata (formato ElevenLabs, senza API):
+  // lo si dice, così si vede dove entra lo strumento senza far credere a un uso reale.
+  const daVoce = doc.formato === 'audio' || (doc.formato === 'trascrizione' && doc.segmenti.some((s) => s.inizio != null))
   const scegli = (sid: string) => {
     setParams({ seg: sid.split('#')[1] }, { replace: true })
   }
@@ -78,6 +81,11 @@ export function Documento() {
             <span className="inline-flex items-center gap-1.5"><Icona size={15} /> {formato}</span>
             <span>{dataMedia(doc.data)}{doc.ora_inizio && `, ore ${doc.ora_inizio}`}</span>
             <span>{doc.segmenti.length} interventi</span>
+            {daVoce && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-riempimento px-2.5 py-0.5 text-[13px]">
+                <AudioLines size={14} /> ElevenLabs Speech-to-Text{doc.formato === 'trascrizione' && ' · simulata nella demo'}
+              </span>
+            )}
           </p>
         </div>
         <div className="flex -space-x-1.5">
@@ -140,7 +148,7 @@ export function Documento() {
               <IntestazioneCard icona={Gavel} titolo="Proposte da questo documento"
                 sottotitolo="Passa sopra una proposta per vedere da quali frasi nasce." />
               {sue.length === 0
-                ? <Vuoto icona={Inbox} titolo="Nessuna proposta" testo="Il Brain non ha estratto nulla da questo documento." />
+                ? <Vuoto icona={Inbox} titolo="Nessuna proposta" testo="Agentonic non ha estratto nulla da questo documento." />
                 : <ProposteACassetti proposte={sue} onEvidenzia={setSuHover} />}
             </Card>
           ) : (

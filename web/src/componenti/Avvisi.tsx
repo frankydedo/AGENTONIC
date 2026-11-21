@@ -63,7 +63,7 @@ export function CartaAvviso({ a }: { a: Avviso }) {
         </div>
       )}
       {proposta && (
-        <Modale aperto={correggi} onChiudi={() => setCorreggi(false)} titolo="Correggi la proposta del Brain">
+        <Modale aperto={correggi} onChiudi={() => setCorreggi(false)} titolo="Correggi la proposta di Agentonic">
           <p className="mb-4 text-[15px] text-testo-2">
             Sistema i campi incerti e approva: l'avviso si chiude da solo e la voce entra nella memoria del progetto.
           </p>
@@ -80,7 +80,7 @@ export function CartaAvviso({ a }: { a: Avviso }) {
   )
 }
 
-/** Il Brain parla per primo: avvisi aperti, opzionalmente di un solo documento. */
+/** Agentonic parla per primo: avvisi aperti, opzionalmente di un solo documento. */
 export function ListaAvvisi({ documentoId, griglia }: { documentoId?: string; griglia?: boolean }) {
   const { avvisi, connesso } = useDati()
   const aperti = avvisi.filter((a) => !a.risolto && (!documentoId || a.documento_id === documentoId))
@@ -95,8 +95,8 @@ export function ListaAvvisi({ documentoId, griglia }: { documentoId?: string; gr
       </div>
       {aperti.length === 0
         ? (griglia
-          ? <p className="flex items-center gap-2 px-5 pt-2 pb-5 text-sm text-testo-2 sm:pl-[78px]"><CircleCheck size={15} className="text-verde-testo" /> Tutto chiaro: il Brain non ha nulla da segnalarti in questo momento.</p>
-          : <Vuoto icona={CircleCheck} titolo="Tutto chiaro" testo="Il Brain non ha nulla da segnalarti in questo momento." />)
+          ? <p className="flex items-center gap-2 px-5 pt-2 pb-5 text-sm text-testo-2 sm:pl-[78px]"><CircleCheck size={15} className="text-verde-testo" /> Tutto chiaro: Agentonic non ha nulla da segnalarti in questo momento.</p>
+          : <Vuoto icona={CircleCheck} titolo="Tutto chiaro" testo="Agentonic non ha nulla da segnalarti in questo momento." />)
         : (
           <ul className={clsx('gap-2.5 p-4 pt-3', griglia ? 'grid sm:p-5 sm:pt-3 md:grid-cols-2' : 'flex flex-col')}>
             <AnimatePresence initial={false}>{aperti.map((a) => <CartaAvviso key={a.id} a={a} />)}</AnimatePresence>

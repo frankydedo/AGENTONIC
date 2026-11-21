@@ -56,7 +56,7 @@ test('si entra scegliendo chi si è', async ({ page }) => {
   await expect(page.getByText('Proposte da decidere')).toBeVisible()
 })
 
-test('controllo 1: il Brain parla per primo, senza che nessuno chieda', async ({ page }) => {
+test('controllo 1: Agentonic parla per primo, senza che nessuno chieda', async ({ page }) => {
   await entraCome(page, 'p-01')
   await expect(page.getByText('In ascolto: gli avvisi arrivano da soli')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Segna come risolto' }).first()).toBeVisible()
@@ -154,19 +154,19 @@ test('regressione: dopo molti ricaricamenti il backend risponde ancora', async (
   // Chrome bloccava tutte le chiamate (la chat restava in attesa)
   await entraCome(page, 'p-02')
   for (let i = 0; i < 8; i++) await page.reload()
-  await page.getByRole('link', { name: 'Chiedi al Brain' }).first().click()
+  await page.getByRole('link', { name: 'Chiedi ad Agentonic' }).first().click()
   await chiedi(page, 'Quanto budget resta?')
   await expect(page.getByText(/Restano 35\.500 €/)).toBeVisible()
 })
 
-test('il manager carica una riunione e vede il Brain lavorare passo per passo', async ({ page }) => {
+test('il manager carica una riunione e vede Agentonic lavorare passo per passo', async ({ page }) => {
   await entraCome(page, 'p-01')
   await page.getByRole('button', { name: 'Carica riunione' }).click()
   const finestra = page.getByRole('dialog', { name: 'Carica una riunione' })
   await finestra.locator('input[type=file]').setInputFiles('../dati/riunioni/riu-003.md')
   await expect(finestra.getByText('Analisi completata')).toBeVisible({ timeout: 20_000 })
   await expect(finestra.getByText('proposte da decidere')).toBeVisible()
-  await expect(finestra.getByText(/^Il Brain /).first()).toBeVisible()
+  await expect(finestra.getByText(/^Agentonic /).first()).toBeVisible()
   await finestra.getByRole('button', { name: 'Rivedi le proposte' }).click()
   await expect(page).toHaveURL(/\/documenti\/riu-003$/)
 })
@@ -174,7 +174,7 @@ test('il manager carica una riunione e vede il Brain lavorare passo per passo', 
 test('il registro si legge in italiano, i dati grezzi solo nei dettagli tecnici', async ({ page }) => {
   await entraCome(page, 'p-01', '/registro')
   await expect(page.getByText(/Giulia Ferraris ha approvato la proposta/).first()).toBeVisible()
-  await expect(page.getByText(/^Il Brain /).first()).toBeVisible()
+  await expect(page.getByText(/^Agentonic /).first()).toBeVisible()
   await expect(page.locator('pre').first()).toBeHidden()
   await page.getByText('Dettagli tecnici').first().click()
   await expect(page.locator('pre').first()).toBeVisible()
@@ -270,11 +270,11 @@ test('le persone si cercano: inoltro di un avviso', async ({ page }) => {
   await expect(finestra.getByRole('menuitemcheckbox', { name: /Sara Colombo/ })).toHaveAttribute('aria-checked', 'true')
 })
 
-test('posta: il Brain risponde su una mail citandola, e la mail-trappola resta un dato', async ({ page }) => {
+test('posta: Agentonic risponde su una mail citandola, e la mail-trappola resta un dato', async ({ page }) => {
   await entraCome(page, 'p-01', '/posta')
   await page.getByRole('button', { name: /Preventivo inverter aggiornato/ }).click()
-  await page.getByRole('button', { name: 'Chiedi al Brain' }).click()
-  const brain = page.getByRole('complementary', { name: 'Brain sulla mail' })
+  await page.getByRole('button', { name: 'Chiedi ad Agentonic' }).click()
+  const brain = page.getByRole('complementary', { name: 'Agentonic sulla mail' })
   await brain.getByRole('button', { name: 'È coerente con quello che sa il progetto?' }).click()
   await expect(brain.getByText(/da 6\.200 € a 7\.400 €/)).toBeVisible()
   await expect(brain.getByText('Da questa mail')).toBeVisible()
@@ -286,9 +286,9 @@ test('posta: il Brain risponde su una mail citandola, e la mail-trappola resta u
   await expect(brain.getByText(/le ho trattate come testo e non le eseguo/)).toBeVisible()
 
   // si chiude e si riapre, e la conversazione è ancora lì
-  await page.getByRole('button', { name: 'Nascondi il Brain' }).click()
+  await page.getByRole('button', { name: 'Nascondi Agentonic' }).click()
   await expect(brain).toHaveCount(0)
-  await page.getByRole('button', { name: 'Chiedi al Brain' }).click()
+  await page.getByRole('button', { name: 'Chiedi ad Agentonic' }).click()
   await expect(brain.getByText(/le ho trattate come testo e non le eseguo/)).toBeVisible()
 })
 
@@ -296,4 +296,27 @@ test('posta: ognuno vede solo la propria casella', async ({ page }) => {
   await entraCome(page, 'p-04', '/posta')
   await expect(page.getByRole('button', { name: /Prima parte della lista tag/ })).toBeVisible()
   await expect(page.getByText('Preventivo inverter aggiornato')).toHaveCount(0)
+})
+
+test('si entra cercando il proprio nome e premendo Invio', async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.removeItem('company-brain-persona'))
+  await page.goto('/')
+  const cerca = page.getByRole('combobox', { name: 'Cerca chi sei' })
+  await expect(cerca).toBeFocused()
+  await cerca.fill('ferr')
+  await expect(page.getByRole('option', { name: /Giulia Ferraris/ })).toHaveAttribute('aria-selected', 'true')
+  await cerca.press('Enter')
+  await expect(page.getByRole('heading', { name: /Giulia$/ })).toBeVisible()
+})
+
+test('una trascrizione simulata nel formato ElevenLabs mostra orari e da dove arriverà', async ({ page }) => {
+  const api = await request.newContext({ baseURL: BACKEND_URL, extraHTTPHeaders: { 'X-Persona': 'p-01' } })
+  const r = await api.post('/riunioni?progetto_id=prj-01', {
+    multipart: { file: { name: 'riu-006.json', mimeType: 'application/json', buffer: readFileSync('../dati/audio/riu-006.json') } },
+  })
+  expect(r.ok(), await r.text()).toBeTruthy()
+  await api.dispose()
+  await entraCome(page, 'p-01', '/documenti/riu-006')
+  await expect(page.getByText('ElevenLabs Speech-to-Text · simulata nella demo')).toBeVisible()
+  await expect(page.getByText('speaker_3', { exact: true })).toBeVisible()   // il tecnico del cliente, senza nome
 })

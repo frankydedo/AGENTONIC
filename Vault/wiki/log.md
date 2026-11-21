@@ -136,3 +136,8 @@
 - Su richiesta del team, Mauro ha aggiunto nel backend `POST/PATCH/DELETE /progetti` (crea solo chi ha ruolo «project manager»; modifica ed elimina solo il manager del progetto; eliminazione a cascata; tutto nel registro). Test in `tests/test_progetti_crud.py`.
 - Il db locale `brain.db` è stato svuotato (restano le 8 persone, nessun progetto) con il nuovo `scripts/svuota_db.py`; copia di sicurezza nello scratchpad di Mauro. `scripts/crea_db.py` riporta i progetti d'esempio.
 - UI: chi può creare progetti e non ne ha vede subito il modulo; elimina progetto con conferma; selettori con ricerca, cassetti delle proposte, impostazioni, fonti compatte.
+
+## [2026-11-21 16:25] decisione | Trascrizioni ElevenLabs simulate (branch `mauro/voce-mock`)
+- Il Brain accetta al caricamento (`POST /riunioni`, file `.json`) una trascrizione nel formato di ElevenLabs Speech-to-Text (`diarize=true`) dentro un involucro: `meta` (come l'intestazione della minuta), `parlanti` (`speaker_N` → nome), `stt` (la risposta così com'è). Codice in `backend/voce.py`, test in `tests/test_voce.py`. **Da confermare con Franky** (formato dell'involucro) e Pietro (`app.py`).
+- Nessuna chiamata API: `scripts/finta_trascrizione.py` genera `dati/audio/riu-006.json` dal copione `riu-006.copione.md`, con orari stimati. Il tecnico del cliente non è in `parlanti` e resta `speaker_3`. Con i crediti si sostituisce solo `stt`.
+- Formato `trascrizione` finché non c'è un file audio da ascoltare. La demo (riu-001…005) non cambia. Risposte registrate del modello per riu-006 ancora da fare (Qwen locale, `LLM_REGISTRA=1`): senza, col mock l'analisi di riu-006 finisce in `analisi_non_riuscite`.

@@ -187,7 +187,7 @@ export function ModuloProgetto({ progetto, onFatto, io, tutte, ricaricaProgetti,
       <Campo etichetta="Descrizione">
         <textarea value={d.descrizione} onChange={(e) => setD({ ...d, descrizione: e.target.value })} rows={2} className={INPUT} />
       </Campo>
-      <Campo etichetta="Manager (approva le proposte del Brain e vede tutto il progetto)">
+      <Campo etichetta="Manager (approva le proposte di Agentonic e vede tutto il progetto)">
         <select value={d.manager_id} onChange={(e) => scegliManager(e.target.value)} className={INPUT}>
           {tutte.map((p) => <option key={p.id} value={p.id}>{p.nome}, {p.ruolo}</option>)}
         </select>

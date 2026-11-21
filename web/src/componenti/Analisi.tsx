@@ -12,7 +12,7 @@ import { descriviPasso, durata, riassuntoOutput } from '../lib'
 import type { EsitoCaricamento, PassoRegistro } from '../tipi'
 import { Badge, Bottone, MarchioBrain } from './ui'
 
-/** I passi fissi del workflow (solution.md §4): si mostrano mentre il Brain lavora. */
+/** I passi fissi del workflow (solution.md §4): si mostrano mentre Agentonic lavora. */
 const PREVISTI = [
   ['Lettura', 'Divide la riunione in interventi; se è lunga, in parti «x/X»'],
   ['Estrazione', 'Task, assegnatari, scadenze, decisioni e fatti'],
@@ -29,7 +29,7 @@ type Stato =
   | { fase: 'errore'; file: string; messaggio: string }
 
 /**
- * Carica la minuta di una riunione e fa vedere il Brain che lavora: i passi previsti mentre
+ * Carica la minuta di una riunione e fa vedere Agentonic che lavora: i passi previsti mentre
  * aspetta, poi la traccia vera dal registro (cosa ha letto, cosa ha prodotto, con quale modello).
  */
 export function PannelloAnalisi({ onChiudi }: { onChiudi?: () => void }) {
@@ -74,10 +74,10 @@ export function PannelloAnalisi({ onChiudi }: { onChiudi?: () => void }) {
           sopra ? 'border-accento bg-accento-tenue' : 'border-separatore-forte bg-riempimento/50 hover:border-accento hover:bg-accento-tenue/50',
         )}
       >
-        <input ref={input} type="file" accept=".md,.txt" className="hidden" onChange={(e) => e.target.files?.[0] && carica(e.target.files[0])} />
+        <input ref={input} type="file" accept=".md,.txt,.json" className="hidden" onChange={(e) => e.target.files?.[0] && carica(e.target.files[0])} />
         <span className="grid h-12 w-12 place-items-center rounded-full bg-accento-tenue text-accento-testo"><UploadCloud size={24} strokeWidth={1.9} /></span>
         <p className="mt-3 text-[17px] font-semibold">Trascina qui la minuta di una riunione</p>
-        <p className="mt-1 text-sm text-testo-2">oppure <span className="font-medium text-accento-testo">sfoglia i file</span>. Formati .md o .txt, per il progetto {progetto.nome}.</p>
+        <p className="mt-1 text-sm text-testo-2">oppure <span className="font-medium text-accento-testo">sfoglia i file</span>. Minuta .md o .txt, oppure trascrizione .json (ElevenLabs), per il progetto {progetto.nome}.</p>
       </label>
     )
   }
@@ -92,7 +92,7 @@ export function PannelloAnalisi({ onChiudi }: { onChiudi?: () => void }) {
           : <MarchioBrain size={40} parla={stato.fase === 'in_corso'} />}
         <div className="min-w-0">
           <p className="text-[17px] font-semibold">
-            {stato.fase === 'in_corso' ? 'Il Brain sta leggendo la riunione…' : stato.fase === 'errore' ? 'Il Brain non ha potuto leggere il file' : 'Analisi completata'}
+            {stato.fase === 'in_corso' ? 'Agentonic sta leggendo la riunione…' : stato.fase === 'errore' ? 'Agentonic non ha potuto leggere il file' : 'Analisi completata'}
           </p>
           <p className="cifre truncate text-sm text-testo-2">{stato.file}</p>
         </div>

@@ -13,19 +13,37 @@ import type { Progetto } from '../tipi'
 const ICONE: Record<IdCartella, LucideIcon> = { in_arrivo: Inbox, inviata: Send, archivio: Archive }
 const DOMANDE = ['Riassumi questa mail', 'Cosa devo fare?', 'È coerente con quello che sa il progetto?']
 const CHIAVE_PANNELLO = 'company-brain-pannello-posta'
+const LARGHEZZA_PANNELLO = 360
+
+/** Vero se la finestra è almeno larga `px`. */
+function useAlmeno(px: number) {
+  const query = `(min-width: ${px}px)`
+  const [si, setSi] = useState(() => window.matchMedia(query).matches)
+  useEffect(() => {
+    const mq = window.matchMedia(query)
+    const cambia = () => setSi(mq.matches)
+    mq.addEventListener('change', cambia)
+    return () => mq.removeEventListener('change', cambia)
+  }, [query])
+  return si
+}
+
+// Una sola curva e una sola durata per tutte le colonne: partono nello stesso fotogramma e finiscono insieme,
+// così la colonna della mail si allarga mentre il Brain si chiude (e si stringe mentre si apre).
+const TRANSIZIONE = { duration: 0.3, ease: [0.32, 0.72, 0, 1] as const }
 
 const quando = (iso: string) => {
   const d = parseISO(iso)
   return isToday(d) ? format(d, 'HH:mm') : isYesterday(d) ? 'Ieri' : format(d, 'd MMM', { locale: it })
 }
 
-// Il pannello del Brain resta aperto o chiuso come l'hai lasciato (solo una comodità di chi guarda).
+// Il pannello di Agentonic resta aperto o chiuso come l'hai lasciato (solo una comodità di chi guarda).
 const pannelloRicordato = () => { try { return localStorage.getItem(CHIAVE_PANNELLO) === '1' } catch { return false } }
 const ricordaPannello = (aperto: boolean) => { try { localStorage.setItem(CHIAVE_PANNELLO, aperto ? '1' : '0') } catch { /* storage non disponibile */ } }
 
 interface Scambio { domanda: string; risposta?: RispostaPosta; errore?: string }
 
-/** La posta di chi è entrato, in un client classico a tre colonne, con il Brain in un pannello laterale. */
+/** La posta di chi è entrato, in un client classico a tre colonne, con Agentonic in un pannello laterale. */
 export function Posta() {
   const { io, progetto, progetti } = useApp()
   const [params, setParams] = useSearchParams()
@@ -47,6 +65,11 @@ export function Posta() {
     setParams(n, { replace: k === 'm' })
   }
   const alternaPannello = (aperto = !pannello) => { setPannello(aperto); ricordaPannello(aperto) }
+  const largo = useAlmeno(768)
+  const ampio = useAlmeno(1280)
+  // il Brain occupa spazio solo da 1280 px in su: solo lì cartelle ed elenco si stringono per fargli posto;
+  // sotto, il pannello scorre sopra la mail e le colonne restano ferme
+  const stretto = pannello && ampio
 
   useEffect(() => {
     posta.cartelle().then(setCartelle).catch((e) => setErrore((e as Error).message))
@@ -96,30 +119,31 @@ export function Posta() {
 
   return (
     <Card className="relative flex h-[calc(100vh-8.5rem)] min-h-[560px] overflow-hidden rounded-[24px]">
-      {/* cartelle: con il pannello del Brain aperto restano solo le icone */}
-      <nav aria-label="Cartelle" className={clsx('hidden shrink-0 flex-col gap-0.5 border-r border-separatore bg-riempimento/40 p-3 transition-[width] md:flex',
-        pannello ? 'w-[64px]' : 'w-52')}>
-        {!pannello && <p className="px-2.5 pt-1 pb-2 text-xs font-semibold text-testo-2">Posta</p>}
+      {/* cartelle: con il pannello di Agentonic aperto restano solo le icone */}
+      <motion.nav aria-label="Cartelle" initial={false} animate={{ width: stretto ? 64 : 208 }} transition={TRANSIZIONE}
+        className="hidden shrink-0 flex-col gap-0.5 overflow-hidden border-r border-separatore bg-riempimento/40 p-3 md:flex">
+        <p className={clsx('overflow-hidden px-2.5 text-xs font-semibold whitespace-nowrap text-testo-2 transition-all duration-300', stretto ? 'h-0 pt-0 pb-0 opacity-0' : 'h-7 pt-1 pb-2 opacity-100')}>Posta</p>
         {(cartelle ?? []).map((c) => {
           const Icona = ICONE[c.id]
           return (
             <button key={c.id} onClick={() => imposta('cartella', c.id)} aria-current={c.id === cartella ? 'page' : undefined}
-              aria-label={pannello ? c.nome : undefined} title={pannello ? c.nome : undefined}
-              className={clsx('relative flex items-center gap-2.5 rounded-[9px] py-[7px] text-left text-sm transition-colors',
-                pannello ? 'justify-center px-0' : 'px-2.5',
+              aria-label={stretto ? c.nome : undefined} title={stretto ? c.nome : undefined}
+              className={clsx('relative flex items-center gap-2.5 rounded-[9px] px-2.5 py-[7px] text-left text-sm whitespace-nowrap transition-colors',
                 c.id === cartella ? 'bg-black/[0.07] font-semibold dark:bg-white/[0.1]' : 'hover:bg-black/[0.04] dark:hover:bg-white/[0.06]')}>
               <Icona size={17} strokeWidth={1.9} className="text-accento-testo" />
-              {!pannello && <span className="flex-1">{c.nome}</span>}
-              {c.non_lette > 0 && (pannello
+              <span className={clsx('flex-1 overflow-hidden transition-opacity duration-200', stretto ? 'opacity-0' : 'opacity-100 delay-100')}>{c.nome}</span>
+              {c.non_lette > 0 && (stretto
                 ? <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-accento" />
                 : <span className="cifre text-xs font-semibold text-testo-2">{c.non_lette}</span>)}
             </button>
           )
         })}
-      </nav>
+      </motion.nav>
 
       {/* elenco */}
-      <section aria-label="Mail" className={clsx('w-full shrink-0 flex-col border-r border-separatore', pannello ? 'md:w-[280px]' : 'md:w-[320px] xl:w-[340px]', scelta ? 'hidden md:flex' : 'flex')}>
+      <motion.section aria-label="Mail" initial={false} transition={TRANSIZIONE}
+        animate={largo ? { width: stretto ? 280 : ampio ? 340 : 320 } : { width: '100%' }}
+        className={clsx('shrink-0 flex-col border-r border-separatore', scelta ? 'hidden md:flex' : 'flex')}>
         <header className="flex items-baseline justify-between px-4 pt-4 pb-2">
           <h1 className="text-[22px] font-bold tracking-[-0.02em]">{cartelle?.find((c) => c.id === cartella)?.nome ?? 'Posta'}</h1>
           {elenco && <span className="text-xs text-testo-2">{elenco.length} mail</span>}
@@ -137,7 +161,7 @@ export function Posta() {
             ? <Vuoto icona={Inbox} titolo="Nessuna mail" testo="Questa cartella è vuota." />
             : elenco.map((m) => <RigaMail key={m.id} m={m} attiva={m.id === scelta} onApri={() => imposta('m', m.id)} />)}
         </ul>
-      </section>
+      </motion.section>
 
       {/* lettura */}
       <section aria-label="Lettura" className={clsx('min-w-0 flex-1 flex-col', scelta ? 'flex' : 'hidden md:flex')}>
@@ -151,24 +175,30 @@ export function Posta() {
             className={clsx('ml-auto inline-flex h-8 items-center gap-2 rounded-full pr-3.5 pl-1 text-sm font-medium transition',
               pannello ? 'bg-riempimento text-testo hover:bg-riempimento-2' : 'bg-accento text-su-accento hover:bg-accento-premuto')}>
             <MarchioBrain size={24} />
-            {pannello ? 'Nascondi il Brain' : 'Chiedi al Brain'}
+            {pannello ? 'Nascondi Agentonic' : 'Chiedi ad Agentonic'}
             {pannello ? <PanelRightClose size={15} /> : <PanelRightOpen size={15} />}
           </button>
         </div>
         {!scelta
-          ? <div className="grid flex-1 place-items-center"><Vuoto icona={Inbox} titolo="Nessuna mail selezionata" testo="Scegli una mail dall'elenco per leggerla e chiedere al Brain." /></div>
+          ? <div className="grid flex-1 place-items-center"><Vuoto icona={Inbox} titolo="Nessuna mail selezionata" testo="Scegli una mail dall'elenco per leggerla e chiedere ad Agentonic." /></div>
           : !mail ? <Scheletro righe={5} /> : <Lettura mail={mail} />}
       </section>
 
-      {/* il Brain: pannello laterale; sotto i 1280 px si appoggia sopra la mail, su telefono la copre */}
+      {/* Agentonic: pannello laterale; sotto i 1280 px si appoggia sopra la mail, su telefono la copre */}
       <AnimatePresence>
         {pannello && (
-          <motion.aside key="brain" aria-label="Brain sulla mail"
-            initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 24 }}
-            transition={{ type: 'spring', stiffness: 420, damping: 36 }}
-            className="absolute inset-0 z-20 flex flex-col bg-superficie md:inset-y-0 md:right-0 md:left-auto md:w-[360px] md:border-l md:border-separatore md:shadow-alta xl:relative xl:inset-auto xl:z-auto xl:shrink-0 xl:shadow-none">
-            <PannelloBrain mail={mail} contesto={contesto} storia={mail ? storie[mail.id] ?? [] : []} attesa={attesa}
-              onChiedi={chiedi} onChiudi={() => alternaPannello(false)} />
+          <motion.aside key="brain" aria-label="Agentonic sulla mail"
+            // da 1280 px occupa spazio e cresce/si stringe in larghezza insieme alle colonne accanto;
+            // sotto si appoggia sopra la mail e scorre da destra, senza spostare le colonne
+            initial={ampio ? { width: 0 } : { x: '100%' }}
+            animate={ampio ? { width: LARGHEZZA_PANNELLO } : { x: 0 }}
+            exit={ampio ? { width: 0 } : { x: '100%' }}
+            transition={TRANSIZIONE}
+            className="absolute inset-0 z-20 flex flex-col overflow-hidden bg-superficie md:inset-y-0 md:right-0 md:left-auto md:border-l md:border-separatore md:shadow-alta xl:relative xl:inset-auto xl:z-auto xl:shrink-0 xl:shadow-none">
+            <div className="flex h-full w-full flex-col md:w-[360px] md:min-w-[360px]">
+              <PannelloBrain mail={mail} contesto={contesto} storia={mail ? storie[mail.id] ?? [] : []} attesa={attesa}
+                onChiedi={chiedi} onChiudi={() => alternaPannello(false)} />
+            </div>
           </motion.aside>
         )}
       </AnimatePresence>
@@ -229,16 +259,16 @@ function PannelloBrain({ mail, contesto, storia, attesa, onChiedi, onChiudi }: {
       <header className="flex items-center gap-2.5 border-b border-separatore px-4 py-3">
         <MarchioBrain size={28} parla={attesa} />
         <div className="min-w-0 flex-1">
-          <p className="text-[15px] font-semibold">Il Brain su questa mail</p>
+          <p className="text-[15px] font-semibold">Agentonic su questa mail</p>
           <p className="truncate text-xs text-testo-2" title={contesto.nome}>Contesto: {contesto.nome}</p>
         </div>
-        <button onClick={onChiudi} aria-label="Chiudi il pannello del Brain"
+        <button onClick={onChiudi} aria-label="Chiudi il pannello di Agentonic"
           className="grid h-7 w-7 place-items-center rounded-full bg-riempimento text-testo-2 hover:text-testo"><X size={15} strokeWidth={2.5} /></button>
       </header>
 
       <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
         {!mail ? (
-          <p className="pt-10 text-center text-sm text-testo-2">Apri una mail: il Brain la legge e risponde alle tue domande, con la fonte.</p>
+          <p className="pt-10 text-center text-sm text-testo-2">Apri una mail: Agentonic la legge e risponde alle tue domande, con la fonte.</p>
         ) : storia.length === 0 ? (
           <div className="pt-6 text-center">
             <MarchioBrain size={40} className="mx-auto" />
@@ -268,7 +298,7 @@ function PannelloBrain({ mail, contesto, storia, attesa, onChiedi, onChiudi }: {
             ) : x.errore ? (
               <p className="rounded-[18px] bg-rosso-tenue px-3.5 py-2.5 text-sm text-rosso-testo">{x.errore}</p>
             ) : (
-              <div className="flex w-16 items-center gap-1.5 rounded-[18px] bg-riempimento px-3.5 py-3" aria-label="Il Brain sta leggendo la mail">
+              <div className="flex w-16 items-center gap-1.5 rounded-[18px] bg-riempimento px-3.5 py-3" aria-label="Agentonic sta leggendo la mail">
                 {[0, 1, 2].map((k) => <motion.span key={k} className="h-1.5 w-1.5 rounded-full bg-testo-3"
                   animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: k * 0.15 }} />)}
               </div>
@@ -297,7 +327,7 @@ function PannelloBrain({ mail, contesto, storia, attesa, onChiedi, onChiudi }: {
               <ArrowUp size={16} strokeWidth={2.6} />
             </button>
           </form>
-          <p className="mt-2 text-[11px] leading-snug text-testo-2">Il Brain legge la mail come un dato: non esegue richieste scritte dentro, non invia nulla e non cambia il progetto.</p>
+          <p className="mt-2 text-[11px] leading-snug text-testo-2">Agentonic legge la mail come un dato: non esegue richieste scritte dentro, non invia nulla e non cambia il progetto.</p>
         </div>
       )}
     </>

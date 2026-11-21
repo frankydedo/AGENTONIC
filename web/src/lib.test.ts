@@ -45,7 +45,7 @@ describe('scadenze rispetto a oggi', () => {
 })
 
 describe('proposte', () => {
-  it('è da chiarire se il Brain non è sicuro', () => {
+  it('è da chiarire se Agentonic non è sicuro', () => {
     expect(daChiarire(proposta({ sicurezza: 'bassa' }))).toBe(true)
   })
 
@@ -98,20 +98,20 @@ describe('registro in italiano', () => {
   const nome = (id: string) => ({ 'p-01': 'Giulia Ferraris' } as Record<string, string>)[id] ?? id
   const titolo = (id: string) => (id === 'riu-001' ? 'Kick-off revamping linea 3' : null)
 
-  it('racconta i passi del Brain con il titolo del documento', () => {
-    expect(descriviPasso(passo({ documento_id: 'riu-001' }), nome, titolo)).toBe('Il Brain ha letto «Kick-off revamping linea 3» e l\'ha diviso in interventi')
+  it('racconta i passi di Agentonic con il titolo del documento', () => {
+    expect(descriviPasso(passo({ documento_id: 'riu-001' }), nome, titolo)).toBe('Agentonic ha letto «Kick-off revamping linea 3» e l\'ha diviso in interventi')
     expect(descriviPasso(passo({ step: 'ingestion', input: { documento_id: 'riu-001' } }), nome, titolo)).toContain('ha letto «Kick-off')
-    expect(descriviPasso(passo({ step: 'incongruenze', documento_id: 'riu-009' }), nome, titolo)).toBe('Il Brain ha confrontato «riu-009» con le riunioni precedenti')
+    expect(descriviPasso(passo({ step: 'incongruenze', documento_id: 'riu-009' }), nome, titolo)).toBe('Agentonic ha confrontato «riu-009» con le riunioni precedenti')
   })
 
   it('racconta le decisioni delle persone', () => {
     expect(descriviPasso(passo({ tipo: 'decisione', attore: 'p-01', step: 'approva', input: { proposta_id: 'prop-001' } }), nome, titolo))
       .toBe('Giulia Ferraris ha approvato la proposta prop-001')
-    expect(descriviPasso(passo({ tipo: 'domanda', attore: 'p-04', step: 'domanda' }), nome, titolo)).toBe('p-04 ha fatto una domanda al Brain')
+    expect(descriviPasso(passo({ tipo: 'domanda', attore: 'p-04', step: 'domanda' }), nome, titolo)).toBe('p-04 ha fatto una domanda ad Agentonic')
   })
 
   it('un passo sconosciuto non rompe nulla', () => {
-    expect(descriviPasso(passo({ step: 'nuovo_passo_futuro' }), nome, titolo)).toBe('Il Brain: nuovo passo futuro')
+    expect(descriviPasso(passo({ step: 'nuovo_passo_futuro' }), nome, titolo)).toBe('Agentonic: nuovo passo futuro')
   })
 
   it('riassume i risultati in parole, senza JSON', () => {

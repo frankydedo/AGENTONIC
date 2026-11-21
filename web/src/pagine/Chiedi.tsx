@@ -88,7 +88,7 @@ export function Chiedi() {
                     ) : x.errore ? (
                       <p className="rounded-[20px] rounded-bl-[6px] bg-rosso-tenue px-4 py-3 text-sm text-rosso-testo">{x.errore}</p>
                     ) : (
-                      <div className="flex items-center gap-1.5 rounded-[20px] rounded-bl-[6px] bg-riempimento px-4 py-4" aria-label="Il Brain sta cercando tra le fonti">
+                      <div className="flex items-center gap-1.5 rounded-[20px] rounded-bl-[6px] bg-riempimento px-4 py-4" aria-label="Agentonic sta cercando tra le fonti">
                         {[0, 1, 2].map((k) => <motion.span key={k} className="h-2 w-2 rounded-full bg-testo-3"
                           animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: k * 0.15 }} />)}
                       </div>
@@ -132,7 +132,7 @@ export function Chiedi() {
           <div className="mt-3 flex flex-wrap gap-1">{io.competenze.map((a) => <ChipArea key={a} area={a} />)}</div>
         </Card>
         <Card className="p-5">
-          <p className="flex items-center gap-2 text-[17px] font-semibold"><ShieldCheck size={18} className="text-verde-testo" /> Come risponde il Brain</p>
+          <p className="flex items-center gap-2 text-[17px] font-semibold"><ShieldCheck size={18} className="text-verde-testo" /> Come risponde Agentonic</p>
           {/* è davvero una sequenza: l'ordine in cui il codice tratta la domanda */}
           <ol className="mt-3 space-y-3 text-sm leading-snug text-testo-2">
             {[

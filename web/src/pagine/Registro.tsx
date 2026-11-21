@@ -11,7 +11,7 @@ import type { PassoRegistro } from '../tipi'
 type Filtro = 'tutti' | 'brain' | 'persone'
 
 /**
- * Il diario di bordo del progetto: ogni passo del Brain e ogni decisione di una persona.
+ * Il diario di bordo del progetto: ogni passo di Agentonic e ogni decisione di una persona.
  * Serve a verificare cosa ha fatto l'AI e chi ha deciso cosa (trasparenza). In chiaro, per tutti;
  * i dati grezzi restano nei «dettagli tecnici».
  */
@@ -41,12 +41,12 @@ export function Registro() {
 
   return (
     <>
-      <TitoloPagina titolo="Registro" sottotitolo="Il diario di bordo del progetto: cosa ha fatto il Brain e cosa hanno deciso le persone, in ordine." />
+      <TitoloPagina titolo="Registro" sottotitolo="Il diario di bordo del progetto: cosa ha fatto Agentonic e cosa hanno deciso le persone, in ordine." />
 
       <Card className="mb-6 flex max-w-4xl gap-3 p-4 text-sm leading-relaxed text-testo-2">
         <ScrollText size={18} className="mt-0.5 shrink-0 text-testo" />
         <p>
-          Ogni volta che il Brain legge un documento, estrae informazioni o confronta riunioni, e ogni volta che qualcuno
+          Ogni volta che Agentonic legge un documento, estrae informazioni o confronta riunioni, e ogni volta che qualcuno
           approva, rifiuta o fa una domanda, qui resta una riga. Così puoi sempre verificare <b className="text-testo">da dove viene</b> una proposta,
           <b className="text-testo"> quale modello</b> l'ha prodotta e <b className="text-testo">chi l'ha approvata</b>. Nulla entra nella memoria senza lasciare traccia.
         </p>
@@ -54,7 +54,7 @@ export function Registro() {
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <Segmentato etichetta="Chi" valore={filtro} onCambia={setFiltro}
-          opzioni={[['tutti', 'Tutto'], ['brain', 'Solo il Brain'], ['persone', 'Solo le persone']] as const} />
+          opzioni={[['tutti', 'Tutto'], ['brain', 'Solo Agentonic'], ['persone', 'Solo le persone']] as const} />
         {docsNelRegistro.length > 0 && (
           <select value={documento} onChange={(e) => setDocumento(e.target.value)} aria-label="Filtra per documento" className="h-9 rounded-full bg-riempimento-2/80 pr-8 pl-3.5 text-sm font-medium text-testo focus:ring-3 focus:ring-accento/30 focus:outline-none">
             <option value="">Tutti i documenti</option>
@@ -65,7 +65,7 @@ export function Registro() {
 
       <Card>
         {errore ? <Vuoto icona={UserCheck} titolo="Registro non disponibile" testo={errore} /> : !passi ? <Scheletro /> : visibili.length === 0 ? (
-          <Vuoto icona={ScrollText} titolo="Nessun passo da mostrare" testo="Carica una riunione: ogni passo del Brain comparirà qui." />
+          <Vuoto icona={ScrollText} titolo="Nessun passo da mostrare" testo="Carica una riunione: ogni passo di Agentonic comparirà qui." />
         ) : (
           <ol className="p-6">
             {visibili.map((p, i) => {

@@ -9,9 +9,9 @@ import { Link } from 'react-router'
 import { coloreDi, iniziali, scadenzaRelativa, type Tono } from '../lib'
 import type { Area, Citazione, Persona, StatoTask } from '../tipi'
 
-// --- Il Brain -----------------------------------------------------------------------------------
+// --- Agentonic -----------------------------------------------------------------------------------
 
-/** Il Brain è una sfera di luce: ruota piano quando ha qualcosa da dire, è ferma quando tace. */
+/** Agentonic è una sfera di luce: ruota piano quando ha qualcosa da dire, è ferma quando tace. */
 export function MarchioBrain({ size = 32, parla = false, className }: { size?: number; parla?: boolean; className?: string }) {
   return (
     <span

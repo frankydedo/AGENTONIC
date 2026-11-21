@@ -253,7 +253,7 @@ def main() -> int:
     provider = Config.da_ambiente().provider
     esiti = esegui(Demo(TestClient(modulo_app.app), simulatore), mock=provider == "mock")
 
-    print(f"\nCompany Brain · i sette controlli del brief (provider del modello: {provider})\n")
+    print(f"\nAgentonic · i sette controlli del brief (provider del modello: {provider})\n")
     for numero, titolo, ok, dettaglio in esiti:
         print(f" {numero}. {titolo:<30} {'✓' if ok else '✗'}  {dettaglio}")
     superati = sum(1 for _, _, ok, _ in esiti if ok)

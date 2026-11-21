@@ -63,7 +63,7 @@ export function DatiProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { ricarica() }, [ricarica])
 
-  // Il Brain parla per primo: gli avvisi arrivano da soli via SSE.
+  // Agentonic parla per primo: gli avvisi arrivano da soli via SSE.
   // Lo stream si chiude anche su `pagehide`: se il browser tiene la pagina in back/forward cache
   // con l'EventSource aperto, ogni ricaricamento lascia una connessione appesa e dopo 6 Chrome
   // blocca tutte le richieste verso il backend (limite di connessioni per host di HTTP/1.1).

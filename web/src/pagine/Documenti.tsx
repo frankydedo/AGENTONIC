@@ -24,7 +24,7 @@ export function Documenti() {
   return (
     <>
       <TitoloPagina titolo="Documenti"
-        sottotitolo="Le riunioni e i documenti letti dal Brain. Ogni proposta, task e risposta rimanda al punto preciso da cui nasce." />
+        sottotitolo="Le riunioni e i documenti letti da Agentonic. Ogni proposta, task e risposta rimanda al punto preciso da cui nasce." />
       {sonoManager && <PannelloAnalisiInline />}
       <Card className="mt-6">
         {!pronto ? <Scheletro /> : ordinati.length === 0 ? (
@@ -86,7 +86,7 @@ function RigaDocumento({ d }: { d: Documento }) {
   )
 }
 
-/** Il manager carica qui una minuta e guarda il Brain lavorare (lo stesso pannello del pulsante in alto). */
+/** Il manager carica qui una minuta e guarda Agentonic lavorare (lo stesso pannello del pulsante in alto). */
 function PannelloAnalisiInline() {
   return <Card className="p-5"><PannelloAnalisi /></Card>
 }
