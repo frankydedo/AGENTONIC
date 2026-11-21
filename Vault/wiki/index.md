@@ -14,4 +14,5 @@
 
 ## Analisi
 - [Architettura e piano](analyses/architettura-e-piano.md): architettura, stack, contratti (bozza), divisione del lavoro, priorità e tappe fino alle 16:50.
+- [WBS](analyses/wbs.md): divisione del lavoro tra Franky, Pietro e Mauro, interfacce della Fase 0, percorso critico, tappe M1/M2.
 - [LLM locale](analyses/llm-locale.md): Qwen3-30B-A3B su LM Studio nell'Air (modello della demo), collegato dal Pro via Wi-Fi; config, prove, piani di riserva.

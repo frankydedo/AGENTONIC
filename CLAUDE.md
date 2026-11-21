@@ -104,7 +104,7 @@ Regole:
 
 ## 7. Git
 
-- Il repository git **non esiste ancora**: va creato solo su richiesta.
+- Repo pubblica: https://github.com/frankydedo/AGENTONIC. Si lavora su `develop`; `main` è il default.
 - **Commit, push, merge, creazione o cancellazione di branch e del remote solo con un sì esplicito
   di Franky, ogni volta.** Puoi proporli (cosa, su quale branch, con quale messaggio).
 - Un solo repo condiviso. Branch brevi `<nome>/<cosa>`, merge su `main` frequenti e piccoli.

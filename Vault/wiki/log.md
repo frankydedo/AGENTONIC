@@ -64,3 +64,12 @@
   `entities/agenthon.md`, `concepts/brief-del-track.md`, `analyses/llm-locale.md` (modello della demo).
 - Superato: le proposte di `HANDOFF.md` §3-4 (batteria di attacchi, mock-up Slack, stack da decidere).
 - Aperto: branch letto dal portale, unità di citazione dei PDF, cloud di riserva, crediti ElevenLabs.
+
+## [2026-11-21 13:25] decisione | Repo git pubblica
+- Creata la repo pubblica https://github.com/frankydedo/AGENTONIC con i branch `main` (default) e `develop`.
+- Risolto l'accesso della giuria alla repo: il link si apre senza login.
+
+## [2026-11-21 13:05] query | WBS per la divisione del lavoro
+- Creata `analyses/wbs.md` (proposta): interfacce I1-I5 da fissare entro le 13:30, pacchetti di
+  Franky (F1-F11), Pietro (P1-P11) e Mauro (M1.1-M1.10), percorso critico verso M1 e M2.
+- Aperto: chi possiede la ricerca tra le voci approvate (Pietro in P6 o Franky in F6).

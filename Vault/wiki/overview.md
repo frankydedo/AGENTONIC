@@ -21,8 +21,8 @@ incongruenze, ammette ciò che non sa e prepara le to-do di ciascuno; il manager
 - Sponsor e principi: [Ariete Tech Solutions](entities/ariete-tech-solutions.md).
 
 ## Stato del progetto
-- Cartella `AGENTONIC` **ripartita da zero**, senza starter kit; repository git da creare, si
-  lavorerà su `develop`.
+- Cartella `AGENTONIC` **ripartita da zero**, senza starter kit. Repo pubblica
+  [frankydedo/AGENTONIC](https://github.com/frankydedo/AGENTONIC), si lavora su `develop`.
 - Dati sintetici: bozza di `dati/azienda.json` (Automazioni Dora S.r.l., 8 persone, progetto
   `prj-01`) e della riunione di kick-off `dati/riunioni/riu-001.md`, con le attese in `dati/attese/`.
 - Modello in demo: Qwen3-30B-A3B su LM Studio nell'Air, cloud di riserva da scegliere
@@ -31,7 +31,7 @@ incongruenze, ammette ciò che non sa e prepara le to-do di ciascuno; il manager
 
 ## Domande aperte
 - Come si combinano i sette controlli sì/no con i 100 punti; come avviene l'attacco delle rivali.
-- Quale branch registra il portale; accesso della giuria alla repo.
+- Quale branch registra il portale (la repo è pubblica: accesso della giuria risolto).
 - Modello cloud di riserva; crediti ElevenLabs.
 - Documenti integrativi (PDF): unità di citazione e agenti che li elaborano.
 - Competenze definitive delle persone dell'azienda fittizia.
