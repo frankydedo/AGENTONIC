@@ -2,3 +2,7 @@
 .obsidian/workspace*.json
 .env
 .env.*
+.venv/
+__pycache__/
+*.db
+!.env.example
