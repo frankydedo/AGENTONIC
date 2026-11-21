@@ -3,7 +3,7 @@ import { ChartGantt, Sun, Users } from 'lucide-react'
 import { useSearchParams } from 'react-router'
 import { Gantt } from '../componenti/Gantt'
 import { RigaTask, useTodoOggi } from '../componenti/Todo'
-import { Avatar, Badge, Card, ChipArea, Scheletro, TitoloPagina } from '../componenti/ui'
+import { Avatar, Badge, Card, ChipArea, Scheletro, Segmentato, TitoloPagina } from '../componenti/ui'
 import { useApp } from '../contesto'
 import { useDati } from '../dati'
 import { giorniA } from '../lib'
@@ -24,20 +24,12 @@ export function Team() {
         sottotitolo={sonoManager ? 'Chi fa cosa, entro quando, e cosa blocca chi.' : 'I task del progetto che rientrano nelle tue competenze.'}
         azioni={
           <div className="flex items-center gap-2">
-            <select value={chi} onChange={(e) => imposta('chi', e.target.value)} aria-label="Filtra per persona" className="rounded-[4px] border border-linea-forte bg-foglio px-3 py-2 text-sm">
+            <select value={chi} onChange={(e) => imposta('chi', e.target.value)} aria-label="Filtra per persona" className="h-9 rounded-full bg-riempimento-2/80 pr-8 pl-3.5 text-sm font-medium text-testo focus:ring-3 focus:ring-accento/30 focus:outline-none">
               <option value="">Tutte le persone</option>
               {membri.map((m) => <option key={m.id} value={m.id}>{m.nome}</option>)}
             </select>
-            <div className="flex rounded-[5px] border border-inchiostro p-0.5">
-              {([['gantt', 'Gantt', ChartGantt], ['persone', 'Per persona', Users]] as const).map(([k, etichetta, Icona]) => (
-                <button key={k} onClick={() => imposta('vista', k === 'gantt' ? '' : k)}
-                  aria-pressed={vista === k}
-                  className={clsx('inline-flex items-center gap-1.5 rounded-[3px] px-3 py-1.5 text-sm font-semibold transition-colors',
-                    vista === k ? 'bg-inchiostro text-foglio' : 'text-grafite hover:text-inchiostro')}>
-                  <Icona size={15} /> {etichetta}
-                </button>
-              ))}
-            </div>
+            <Segmentato etichetta="Vista" valore={vista} onCambia={(k) => imposta('vista', k === 'gantt' ? '' : k)}
+              opzioni={[['gantt', 'Gantt', ChartGantt], ['persone', 'Per persona', Users]] as const} />
           </div>
         }
       />
@@ -63,18 +55,18 @@ function CartaPersona({ p }: { p: Persona }) {
 
   return (
     <Card className="flex flex-col">
-      <div className="flex items-start gap-3 border-b border-linea p-5">
+      <div className="flex items-start gap-3 p-5 pb-4">
         <Avatar persona={p} size={44} />
         <div className="min-w-0 flex-1">
-          <p className="text-[17px] font-bold [font-stretch:108%]">{p.nome}</p>
-          <p className="text-sm text-grafite">{p.id === progetto.manager_id ? 'Manager del progetto' : p.ruolo}</p>
+          <p className="text-[17px] font-bold">{p.nome}</p>
+          <p className="text-sm text-testo-2">{p.id === progetto.manager_id ? 'Manager del progetto' : p.ruolo}</p>
           <div className="mt-2 flex flex-wrap gap-1">{p.competenze.map((a) => <ChipArea key={a} area={a} />)}</div>
         </div>
       </div>
-      <div className="grid grid-cols-3 divide-x divide-linea border-b border-linea">
+      <div className="mx-5 grid grid-cols-3 gap-2">
         <Numero n={aperti.length} etichetta="aperti" />
-        <Numero n={urgenti} etichetta="entro 7 gg" tono={urgenti ? 'text-segnale-scuro' : undefined} />
-        <Numero n={bloccati} etichetta="bloccati" tono={bloccati ? 'text-allarme' : undefined} />
+        <Numero n={urgenti} etichetta="entro 7 gg" tono={urgenti ? 'text-arancio-testo' : undefined} />
+        <Numero n={bloccati} etichetta="bloccati" tono={bloccati ? 'text-rosso-testo' : undefined} />
       </div>
       <div className="flex-1 space-y-4 p-5">
         <section>
@@ -84,14 +76,14 @@ function CartaPersona({ p }: { p: Persona }) {
               ? <Badge className="ml-auto" tono="grigio">stimata dai task</Badge>
               : todo.accettata ? <Badge className="ml-auto" tono="verde">accettata</Badge> : <Badge className="ml-auto" tono="giallo">da accettare</Badge>)}
           </h3>
-          {!todo ? <div className="h-10 animate-pulse rounded-[4px] bg-velina" /> : todo.task.length === 0
-            ? <p className="text-sm text-traccia">Niente in programma.</p>
-            : <ul className="space-y-2">{todo.task.map((t) => <li key={t.id} className="rounded-[4px] border-l-[3px] border-inchiostro bg-velina p-2.5"><RigaTask t={t} conAssegnatario={false} compatta /></li>)}</ul>}
+          {!todo ? <div className="h-10 animate-pulse rounded-lg bg-riempimento" /> : todo.task.length === 0
+            ? <p className="text-sm text-testo-3">Niente in programma.</p>
+            : <ul className="space-y-2">{todo.task.map((t) => <li key={t.id} className="rounded-2xl bg-accento-tenue/70 px-3.5 py-3"><RigaTask t={t} conAssegnatario={false} compatta /></li>)}</ul>}
         </section>
         <section>
           <h3 className="mb-2 text-sm font-bold">Tutti i suoi task</h3>
-          {suoi.length === 0 ? <p className="text-sm text-traccia">Nessun task visibile.</p>
-            : <ul className="space-y-2">{suoi.map((t) => <li key={t.id} className="rounded-[4px] border border-linea p-2.5"><RigaTask t={t} conAssegnatario={false} compatta /></li>)}</ul>}
+          {suoi.length === 0 ? <p className="text-sm text-testo-3">Nessun task visibile.</p>
+            : <ul className="space-y-2">{suoi.map((t) => <li key={t.id} className="rounded-2xl bg-riempimento/70 px-3.5 py-3"><RigaTask t={t} conAssegnatario={false} compatta /></li>)}</ul>}
         </section>
       </div>
     </Card>
@@ -100,9 +92,9 @@ function CartaPersona({ p }: { p: Persona }) {
 
 function Numero({ n, etichetta, tono }: { n: number; etichetta: string; tono?: string }) {
   return (
-    <div className="px-4 py-3">
-      <p className={clsx('condensato text-3xl leading-none font-bold', !n && 'text-traccia', tono)}>{n}</p>
-      <p className="mt-1 text-xs text-grafite">{etichetta}</p>
+    <div className="rounded-2xl bg-riempimento/70 px-3.5 py-3">
+      <p className={clsx('cifre text-[26px] leading-none font-bold tracking-[-0.02em]', !n && 'text-testo-3', tono)}>{n}</p>
+      <p className="mt-1 text-xs text-testo-2">{etichetta}</p>
     </div>
   )
 }

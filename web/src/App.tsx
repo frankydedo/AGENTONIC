@@ -10,6 +10,7 @@ import { Chiedi } from './pagine/Chiedi'
 import { Documenti } from './pagine/Documenti'
 import { Documento } from './pagine/Documento'
 import { Panoramica } from './pagine/Panoramica'
+import { Progetti } from './pagine/Progetti'
 import { Registro } from './pagine/Registro'
 import { SceltaPersona } from './pagine/SceltaPersona'
 import { Team } from './pagine/Team'
@@ -50,6 +51,12 @@ export default function App() {
     }
   }, [])
 
+  const ricaricaProgetti = useCallback(async () => {
+    const suoi = await api.progetti()
+    setProgetti(suoi)
+    return suoi
+  }, [])
+
   const scegliProgetto = useCallback((id: string) => {
     salva(CHIAVE_PROGETTO, id)
     setProgettoId(id)
@@ -77,19 +84,19 @@ export default function App() {
     if (!io || !progetto) return null
     const mappa = Object.fromEntries(persone.map((p) => [p.id, p]))
     return {
-      io, progetto, progetti, scegliProgetto, persone: mappa,
+      io, progetto, progetti, scegliProgetto, ricaricaProgetti, persone: mappa,
       membri: progetto.membri.map((id) => mappa[id]).filter(Boolean),
       sonoManager: io.id === progetto.manager_id,
       scegliPersona: scegli, esci,
     }
-  }, [io, progetto, progetti, scegliProgetto, persone, scegli, esci])
+  }, [io, progetto, progetti, scegliProgetto, ricaricaProgetti, persone, scegli, esci])
 
   if (fase === 'avvio' || fase === 'carico') {
     return (
-      <div className="quadrettatura grid min-h-screen place-items-center">
+      <div className="grid min-h-screen place-items-center">
         <div className="flex flex-col items-center gap-4" role="status">
-          <MarchioBrain size={52} parla />
-          <p className="text-sm font-medium text-grafite">{fase === 'carico' ? 'Il Brain prepara la tua giornata…' : 'Accensione…'}</p>
+          <MarchioBrain size={56} parla />
+          <p className="text-[15px] text-testo-2">{fase === 'carico' ? 'Il Brain prepara la tua giornata…' : 'Accensione…'}</p>
         </div>
       </div>
     )
@@ -118,6 +125,7 @@ export default function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<Panoramica />} />
+            <Route path="progetti" element={<Progetti />} />
             <Route path="documenti" element={<Documenti />} />
             <Route path="documenti/:id" element={<Documento />} />
             <Route path="team" element={<Team />} />
@@ -133,12 +141,12 @@ export default function App() {
 
 function Schermo({ icona, titolo, testo, children }: { icona: ReactNode; titolo: string; testo: string; children: ReactNode }) {
   return (
-    <div className="quadrettatura grid min-h-screen place-items-center px-4">
-      <div className="sopra max-w-md rounded-md border border-inchiostro bg-foglio p-7">
-        <span className="grid h-11 w-11 place-items-center rounded-[4px] bg-segnale text-inchiostro">{icona}</span>
-        <h1 className="titolo-tavola mt-5 text-2xl">{titolo}</h1>
-        <p className="mt-2 text-grafite">{testo}</p>
-        <div className="mt-6 flex">{children}</div>
+    <div className="grid min-h-screen place-items-center px-4">
+      <div className="flex max-w-md flex-col items-center rounded-[28px] bg-superficie px-8 py-10 text-center shadow-alta">
+        <span className="grid h-14 w-14 place-items-center rounded-full bg-arancio-tenue text-arancio-testo">{icona}</span>
+        <h1 className="titolo-grande mt-5 text-[26px]">{titolo}</h1>
+        <p className="mt-2 text-[15px] text-testo-2">{testo}</p>
+        <div className="mt-7 flex">{children}</div>
       </div>
     </div>
   )

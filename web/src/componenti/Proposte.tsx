@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import {
-  BookMarked, Check, CircleCheck, FileText, ListPlus, PenLine, RefreshCw, TriangleAlert, X, type LucideIcon,
+  BookMarked, Check, CircleCheck, FileText, ListPlus, PenLine, RefreshCw, TriangleAlert, type LucideIcon,
 } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useState, type ReactNode } from 'react'
@@ -9,7 +9,7 @@ import { useApp } from '../contesto'
 import { useDati } from '../dati'
 import { campo, daChiarire, dataBreve, oraDi, titoloProposta } from '../lib'
 import { AREE, type Area, type Modifiche, type Proposta } from '../tipi'
-import { Avatar, Badge, Bottone, ChipArea, Citazioni, Scadenza, Timbro } from './ui'
+import { Avatar, Badge, Bottone, ChipArea, Citazioni, Esito, Scadenza } from './ui'
 
 const TIPI: Record<Proposta['tipo'], [string, LucideIcon]> = {
   nuovo_task: ['Nuovo task', ListPlus],
@@ -80,21 +80,25 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
   const segmenti = p.citazioni.map((c) => c.segmento_id)
   return (
     <motion.li
-      layout
-      initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+      layout="position"
       onMouseEnter={() => onEvidenzia?.(segmenti)} onMouseLeave={() => onEvidenzia?.(null)}
-      className={clsx(
-        'relative list-none rounded-[5px] border p-4 transition-colors',
-        !inAttesa && 'border-linea bg-velina/70',
-        inAttesa && dubbio && 'border-segnale bg-foglio shadow-[inset_4px_0_0_var(--color-segnale)] pl-5',
-        inAttesa && !dubbio && 'border-linea-forte/70 bg-foglio hover:border-inchiostro/60',
-      )}
+      className={clsx('list-none py-4 transition-colors', correggiSubito ? 'px-0' : 'px-5', !inAttesa && !correggiSubito && 'bg-riempimento/40')}
     >
-      {!inAttesa && <Timbro esito={p.stato === 'approvata' ? 'approvata' : 'rifiutata'} nuovo={appenaDecisa} className="absolute top-3 right-4" />}
-      <div className="flex flex-wrap items-center gap-2 pr-28 text-xs text-grafite">
-        <span className="inline-flex items-center gap-1.5 font-semibold text-inchiostro"><Icona size={14} strokeWidth={2.3} />{etichetta}</span>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-testo-2">
+        {inAttesa ? (
+          <>
+            <span className="inline-flex items-center gap-1.5 font-semibold text-testo"><Icona size={14} strokeWidth={2.2} className="text-accento-testo" />{etichetta}</span>
+            {dubbio && <span className="inline-flex items-center gap-1.5 font-semibold text-arancio-testo"><span className="h-1.5 w-1.5 rounded-full bg-arancio" />Da chiarire</span>}
+          </>
+        ) : (
+          <span className="inline-flex items-center gap-2">
+            <Esito esito={p.stato === 'approvata' ? 'approvata' : 'rifiutata'} nuovo={appenaDecisa} />
+            <span className={clsx('font-semibold', p.stato === 'approvata' ? 'text-verde-testo' : 'text-testo-2')}>{p.stato === 'approvata' ? 'Approvata' : 'Rifiutata'}</span>
+            <span>{etichetta}</span>
+          </span>
+        )}
         {mostraDocumento && documento && (
-          <Link to={`/documenti/${documento.id}`} className="ml-auto inline-flex items-center gap-1 underline-offset-4 hover:text-inchiostro hover:underline">
+          <Link to={`/documenti/${documento.id}`} className="ml-auto inline-flex items-center gap-1 hover:text-accento-testo">
             <FileText size={12} /> {documento.titolo}
           </Link>
         )}
@@ -103,7 +107,7 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
       {inModifica && inAttesa ? (
         <div className="mt-3 space-y-3">
           {isFatto ? (
-            <Campo etichetta={`${campo(p, 'soggetto')} · ${campo(p, 'attributo')}`}>
+            <Campo etichetta={`${campo(p, 'soggetto')}, ${campo(p, 'attributo')}`}>
               <input value={bozza.valore} onChange={(e) => setBozza({ ...bozza, valore: e.target.value })} className={INPUT} />
             </Campo>
           ) : (
@@ -114,9 +118,9 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
               <div className="grid gap-3 sm:grid-cols-2">
                 <Campo etichetta="Chi se ne occupa">
                   <select value={bozza.assegnatario_id} onChange={(e) => setBozza({ ...bozza, assegnatario_id: e.target.value })}
-                    className={clsx(INPUT, !bozza.assegnatario_id && 'border-segnale bg-segnale-chiaro')}>
-                    <option value="">— nessuno —</option>
-                    {membri.map((m) => <option key={m.id} value={m.id}>{m.nome} · {m.ruolo}</option>)}
+                    className={clsx(INPUT, !bozza.assegnatario_id && 'ring-2 ring-arancio/60')}>
+                    <option value="">Nessuno</option>
+                    {membri.map((m) => <option key={m.id} value={m.id}>{m.nome}, {m.ruolo}</option>)}
                   </select>
                 </Campo>
                 <Campo etichetta="Scadenza">
@@ -128,11 +132,11 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
         </div>
       ) : (
         <>
-          <p className={clsx('mt-2 text-[16px] leading-snug font-semibold', p.stato === 'rifiutata' && 'text-grafite line-through decoration-allarme/50')}>{titoloProposta(p)}</p>
+          <p className={clsx('mt-1.5 text-[17px] leading-snug font-semibold tracking-[-0.01em]', p.stato === 'rifiutata' && 'text-testo-2 line-through decoration-testo-3')}>{titoloProposta(p)}</p>
           {!isFatto && (
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-grafite">
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px] text-testo-2">
               {assegnatario
-                ? <span className="inline-flex items-center gap-1.5"><Avatar persona={assegnatario} size={22} />{assegnatario.nome}</span>
+                ? <span className="inline-flex items-center gap-1.5 text-testo"><Avatar persona={assegnatario} size={20} />{assegnatario.nome}</span>
                 : <Badge tono="giallo">Nessun responsabile</Badge>}
               <span>{campo(p, 'scadenza') ? `entro ${dataBreve(campo(p, 'scadenza'))}` : 'senza scadenza'}</span>
               {inAttesa && campo(p, 'scadenza') && <Scadenza iso={campo(p, 'scadenza')} />}
@@ -142,14 +146,14 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
       )}
 
       {inAttesa && dubbio && (
-        <div className="mt-3 flex gap-2 rounded-[3px] bg-segnale-chiaro px-3 py-2 text-sm text-segnale-scuro">
-          <TriangleAlert size={16} strokeWidth={2.3} className="mt-0.5 shrink-0" />
+        <div className="mt-3 flex gap-2.5 rounded-2xl bg-arancio-tenue px-3.5 py-2.5 text-sm leading-snug">
+          <TriangleAlert size={16} strokeWidth={2.2} className="mt-0.5 shrink-0 text-arancio-testo" />
           <span>{avviso?.testo ?? 'Il Brain non è sicuro di questa voce: controllala prima di approvarla.'}</span>
         </div>
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
-        <span className="mr-1 text-xs text-grafite" title="Chi ha almeno una di queste aree potrà vedere la voce">Visibile a:</span>
+        <span className="mr-0.5 text-xs text-testo-2" title="Chi ha almeno una di queste aree potrà vedere la voce">Visibile a</span>
         {inAttesa
           ? AREE.map((a) => <ChipArea key={a} area={a} attiva={aree.includes(a)} onClick={() => alterna(a)} />)
           : (p.aree_confermate ?? p.aree_proposte).map((a) => <ChipArea key={a} area={a} />)}
@@ -161,26 +165,26 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
         <div className="mt-4 flex flex-wrap gap-2">
           {inModifica ? (
             <>
-              <Bottone variante="successo" icona={Check} disabled={occupato || !aree.length} onClick={() => esegui('approva')}>
+              <Bottone variante="primario" icona={Check} disabled={occupato || !aree.length} onClick={() => esegui('approva')}>
                 Approva con le correzioni
               </Bottone>
-              <Bottone variante="fantasma" onClick={() => { setBozza(originale); setInModifica(false) }}>Annulla</Bottone>
+              <Bottone variante="secondario" onClick={() => { setBozza(originale); setInModifica(false) }}>Annulla</Bottone>
             </>
           ) : (
             <>
               {dubbio
-                ? <Bottone variante="attenzione" icona={PenLine} onClick={() => setInModifica(true)}>Correggi</Bottone>
-                : <Bottone variante="successo" icona={Check} disabled={occupato || !aree.length} onClick={() => esegui('approva')}>Approva</Bottone>}
+                ? <Bottone variante="primario" icona={PenLine} onClick={() => setInModifica(true)}>Correggi</Bottone>
+                : <Bottone variante="primario" icona={Check} disabled={occupato || !aree.length} onClick={() => esegui('approva')}>Approva</Bottone>}
               {dubbio
-                ? <Bottone icona={Check} disabled={occupato || !aree.length} onClick={() => esegui('approva')}>Approva così</Bottone>
-                : <Bottone icona={PenLine} onClick={() => setInModifica(true)}>Correggi</Bottone>}
-              <Bottone variante="pericolo" icona={X} disabled={occupato} onClick={() => esegui('rifiuta')}>Rifiuta</Bottone>
+                ? <Bottone variante="secondario" disabled={occupato || !aree.length} onClick={() => esegui('approva')}>Approva così</Bottone>
+                : <Bottone variante="secondario" onClick={() => setInModifica(true)}>Correggi</Bottone>}
+              <Bottone variante="pericolo" disabled={occupato} onClick={() => esegui('rifiuta')}>Rifiuta</Bottone>
             </>
           )}
         </div>
       ) : (
         p.decisa_da && (
-          <p className="mt-3 text-xs text-grafite">
+          <p className="mt-3 text-[13px] text-testo-2">
             {p.stato === 'approvata' ? 'Approvata' : 'Rifiutata'} da {persone[p.decisa_da]?.nome ?? p.decisa_da}
             {p.decisa_il && ` alle ${oraDi(p.decisa_il)}`}
           </p>
@@ -190,12 +194,12 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
   )
 }
 
-const INPUT = 'w-full rounded-[4px] border border-linea-forte bg-foglio px-3 py-2 text-sm transition focus:border-inchiostro focus:ring-2 focus:ring-segnale/50 focus:outline-none'
+const INPUT = 'w-full rounded-xl bg-riempimento px-3.5 py-2.5 text-[15px] text-testo transition focus:bg-superficie focus:ring-3 focus:ring-accento/35 focus:outline-none'
 
 function Campo({ etichetta, children }: { etichetta: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-semibold text-grafite">{etichetta}</span>
+      <span className="mb-1.5 block text-xs font-semibold text-testo-2">{etichetta}</span>
       {children}
     </label>
   )

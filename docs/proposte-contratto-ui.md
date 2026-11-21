@@ -90,3 +90,23 @@ La UI mostra il Brain al lavoro quando si carica una riunione (pulsante «Carica
 
 Per l'avanzamento **in diretta**: durante l'analisi, `GET /avvisi` (SSE, solo al manager) emette un
 evento `passo` con un `PassoRegistro` JSON per ogni passo completato. La UI lo ascolta già.
+
+## 8. Creare e gestire i progetti (aggiunto 21/11, 15:00)
+
+Decisione del team: **crea un progetto solo chi ha ruolo «project manager»** (oggi Giulia). Lo **modifica
+solo il suo manager**. Gli altri vedono solo i progetti di cui sono membri e, dentro, solo ciò che rientra
+nelle loro competenze (`puo_vedere`, già così). La UI è pronta (pagina «Progetti»); finché gli endpoint
+mancano, creare e modificare mostrano un errore chiaro, **senza dati finti**.
+
+| Metodo e percorso | Chi | Corpo | Risposta |
+|---|---|---|---|
+| `GET /progetti` | tutti | - | `Progetto[]` di cui la persona è membro (vedi §6) |
+| `POST /progetti` | `ruolo == "project manager"`, altrimenti `403` | `{nome, cliente, manager_id, membri, scadenza, descrizione}` | `Progetto` con `id` assegnato dal backend (`prj-NN`) |
+| `PATCH /progetti/{id}` | solo `progetto.manager_id`, altrimenti `403` | stesso corpo | `Progetto` aggiornato |
+
+Regole da far rispettare **nel backend** (la UI le controlla solo per comodità):
+- `manager_id` deve essere tra i `membri`; gli id delle persone devono esistere (`422` altrimenti);
+- `scadenza` in formato `AAAA-MM-GG`, non nel passato; `nome` e `cliente` non vuoti;
+- togliere un membro non cancella la memoria del progetto: smette solo di vederla;
+- cambiare manager passa approvazioni e avvisi al nuovo manager;
+- ogni creazione e modifica va nel registro (`tipo: "decisione"`, `step: "crea_progetto" | "modifica_progetto"`).

@@ -15,11 +15,11 @@ const GRUPPO = 40      // altezza dell'intestazione di una persona
 const SINISTRA = 260   // colonna dei nomi
 
 const COLORI: Record<StatoTask, string> = {
-  da_fare: 'bg-grafite hover:bg-inchiostro text-foglio',
-  in_corso: 'bg-cavo hover:brightness-110 text-foglio',
-  bloccato: 'bg-allarme hover:brightness-110 text-foglio',
-  fatto: 'bg-timbro hover:brightness-110 text-foglio',
-  annullato: 'bg-linea-forte text-foglio',
+  da_fare: 'bg-[#6e6e73] dark:bg-[#636366] hover:brightness-110 text-white',
+  in_corso: 'bg-accento hover:brightness-110 text-white',
+  bloccato: 'bg-rosso hover:brightness-110 text-white',
+  fatto: 'bg-verde hover:brightness-110 text-white',
+  annullato: 'bg-testo-3 text-white',
 }
 
 type Riga = { tipo: 'gruppo'; persona: Persona | null; n: number } | { tipo: 'task'; t: Task; da: Date; a: Date; aperto: boolean }
@@ -91,22 +91,22 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
   }
   const larghezza = giorni * GIORNO
 
-  if (!righe.length) return <p className="p-8 text-center text-sm text-grafite">Nessun task da mostrare.</p>
+  if (!righe.length) return <p className="p-8 text-center text-sm text-testo-2">Nessun task da mostrare.</p>
 
   return (
     <>
       <div ref={scorri} className="relative overflow-x-auto">
         <div style={{ width: SINISTRA + larghezza }}>
           {/* intestazione: mesi e giorni */}
-          <div className="sticky top-0 z-30 flex border-b-[1.5px] border-inchiostro bg-foglio/95 backdrop-blur">
-            <div style={{ width: SINISTRA }} className="sticky left-0 z-10 flex shrink-0 items-end border-r border-linea bg-foglio px-4 pb-2 text-xs font-semibold text-grafite">
+          <div className="sticky top-0 z-30 flex border-b border-separatore bg-superficie/90 backdrop-blur-xl">
+            <div style={{ width: SINISTRA }} className="sticky left-0 z-10 flex shrink-0 items-end border-r border-separatore bg-superficie px-4 pb-2 text-xs font-semibold text-testo-2">
               Persona e task
             </div>
             <div style={{ width: larghezza }}>
               <div className="relative h-6">
                 {mesi.map((m) => (
                   <span key={m.etichetta} style={{ left: m.da * GIORNO, width: m.n * GIORNO }}
-                    className="absolute top-1 truncate border-l border-linea pl-2 text-xs font-bold first-letter:uppercase first:border-l-0">
+                    className="absolute top-1 truncate border-l border-separatore pl-2 text-xs font-bold first-letter:uppercase first:border-l-0">
                     {m.etichetta}
                   </span>
                 ))}
@@ -114,7 +114,7 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
               <div className="flex">
                 {giorniArr.map((d) => (
                   <span key={+d} style={{ width: GIORNO }}
-                    className={clsx('condensato shrink-0 py-1 text-center text-[11px] leading-tight', +d === +oggi() ? 'rounded-t-[3px] bg-segnale font-bold text-inchiostro' : isWeekend(d) ? 'text-traccia/70' : 'text-grafite')}>
+                    className={clsx('cifre shrink-0 py-1 text-center text-[11px] leading-tight', +d === +oggi() ? 'rounded-t-md bg-arancio font-bold text-testo' : isWeekend(d) ? 'text-testo-3' : 'text-testo-2')}>
                     {format(d, 'EEEEE', { locale: it })}<br />{format(d, 'd')}
                   </span>
                 ))}
@@ -126,10 +126,10 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
           <div className="relative">
             {/* sfondo: weekend, oggi, collaudo */}
             <div className="pointer-events-none absolute top-0 bottom-0" style={{ left: SINISTRA, width: larghezza }}>
-              {giorniArr.map((d, i) => isWeekend(d) && <div key={i} className="absolute top-0 bottom-0 bg-[repeating-linear-gradient(135deg,transparent_0_5px,var(--color-velina)_5px_6px)]" style={{ left: i * GIORNO, width: GIORNO }} />)}
-              <div className="absolute top-0 bottom-0 w-[2px] bg-segnale" style={{ left: xOggi + GIORNO / 2 }} />
-              <div className="absolute top-0 bottom-0 border-l-2 border-inchiostro" style={{ left: xCollaudo + GIORNO / 2 }}>
-                <span className="absolute top-1 left-0 inline-flex items-center gap-1 rounded-r-[3px] bg-inchiostro px-1.5 py-0.5 text-[11px] font-bold whitespace-nowrap text-foglio">
+              {giorniArr.map((d, i) => isWeekend(d) && <div key={i} className="absolute top-0 bottom-0 bg-[repeating-linear-gradient(135deg,transparent_0_5px,var(--separatore)_5px_6px)]" style={{ left: i * GIORNO, width: GIORNO }} />)}
+              <div className="absolute top-0 bottom-0 w-[2px] bg-arancio" style={{ left: xOggi + GIORNO / 2 }} />
+              <div className="absolute top-0 bottom-0 border-l-2 border-separatore-forte" style={{ left: xCollaudo + GIORNO / 2 }}>
+                <span className="absolute top-1 left-0 inline-flex items-center gap-1 rounded-r-md bg-accento px-1.5 py-0.5 text-[11px] font-bold whitespace-nowrap text-white">
                   <Flag size={10} /> Collaudo
                 </span>
               </div>
@@ -139,7 +139,7 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
             <svg className="pointer-events-none absolute top-0 z-[3]" style={{ left: SINISTRA }} width={larghezza} height={altezza}>
               <defs>
                 <marker id="freccia" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
-                  <path d="M0,0 L8,4 L0,8 z" className="fill-allarme" />
+                  <path d="M0,0 L8,4 L0,8 z" className="fill-rosso" />
                 </marker>
               </defs>
               {righe.flatMap((r) => r.tipo !== 'task' ? [] : r.t.dipende_da.filter((d) => y[d] != null).map((d) => {
@@ -150,23 +150,23 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
                   ? `M${x1},${y1} H${x1 + 8} V${y2} H${x2}`
                   : `M${x1},${y1} H${x1 + 8} V${y2 - RIGA / 2 + 9}`
                 return <path key={`${d}-${r.t.id}`} d={traccia} fill="none"
-                  className="stroke-allarme" strokeWidth={1.5} strokeDasharray="4 3" markerEnd="url(#freccia)" />
+                  className="stroke-rosso" strokeWidth={1.5} strokeDasharray="4 3" markerEnd="url(#freccia)" />
               }))}
             </svg>
 
             {righe.map((r, i) => r.tipo === 'gruppo' ? (
-              <div key={`g${i}`} className="flex border-b border-linea bg-velina/70" style={{ height: GRUPPO }}>
-                <div style={{ width: SINISTRA }} className="sticky left-0 z-20 flex shrink-0 items-center gap-2 border-r border-linea bg-velina px-4">
+              <div key={`g${i}`} className="flex border-b border-separatore bg-riempimento/70" style={{ height: GRUPPO }}>
+                <div style={{ width: SINISTRA }} className="sticky left-0 z-20 flex shrink-0 items-center gap-2 border-r border-separatore bg-riempimento px-4">
                   <Avatar persona={r.persona} size={24} />
                   <span className="truncate text-sm font-bold">{r.persona?.nome ?? 'Senza responsabile'}</span>
-                  <span className="condensato ml-auto text-xs text-grafite">{r.n}</span>
+                  <span className="cifre ml-auto text-xs text-testo-2">{r.n}</span>
                 </div>
               </div>
             ) : (
-              <div key={r.t.id} className="group flex border-b border-linea/70" style={{ height: RIGA }}>
+              <div key={r.t.id} className="group flex border-b border-separatore" style={{ height: RIGA }}>
                 <button onClick={() => setScelto(r.t)} style={{ width: SINISTRA }}
-                  className="sticky left-0 z-20 flex shrink-0 items-center gap-2 border-r border-linea bg-foglio px-4 pl-12 text-left text-sm group-hover:bg-velina">
-                  {r.t.dipende_da.length > 0 && <Lock size={12} className="shrink-0 text-allarme" />}
+                  className="sticky left-0 z-20 flex shrink-0 items-center gap-2 border-r border-separatore bg-superficie px-4 pl-12 text-left text-sm group-hover:bg-riempimento">
+                  {r.t.dipende_da.length > 0 && <Lock size={12} className="shrink-0 text-rosso-testo" />}
                   <span className="truncate">{r.t.titolo}</span>
                 </button>
                 <div className="relative" style={{ width: larghezza }}>
@@ -174,7 +174,7 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
                     onClick={() => setScelto(r.t)}
                     title={`${r.t.titolo} · ${etichettaStato(r.t.stato)}`}
                     style={{ left: x(r.da) + 2, width: Math.max(GIORNO - 4, x(r.a) - x(r.da) + GIORNO - 4), top: 9, height: RIGA - 18 }}
-                    className={clsx('condensato absolute z-[2] flex items-center overflow-hidden rounded-[3px] px-2 text-[12.5px] font-semibold whitespace-nowrap transition', COLORI[r.t.stato],
+                    className={clsx('absolute z-[2] flex items-center overflow-hidden rounded-full px-3 text-[12.5px] font-semibold whitespace-nowrap shadow-sm transition', COLORI[r.t.stato],
                       r.aperto && 'opacity-60 [mask-image:linear-gradient(90deg,#000_70%,transparent)]')}
                   >
                     {r.t.titolo}
@@ -186,13 +186,13 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 border-t border-linea px-5 py-3 text-xs text-grafite">
+      <div className="flex flex-wrap items-center gap-4 border-t border-separatore px-5 py-3 text-xs text-testo-2">
         {(['da_fare', 'in_corso', 'bloccato', 'fatto'] as StatoTask[]).map((s) => (
-          <span key={s} className="inline-flex items-center gap-1.5"><span className={clsx('h-2.5 w-2.5 rounded-[2px]', COLORI[s])} />{etichettaStato(s)}</span>
+          <span key={s} className="inline-flex items-center gap-1.5"><span className={clsx('h-2.5 w-2.5 rounded-full', COLORI[s])} />{etichettaStato(s)}</span>
         ))}
-        <span className="inline-flex items-center gap-1.5"><span className="h-3 w-[2px] bg-segnale" />Oggi</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-3 border-l-2 border-inchiostro" />Collaudo</span>
-        <span className="inline-flex items-center gap-1.5"><span className="w-4 border-t-2 border-dashed border-allarme" />Dipendenza</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-3 w-[2px] bg-arancio" />Oggi</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-3 border-l-2 border-separatore-forte" />Collaudo</span>
+        <span className="inline-flex items-center gap-1.5"><span className="w-4 border-t-2 border-dashed border-rosso" />Dipendenza</span>
         <span className="ml-auto">La barra va dalla riunione in cui nasce il task alla sua scadenza.</span>
       </div>
 

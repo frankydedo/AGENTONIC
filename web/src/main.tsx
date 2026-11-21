@@ -1,4 +1,4 @@
-import '@fontsource-variable/archivo/wdth.css'
+import '@fontsource-variable/inter'
 import { MotionConfig } from 'motion/react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -6,6 +6,9 @@ import { BrowserRouter } from 'react-router'
 import { Toaster } from 'sonner'
 import App from './App.tsx'
 import './index.css'
+import { seguiSistema } from './tema'
+
+seguiSistema()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -17,8 +20,9 @@ createRoot(document.getElementById('root')!).render(
           closeButton
           toastOptions={{
             classNames: {
-              toast: '!rounded-md !border !border-inchiostro !bg-foglio !text-inchiostro !font-sans sopra',
-              description: '!text-grafite',
+              toast: '!rounded-2xl !border-0 !bg-superficie !text-testo !font-sans !shadow-alta',
+              description: '!text-testo-2',
+              closeButton: '!bg-superficie !text-testo-2 !border-separatore',
             },
           }}
         />

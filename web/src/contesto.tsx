@@ -6,6 +6,7 @@ export interface Contesto {
   progetto: Progetto
   progetti: Progetto[] // quelli di cui la persona è membro
   scegliProgetto: (id: string) => void
+  ricaricaProgetti: () => Promise<Progetto[]>
   persone: Record<string, Persona>
   membri: Persona[]
   sonoManager: boolean

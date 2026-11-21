@@ -30,7 +30,7 @@ export function Documenti() {
         {!pronto ? <Scheletro /> : ordinati.length === 0 ? (
           <Vuoto icona={Inbox} titolo="Ancora nessun documento" testo="Carica la minuta di una riunione per iniziare." />
         ) : (
-          <ul className="divide-y divide-linea">
+          <ul className="divide-y divide-separatore">
             {ordinati.map((d) => <RigaDocumento key={d.id} d={d} />)}
           </ul>
         )}
@@ -51,36 +51,36 @@ function RigaDocumento({ d }: { d: Documento }) {
 
   return (
     <li>
-      <Link to={`/documenti/${d.id}`} className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-velina">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[4px] border border-linea-forte bg-foglio text-inchiostro"><Icona size={20} strokeWidth={2} /></span>
+      <Link to={`/documenti/${d.id}`} className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-riempimento">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[12px] bg-accento-tenue text-accento-testo"><Icona size={20} strokeWidth={1.9} /></span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-[16px] font-semibold">{d.titolo}</p>
             <Badge>{formato}</Badge>
             <Badge tono={d.tipo === 'riunione' ? 'blu' : 'viola'}>{d.tipo === 'riunione' ? 'Riunione' : 'Integrativo'}</Badge>
           </div>
-          <p className="condensato mt-1 flex flex-wrap gap-x-3 text-sm text-grafite">
-            <span>{dataMedia(d.data)}{d.ora_inizio && `, ore ${d.ora_inizio}`}</span><span className="text-traccia">{d.id}</span>
+          <p className="cifre mt-1 flex flex-wrap gap-x-3 text-sm text-testo-2">
+            <span>{dataMedia(d.data)}{d.ora_inizio && `, ore ${d.ora_inizio}`}</span><span className="text-testo-3">{d.id}</span>
           </p>
         </div>
         <div className="hidden -space-x-1.5 md:flex">
           {partecipanti.slice(0, 6).map((p, k) => <Avatar key={k} persona={p} nome={d.partecipanti[k]} size={26} />)}
-          {partecipanti.length > 6 && <span className="grid h-[26px] w-[26px] place-items-center rounded-[4px] bg-velina text-[10px] font-semibold text-grafite ring-2 ring-foglio">+{partecipanti.length - 6}</span>}
+          {partecipanti.length > 6 && <span className="grid h-[26px] w-[26px] place-items-center rounded-full bg-riempimento text-[10px] font-semibold text-testo-2 ring-2 ring-superficie">+{partecipanti.length - 6}</span>}
         </div>
         {sonoManager && (
           <div className="hidden w-48 sm:block">
-            <div className="flex justify-between text-xs text-grafite">
-              <span>{conta('in_attesa') ? <b className="text-inchiostro">{conta('in_attesa')} da decidere</b> : 'Tutto deciso'}</span>
-              <span className="condensato">{decise}/{sue.length}</span>
+            <div className="flex justify-between text-xs text-testo-2">
+              <span>{conta('in_attesa') ? <b className="text-testo">{conta('in_attesa')} da decidere</b> : 'Tutto deciso'}</span>
+              <span className="cifre">{decise}/{sue.length}</span>
             </div>
             {/* una tacca per proposta: piena se decisa, gialla se aspetta te */}
             <div className="mt-1.5 flex gap-[3px]">
-              {sue.map((p) => <span key={p.id} className={clsx('h-2 flex-1 rounded-[1px]', p.stato === 'in_attesa' ? 'bg-segnale' : p.stato === 'approvata' ? 'bg-timbro' : 'bg-linea-forte')} />)}
+              {sue.map((p) => <span key={p.id} className={clsx('h-2 flex-1 rounded-sm', p.stato === 'in_attesa' ? 'bg-arancio' : p.stato === 'approvata' ? 'bg-verde' : 'bg-testo-3')} />)}
             </div>
-            {aperti > 0 && <p className="mt-1 text-xs text-segnale-scuro">{aperti} avvisi aperti</p>}
+            {aperti > 0 && <p className="mt-1 text-xs text-arancio-testo">{aperti} avvisi aperti</p>}
           </div>
         )}
-        <ChevronRight size={18} className="text-linea-forte transition group-hover:translate-x-0.5 group-hover:text-inchiostro" />
+        <ChevronRight size={18} className="text-testo-3 transition group-hover:translate-x-0.5 group-hover:text-testo" />
       </Link>
     </li>
   )

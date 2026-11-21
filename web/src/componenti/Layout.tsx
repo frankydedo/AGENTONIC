@@ -1,77 +1,83 @@
 import clsx from 'clsx'
 import {
-  ChartGantt, Check, ChevronDown, ChevronsUpDown, FileText, FlaskConical, LayoutDashboard, LogOut, MessageSquare,
-  ScrollText, UploadCloud, type LucideIcon,
+  ChartGantt, Check, ChevronDown, ChevronRight, ChevronsUpDown, FileText, FlaskConical, Folder, FolderKanban, LayoutGrid, LogOut, MessageCircle,
+  History, Upload, type LucideIcon,
 } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router'
+import { useEffect, useRef, useState, useSyncExternalStore, type RefObject } from 'react'
+import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { finti } from '../api'
 import { useApp } from '../contesto'
 import { useDati } from '../dati'
 import { dataMedia, giorniA } from '../lib'
 import { PannelloAnalisi } from './Analisi'
 import { Protezione } from './Protezione'
+import { SceltaTema } from './Tema'
 import { Avatar, Bottone, ChipArea, MarchioBrain, Modale } from './ui'
 
-interface Voce { a: string; etichetta: string; icona: LucideIcon; conteggio?: number; soloManager?: boolean }
+interface Voce { a: string; etichetta: string; breve: string; icona: LucideIcon; conteggio?: number; attenzione?: boolean; soloManager?: boolean }
 
 export function Layout() {
-  const { sonoManager } = useApp()
+  const { sonoManager, progetti } = useApp()
   const { proposte, avvisi } = useDati()
   const inAttesa = proposte.filter((p) => p.stato === 'in_attesa').length
   const segnalazioni = avvisi.filter((a) => !a.risolto).length
   const { pathname } = useLocation()
 
   const voci: Voce[] = [
-    { a: '/', etichetta: 'Panoramica', icona: LayoutDashboard, conteggio: sonoManager ? segnalazioni : undefined },
-    { a: '/documenti', etichetta: 'Documenti', icona: FileText, conteggio: sonoManager ? inAttesa : undefined },
-    { a: '/team', etichetta: 'Team e scadenze', icona: ChartGantt },
-    { a: '/chiedi', etichetta: 'Chiedi al Brain', icona: MessageSquare },
-    { a: '/registro', etichetta: 'Registro', icona: ScrollText, soloManager: true },
+    { a: '/progetti', etichetta: 'Progetti', breve: 'Progetti', icona: FolderKanban, conteggio: progetti.length > 1 ? progetti.length : undefined },
+    { a: '/', etichetta: 'Panoramica', breve: 'Oggi', icona: LayoutGrid, conteggio: sonoManager ? segnalazioni : undefined },
+    { a: '/documenti', etichetta: 'Documenti', breve: 'Documenti', icona: FileText, conteggio: sonoManager ? inAttesa : undefined, attenzione: true },
+    { a: '/team', etichetta: 'Team e scadenze', breve: 'Team', icona: ChartGantt },
+    { a: '/chiedi', etichetta: 'Chiedi al Brain', breve: 'Chiedi', icona: MessageCircle },
+    { a: '/registro', etichetta: 'Registro', breve: 'Registro', icona: History, soloManager: true },
   ].filter((v) => !v.soloManager || sonoManager)
+  const schede = voci.filter((v) => v.a !== '/progetti')
 
   return (
     <div className="flex min-h-screen">
       {/* barra laterale */}
-      <aside className="sticky top-0 hidden h-screen w-[272px] shrink-0 flex-col border-r border-linea bg-foglio lg:flex">
-        <div className="flex items-center gap-3 px-5 pt-6 pb-7">
-          <MarchioBrain size={34} parla={segnalazioni + inAttesa > 0} />
+      <aside className="vetro sticky top-0 hidden h-screen w-[264px] shrink-0 flex-col gap-6 border-r border-separatore px-3.5 py-5 lg:flex">
+        <div className="flex items-center gap-2.5 px-2">
+          <MarchioBrain size={30} parla={segnalazioni + inAttesa > 0} />
           <div>
-            <p className="text-[17px] leading-none font-extrabold [font-stretch:118%] tracking-tight">Company Brain</p>
-            <p className="mt-1 text-xs text-grafite">Automazioni Dora</p>
+            <p className="text-[15px] leading-tight font-semibold tracking-[-0.01em]">Company Brain</p>
+            <p className="text-xs text-testo-2">Automazioni Dora</p>
           </div>
         </div>
-        <nav className="flex-1 space-y-px px-3">
+        <SelettoreProgetto />
+        <nav aria-label="Sezioni" className="flex-1 space-y-0.5">
           {voci.map((v) => <VoceNav key={v.a} v={v} />)}
         </nav>
-        <Cartiglio />
+        <Scadenza />
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 border-b border-linea bg-carta/85 backdrop-blur-md">
-          <div className="flex items-center gap-3 px-4 py-2.5 lg:px-10">
-            <div className="flex items-center gap-2 lg:hidden">
-              <MarchioBrain size={28} parla={segnalazioni + inAttesa > 0} />
+        <header className="sticky top-0 z-30 border-b border-separatore bg-fondo/80 backdrop-blur-xl backdrop-saturate-150 lg:border-transparent">
+          <div className="flex items-center gap-3 px-4 py-2.5 lg:px-10 lg:py-3.5">
+            <div className="flex min-w-0 items-center gap-2.5 lg:hidden">
+              <MarchioBrain size={26} parla={segnalazioni + inAttesa > 0} />
+              <SelettoreProgetto compatto />
             </div>
-            <div className="min-w-0 lg:hidden"><SelettoreCompatto /></div>
             <FintiInUso />
             <div className="ml-auto flex items-center gap-2">
               {sonoManager && <CaricaRiunione />}
               <MenuPersona />
             </div>
           </div>
-          {/* navigazione su schermi piccoli */}
-          <nav className="flex gap-1 overflow-x-auto px-3 pb-2 lg:hidden">
-            {voci.map((v) => <VoceNav key={v.a} v={v} compatta />)}
-          </nav>
         </header>
-        <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 py-7 lg:px-10 lg:py-10">
+        <main className="mx-auto w-full max-w-[1200px] flex-1 px-4 pt-3 pb-28 lg:px-10 lg:pb-14">
           <Protezione nome={pathname} key={pathname}>
             <Outlet />
           </Protezione>
         </main>
       </div>
+
+      {/* su telefono: barra delle schede in basso */}
+      <nav aria-label="Sezioni" className="vetro fixed inset-x-0 bottom-0 z-30 grid border-t border-separatore px-2 pt-1.5 pb-[max(env(safe-area-inset-bottom),10px)] lg:hidden"
+        style={{ gridTemplateColumns: `repeat(${schede.length}, minmax(0, 1fr))` }}>
+        {schede.map((v) => <VoceScheda key={v.a} v={v} />)}
+      </nav>
     </div>
   )
 }
@@ -88,121 +94,111 @@ function useChiudiFuori(aperto: boolean, chiudi: () => void, rif: RefObject<HTML
   }, [aperto, chiudi, rif])
 }
 
-/**
- * Il cartiglio della tavola: i dati della commessa nel riquadro in basso, come su un disegno tecnico.
- * La cella della commessa è anche il selettore: ognuno vede solo i progetti di cui è membro (lo decide il backend).
- */
-function Cartiglio() {
-  const { progetto, persone } = useApp()
-  const [aperto, setAperto] = useState(false)
-  const rif = useRef<HTMLDivElement>(null)
-  useChiudiFuori(aperto, () => setAperto(false), rif)
-  const giorni = giorniA(progetto.scadenza)
-  const manager = persone[progetto.manager_id]
+const POPOVER = 'absolute z-50 overflow-hidden rounded-2xl bg-superficie p-1.5 shadow-alta'
 
-  return (
-    <div ref={rif} className="relative m-4">
-      <AnimatePresence>
-        {aperto && <ElencoProgetti onScelto={() => setAperto(false)} className="right-0 bottom-full left-0 mb-2" />}
-      </AnimatePresence>
-      <dl className="grid grid-cols-2 overflow-hidden rounded-[3px] border-[1.5px] border-inchiostro text-[12px] leading-snug">
-        <div className="col-span-2 border-b-[1.5px] border-inchiostro">
-          <button onClick={() => setAperto((a) => !a)} aria-expanded={aperto}
-            className="group flex w-full items-start gap-2 px-2.5 py-1.5 text-left transition-colors hover:bg-velina">
-            <span className="min-w-0 flex-1">
-              <dt className="text-[10.5px] text-grafite">Commessa</dt>
-              <dd className="mt-px font-bold [font-stretch:95%]">{progetto.nome}</dd>
-            </span>
-            <ChevronsUpDown size={14} className="mt-2 shrink-0 text-grafite group-hover:text-inchiostro" />
-          </button>
-        </div>
-        <Cella etichetta="Cliente" classe="border-r border-b">{progetto.cliente}</Cella>
-        <Cella etichetta="Manager" classe="border-b">{manager?.nome ?? '—'}</Cella>
-        <Cella etichetta="Scadenza" classe={clsx('border-r', giorni <= 14 && 'bg-segnale-chiaro')}>
-          <span className="condensato text-[15px] font-bold">{giorni >= 0 ? `tra ${giorni} giorni` : `${-giorni} giorni fa`}</span>
-        </Cella>
-        <Cella etichetta="Data">{dataMedia(progetto.scadenza)}</Cella>
-      </dl>
-    </div>
-  )
-}
-
-function Cella({ etichetta, classe, children }: { etichetta: string; classe?: string; children: ReactNode }) {
-  return (
-    <div className={clsx('border-inchiostro px-2.5 py-1.5', classe)}>
-      <dt className="text-[10.5px] text-grafite">{etichetta}</dt>
-      <dd className="mt-px">{children}</dd>
-    </div>
-  )
-}
-
-/** Su schermi piccoli il cartiglio non c'è: resta il nome della commessa, che apre lo stesso elenco. */
-function SelettoreCompatto() {
-  const { progetto } = useApp()
-  const [aperto, setAperto] = useState(false)
-  const rif = useRef<HTMLDivElement>(null)
-  useChiudiFuori(aperto, () => setAperto(false), rif)
-  return (
-    <div ref={rif} className="relative">
-      <button onClick={() => setAperto((a) => !a)} aria-expanded={aperto}
-        className="flex max-w-[11rem] items-center gap-1.5 rounded-[4px] border border-linea-forte bg-foglio px-2 py-1 text-left text-sm font-semibold sm:max-w-xs">
-        <span className="truncate">{progetto.nome}</span>
-        <ChevronsUpDown size={13} className="shrink-0 text-grafite" />
-      </button>
-      <AnimatePresence>
-        {aperto && <ElencoProgetti onScelto={() => setAperto(false)} className="top-full left-0 mt-2 w-80" />}
-      </AnimatePresence>
-    </div>
-  )
-}
-
-function ElencoProgetti({ onScelto, className }: { onScelto: () => void; className: string }) {
+/** Il progetto in cui stai lavorando: ognuno vede solo quelli di cui è membro (lo decide il backend). */
+function SelettoreProgetto({ compatto }: { compatto?: boolean }) {
   const { progetto, progetti, scegliProgetto, io } = useApp()
+  const [aperto, setAperto] = useState(false)
+  const rif = useRef<HTMLDivElement>(null)
+  useChiudiFuori(aperto, () => setAperto(false), rif)
+
   return (
-    <motion.ul initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} transition={{ duration: 0.15 }}
-      className={clsx('sopra absolute z-50 overflow-hidden rounded-md border border-inchiostro bg-foglio p-2', className)}>
-      <li className="px-2 pt-1 pb-2 text-xs font-semibold text-grafite">I tuoi progetti ({progetti.length})</li>
-      {progetti.map((p) => {
-        const attuale = p.id === progetto.id
-        return (
-          <li key={p.id}>
-            <button onClick={() => { onScelto(); if (!attuale) scegliProgetto(p.id) }}
-              className={clsx('flex w-full items-start gap-3 rounded-[4px] px-2 py-2 text-left hover:bg-velina', attuale && 'bg-segnale-chiaro')}>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-semibold">{p.nome}</span>
-                <span className="block truncate text-xs text-grafite">{p.cliente}, {p.membri.length} persone</span>
-                {p.manager_id === io.id && <span className="mt-1 inline-block text-xs font-semibold">Sei il manager</span>}
-              </span>
-              {attuale && <Check size={15} strokeWidth={2.5} className="mt-0.5 shrink-0" />}
-            </button>
-          </li>
-        )
-      })}
-    </motion.ul>
+    <div ref={rif} className="relative min-w-0">
+      {compatto ? (
+        <button onClick={() => setAperto((a) => !a)} aria-expanded={aperto}
+          className="flex max-w-[12rem] items-center gap-1 text-left text-[15px] font-semibold text-accento-testo sm:max-w-xs">
+          <span className="truncate">{progetto.nome}</span>
+          <ChevronDown size={14} strokeWidth={2.6} className="shrink-0" />
+        </button>
+      ) : (
+        <button onClick={() => setAperto((a) => !a)} aria-expanded={aperto}
+          className="flex w-full items-center gap-2.5 rounded-[14px] bg-superficie p-2.5 text-left shadow-card transition hover:bg-riempimento/60">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-accento-tenue text-accento-testo"><Folder size={18} /></span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[13px] font-semibold">{progetto.nome}</span>
+            <span className="block truncate text-xs text-testo-2">{progetto.cliente}</span>
+          </span>
+          <ChevronsUpDown size={14} className="shrink-0 text-testo-3" />
+        </button>
+      )}
+      <AnimatePresence>
+        {aperto && (
+          <motion.ul initial={{ opacity: 0, y: -4, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ duration: 0.16 }} className={clsx(POPOVER, 'top-full left-0 mt-2 w-80')}>
+            <li className="px-2.5 pt-1.5 pb-1 text-xs font-semibold text-testo-2">I tuoi progetti ({progetti.length})</li>
+            {progetti.map((p) => {
+              const attuale = p.id === progetto.id
+              return (
+                <li key={p.id}>
+                  <button onClick={() => { setAperto(false); if (!attuale) scegliProgetto(p.id) }}
+                    className="flex w-full items-start gap-3 rounded-[10px] px-2.5 py-2 text-left hover:bg-riempimento">
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold">{p.nome}</span>
+                      <span className="block truncate text-xs text-testo-2">{p.cliente}, {p.membri.length} persone</span>
+                      {p.manager_id === io.id && <span className="mt-1 inline-block text-xs font-medium text-viola-testo">Sei il manager</span>}
+                    </span>
+                    {attuale && <Check size={16} strokeWidth={2.6} className="mt-0.5 shrink-0 text-accento-testo" />}
+                  </button>
+                </li>
+              )
+            })}
+            <li className="mt-1 border-t border-separatore pt-1">
+              <Link to="/progetti" onClick={() => setAperto(false)}
+                className="flex items-center justify-between rounded-[10px] px-2.5 py-2 text-sm text-accento-testo hover:bg-riempimento">
+                Tutti i progetti <ChevronRight size={15} />
+              </Link>
+            </li>
+          </motion.ul>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }
 
-function VoceNav({ v, compatta }: { v: Voce; compatta?: boolean }) {
+/** In fondo alla barra: quanto manca alla scadenza del progetto. */
+function Scadenza() {
+  const { progetto } = useApp()
+  const giorni = giorniA(progetto.scadenza)
+  return (
+    <div className="rounded-[14px] bg-superficie/70 p-3.5 shadow-card">
+      <p className="text-xs text-testo-2">Scadenza del progetto</p>
+      <p className={clsx('mt-1 text-[22px] leading-none font-bold tracking-[-0.02em]', giorni <= 14 && 'text-rosso-testo')}>
+        {giorni >= 0 ? `tra ${giorni} giorni` : `${-giorni} giorni fa`}
+      </p>
+      <p className="mt-1 text-xs text-testo-2">{dataMedia(progetto.scadenza)}</p>
+    </div>
+  )
+}
+
+function VoceNav({ v }: { v: Voce }) {
   const Icona = v.icona
   return (
     <NavLink
       to={v.a}
       end={v.a === '/'}
       className={({ isActive }) => clsx(
-        'relative flex items-center gap-3 rounded-[4px] text-[14.5px] whitespace-nowrap transition-colors',
-        compatta ? 'px-3 py-1.5' : 'px-3 py-2',
-        isActive
-          ? 'bg-inchiostro font-semibold text-foglio'
-          : 'text-grafite hover:bg-velina hover:text-inchiostro',
+        'flex items-center gap-2.5 rounded-[9px] px-2.5 py-[7px] text-[14px] transition-colors',
+        isActive ? 'bg-black/[0.07] font-semibold dark:bg-white/[0.1]' : 'hover:bg-black/[0.04] dark:hover:bg-white/[0.06]',
       )}
     >
-      <Icona size={17} strokeWidth={2.1} />
+      <Icona size={18} strokeWidth={1.9} className="text-accento-testo" />
       <span className="flex-1">{v.etichetta}</span>
-      {!!v.conteggio && (
-        <span className="condensato grid min-w-[22px] place-items-center rounded-[3px] bg-segnale px-1 py-px text-[12px] font-bold text-inchiostro">
-          {v.conteggio}
-        </span>
-      )}
+      {!!v.conteggio && (v.attenzione
+        ? <span className="cifre grid h-5 min-w-5 place-items-center rounded-full bg-arancio px-1.5 text-xs font-semibold text-[#1d1d1f]">{v.conteggio}</span>
+        : <span className="cifre text-xs font-semibold text-testo-2">{v.conteggio}</span>)}
+    </NavLink>
+  )
+}
+
+function VoceScheda({ v }: { v: Voce }) {
+  const Icona = v.icona
+  return (
+    <NavLink to={v.a} end={v.a === '/'} aria-label={v.etichetta}
+      className={({ isActive }) => clsx('relative flex flex-col items-center gap-0.5 py-1 text-[10px] font-medium', isActive ? 'text-accento-testo' : 'text-testo-2')}>
+      <Icona size={23} strokeWidth={1.9} />
+      {v.breve}
+      {!!v.conteggio && <span className="absolute top-0 left-1/2 ml-2 grid h-4 min-w-4 place-items-center rounded-full bg-rosso px-1 text-[10px] font-semibold text-white">{v.conteggio}</span>}
     </NavLink>
   )
 }
@@ -212,7 +208,7 @@ function CaricaRiunione() {
   const [aperto, setAperto] = useState(false)
   return (
     <>
-      <Bottone variante="primario" icona={UploadCloud} onClick={() => setAperto(true)} aria-label="Carica riunione">
+      <Bottone variante="primario" icona={Upload} onClick={() => setAperto(true)} aria-label="Carica riunione">
         <span className="hidden sm:inline">Carica riunione</span>
       </Bottone>
       <Modale aperto={aperto} onChiudi={() => setAperto(false)} titolo="Carica una riunione">
@@ -228,7 +224,7 @@ function FintiInUso() {
   if (!elenco) return null
   return (
     <span title="Endpoint non ancora presenti nel backend: la UI mostra dati d'esempio (docs/proposte-contratto-ui.md)"
-      className="inline-flex items-center gap-1.5 rounded-[3px] border border-dashed border-segnale-scuro/50 bg-segnale-chiaro px-2 py-0.5 text-xs font-medium text-segnale-scuro">
+      className="hidden items-center gap-1.5 rounded-full bg-arancio-tenue px-2.5 py-1 text-xs font-medium text-arancio-testo sm:inline-flex">
       <FlaskConical size={13} /> Dati d'esempio: {elenco}
     </span>
   )
@@ -243,43 +239,48 @@ function MenuPersona() {
   const altri = Object.values(persone).filter((p) => !membri.some((m) => m.id === p.id))
   return (
     <div ref={rif} className="relative">
-      <button onClick={() => setAperto((a) => !a)}
-        className="flex items-center gap-2.5 rounded-[4px] py-1 pr-2 pl-1 transition-colors hover:bg-foglio" aria-expanded={aperto}>
+      <button onClick={() => setAperto((a) => !a)} aria-expanded={aperto}
+        className="flex items-center gap-2 rounded-full py-0.5 pr-2 pl-0.5 transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.08]">
         <Avatar persona={io} size={32} />
         <span className="hidden text-left sm:block">
-          <span className="block text-sm leading-tight font-semibold">{io.nome}</span>
-          <span className="block text-xs text-grafite">{io.id === progetto.manager_id ? 'Manager del progetto' : io.ruolo}</span>
+          <span className="block text-[13px] leading-tight font-semibold">{io.nome}</span>
+          <span className="block text-xs text-testo-2">{io.id === progetto.manager_id ? 'Manager del progetto' : io.ruolo}</span>
         </span>
-        <ChevronDown size={16} className={clsx('text-grafite transition-transform', aperto && 'rotate-180')} />
+        <ChevronDown size={14} className={clsx('text-testo-3 transition-transform', aperto && 'rotate-180')} />
       </button>
       <AnimatePresence>
         {aperto && (
-          <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.15 }}
-            className="sopra absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-md border border-inchiostro bg-foglio">
-            <div className="border-b border-linea p-4">
-              <p className="text-xs text-grafite">Le tue competenze: vedi solo ciò che rientra qui</p>
+          <motion.div initial={{ opacity: 0, y: -4, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ duration: 0.16 }} className={clsx(POPOVER, 'right-0 mt-2 w-80 p-0')}>
+            <div className="p-4">
+              <p className="text-xs text-testo-2">Le tue competenze: vedi solo ciò che rientra qui</p>
               <div className="mt-2 flex flex-wrap gap-1">{io.competenze.map((a) => <ChipArea key={a} area={a} />)}</div>
+              <p className="mt-4 mb-1.5 text-xs text-testo-2">Aspetto</p>
+              <SceltaTema piccolo />
             </div>
-            <p className="px-4 pt-3 text-xs font-semibold text-grafite">Entra come un'altra persona (demo)</p>
-            <ul className="max-h-80 overflow-y-auto p-2">
-              {[...membri, ...altri].map((p) => {
-                const fuori = !membri.some((m) => m.id === p.id)
-                return (
-                  <li key={p.id}>
-                    <button onClick={() => { setAperto(false); scegliPersona(p.id) }}
-                      className={clsx('flex w-full items-center gap-3 rounded-[4px] px-2 py-1.5 text-left hover:bg-velina', p.id === io.id && 'bg-segnale-chiaro')}>
-                      <Avatar persona={p} size={28} />
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium">{p.nome}</span>
-                        <span className="block truncate text-xs text-grafite">{p.id === progetto.manager_id ? 'Manager' : p.ruolo}</span>
-                      </span>
-                      {fuori && <span className="text-[11px] text-traccia">fuori progetto</span>}
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-            <button onClick={esci} className="flex w-full items-center gap-2 border-t border-linea px-4 py-3 text-sm text-grafite hover:bg-velina hover:text-inchiostro">
+            <div className="border-t border-separatore">
+              <p className="px-4 pt-3 text-xs font-semibold text-testo-2">Entra come un'altra persona (demo)</p>
+              <ul className="max-h-72 overflow-y-auto p-1.5">
+                {[...membri, ...altri].map((p) => {
+                  const fuori = !membri.some((m) => m.id === p.id)
+                  return (
+                    <li key={p.id}>
+                      <button onClick={() => { setAperto(false); scegliPersona(p.id) }}
+                        className="flex w-full items-center gap-3 rounded-[10px] px-2.5 py-1.5 text-left hover:bg-riempimento">
+                        <Avatar persona={p} size={28} />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium">{p.nome}</span>
+                          <span className="block truncate text-xs text-testo-2">{p.id === progetto.manager_id ? 'Manager' : p.ruolo}</span>
+                        </span>
+                        {p.id === io.id ? <Check size={15} strokeWidth={2.6} className="text-accento-testo" />
+                          : fuori && <span className="text-[11px] text-testo-2">fuori progetto</span>}
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+            <button onClick={esci} className="flex w-full items-center gap-2 border-t border-separatore px-4 py-3 text-sm text-rosso-testo hover:bg-riempimento">
               <LogOut size={15} /> Torna alla scelta della persona
             </button>
           </motion.div>

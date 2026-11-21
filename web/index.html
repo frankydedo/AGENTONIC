@@ -3,7 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>Company Brain</title>
+    <script>
+      // Tema prima del primo disegno, così il modo scuro non lampeggia di bianco (vedi src/tema.ts).
+      (function () {
+        var t = 'auto'
+        try { t = localStorage.getItem('company-brain-tema') || 'auto' } catch (e) {}
+        var scuro = t === 'scuro' || (t !== 'chiaro' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.dataset.theme = scuro ? 'dark' : 'light'
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

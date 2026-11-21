@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { coloreDi, daChiarire, descriviPasso, durata, giorniA, iniziali, inizioTask, riassuntoOutput, scadenzaRelativa, secondi, titoloProposta } from './lib'
-import type { Citazione, PassoRegistro, Proposta, Task } from './tipi'
+import { coloreDi, daChiarire, descriviPasso, puoCreareProgetti, puoModificare, validaProgetto, durata, giorniA, iniziali, inizioTask, riassuntoOutput, scadenzaRelativa, secondi, titoloProposta } from './lib'
+import type { Citazione, DatiProgetto, PassoRegistro, Persona, Progetto, Proposta, Task } from './tipi'
 
 const cit = (data: string, seg = 's001'): Citazione => ({
   segmento_id: `riu-001#${seg}`, documento_id: 'riu-001', titolo: 'Kick-off', data, orario: '09:30', speaker: 'Giulia', frase: '…',
@@ -119,5 +119,33 @@ describe('registro in italiano', () => {
     expect(durata(850)).toBe('850 ms')
     expect(durata(12345)).toBe('12,3 s')
     expect(durata(null)).toBeNull()
+  })
+})
+
+describe('progetti: chi crea, chi modifica, cosa serve', () => {
+  const persona = (id: string, ruolo: string): Persona => ({ id, nome: id, ruolo, alias: [], competenze: [] })
+  const prj = { id: 'prj-01', manager_id: 'p-01', membri: ['p-01', 'p-04'] } as Progetto
+
+  it('crea solo chi ha ruolo «project manager»', () => {
+    expect(puoCreareProgetti(persona('p-01', 'project manager'))).toBe(true)
+    expect(puoCreareProgetti(persona('p-01', ' Project Manager '))).toBe(true)
+    expect(puoCreareProgetti(persona('p-02', 'senior software engineer PLC'))).toBe(false)
+    expect(puoCreareProgetti(persona('p-08', 'amministrazione e personale'))).toBe(false)
+  })
+
+  it('modifica solo il manager di quel progetto', () => {
+    expect(puoModificare(persona('p-01', 'project manager'), prj)).toBe(true)
+    expect(puoModificare(persona('p-04', 'sviluppatrice HMI/SCADA'), prj)).toBe(false)
+  })
+
+  const ok: DatiProgetto = { nome: 'Linea 4', cliente: 'Pastificio', manager_id: 'p-01', membri: ['p-01', 'p-04'], scadenza: '2027-02-01', descrizione: '' }
+  it('un modulo completo è valido', () => {
+    expect(validaProgetto(ok, '2026-11-21')).toEqual([])
+  })
+  it('spiega in italiano cosa manca', () => {
+    expect(validaProgetto({ ...ok, nome: ' ', cliente: '', scadenza: '' }, '2026-11-21'))
+      .toEqual(['Dai un nome al progetto.', 'Indica il cliente (o «interno»).', 'Indica la scadenza.'])
+    expect(validaProgetto({ ...ok, scadenza: '2026-11-20' }, '2026-11-21')).toEqual(['La scadenza non può essere nel passato.'])
+    expect(validaProgetto({ ...ok, membri: ['p-04'] }, '2026-11-21')).toEqual(['Il manager deve essere tra i membri.'])
   })
 })

@@ -152,3 +152,40 @@ test('si sceglie il progetto tra quelli di cui si è membri', async ({ page }) =
   await page.getByRole('button', { name: /Revamping linea di confezionamento 3/ }).first().click()
   await expect(page.getByText(/I tuoi progetti \(\d+\)/)).toBeVisible()
 })
+
+test('aspetto: si passa al tema scuro e la scelta resta dopo il ricaricamento', async ({ page }) => {
+  await entraCome(page, 'p-01')
+  await page.getByRole('button', { name: /Giulia Ferraris/ }).first().click()
+  await page.getByRole('group', { name: 'Aspetto' }).getByRole('button', { name: 'Scuro' }).click()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  await page.reload()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+})
+
+test('il project manager vede i suoi progetti e il modulo per crearne uno', async ({ page }) => {
+  await entraCome(page, 'p-01', '/progetti')
+  const scheda = page.locator('li', { hasText: 'Revamping linea di confezionamento 3' }).first()
+  await expect(scheda.getByText('Sei il manager')).toBeVisible()
+  await expect(scheda.getByRole('button', { name: /Modifica/ })).toBeVisible()
+
+  await page.getByRole('button', { name: 'Nuovo progetto' }).click()
+  const modulo = page.getByRole('dialog', { name: 'Nuovo progetto' })
+  await modulo.getByRole('button', { name: 'Crea il progetto' }).click()
+  await expect(modulo.getByText('Dai un nome al progetto.')).toBeVisible()
+
+  await modulo.getByPlaceholder('Es. Revamping linea 4').fill('Revamping linea 4')
+  await modulo.getByPlaceholder('Es. Pastificio Valsangone S.p.A.').fill('Pastificio Valsangone S.p.A.')
+  await modulo.locator('input[type=date]').fill('2027-03-31')
+  await modulo.getByRole('button', { name: 'Crea il progetto' }).click()
+  // finché Pietro non aggiunge POST /progetti: errore chiaro, nessun progetto finto
+  await expect(modulo.getByText(/non permette ancora di creare progetti/)).toBeVisible()
+})
+
+test('un membro vede solo i suoi progetti, senza crearne né modificarli', async ({ page }) => {
+  await entraCome(page, 'p-04', '/progetti')
+  const scheda = page.locator('li', { hasText: 'Revamping linea di confezionamento 3' }).first()
+  await expect(scheda.getByText('Membro', { exact: true })).toBeVisible()
+  await expect(scheda.getByText('Qui vedi:')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Nuovo progetto' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /Modifica/ })).toHaveCount(0)
+})

@@ -1,77 +1,51 @@
-import clsx from 'clsx'
 import { motion } from 'motion/react'
-import { Avatar, ChipArea, MarchioBrain } from '../componenti/ui'
+import { SceltaTema } from '../componenti/Tema'
+import { Avatar, MarchioBrain } from '../componenti/ui'
 import type { Persona } from '../tipi'
 
 /**
- * Ingresso della demo: si timbra il cartellino. L'identità decide cosa il Brain ti mostra,
+ * Ingresso della demo: chi sei? L'identità decide cosa il Brain ti mostra,
  * e arriva da qui, mai dal testo di una domanda.
  */
 export function SceltaPersona({ persone, managerId, membri, onScegli }: {
   persone: Persona[]; managerId?: string; membri?: string[]; onScegli: (id: string) => void
 }) {
   return (
-    <div className="quadrettatura min-h-screen px-4 py-10 sm:px-8 lg:py-16">
-      <div className="mx-auto max-w-6xl">
-        <header className="grid gap-8 lg:grid-cols-[1fr_minmax(0,22rem)] lg:items-end">
-          <div>
-            <MarchioBrain size={44} parla />
-            <h1 className="titolo-tavola mt-6 text-[3.2rem] sm:text-[5.2rem]">Company<br />Brain</h1>
-          </div>
-          <p className="max-w-sm text-[17px] leading-relaxed text-grafite lg:pb-3">
-            Il membro del team che legge le riunioni, tiene la memoria del progetto e ti dice cosa richiede
-            la tua attenzione. <span className="font-semibold text-inchiostro">Chiede sempre prima di agire.</span>
-          </p>
-        </header>
+    <div className="relative min-h-screen px-4 pt-20 pb-16 sm:px-8 sm:pt-24">
+      <div className="absolute top-4 right-4"><SceltaTema piccolo /></div>
+      <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
+        <MarchioBrain size={72} parla className="shadow-[0_14px_44px_rgba(94,92,230,0.38)]" />
+        <h1 className="titolo-grande mt-7 text-[44px] sm:text-[60px]">Company Brain</h1>
+        <p className="mt-4 max-w-xl text-[19px] leading-snug text-testo-2 sm:text-[21px]">
+          Il membro del team che legge le riunioni, tiene la memoria del progetto e ti dice cosa richiede la tua attenzione.
+          Chiede sempre prima di agire.
+        </p>
 
-        <div className="mt-12 flex flex-wrap items-baseline justify-between gap-2 border-t-2 border-inchiostro pt-4">
-          <p className="text-lg font-bold [font-stretch:110%]">Chi sei? Timbra il tuo cartellino.</p>
-          <p className="text-sm text-grafite">Ognuno vede solo ciò che rientra nelle sue competenze.</p>
-        </div>
+        <h2 className="mt-16 text-[22px] font-semibold tracking-[-0.01em]">Chi sei?</h2>
+        <p className="mt-1.5 text-[15px] text-testo-2">Ognuno vede solo ciò che rientra nelle sue competenze.</p>
 
-        <ul className="mt-6 grid gap-x-4 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
-          {persone.map((p, i) => (
-            <motion.li key={p.id} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05 + i * 0.035, type: 'spring', stiffness: 260, damping: 26 }}>
-              <Cartellino p={p} manager={p.id === managerId} fuori={!!membri && !membri.includes(p.id)} onScegli={onScegli} />
-            </motion.li>
-          ))}
+        <ul className="mt-9 grid w-full grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-3 lg:grid-cols-4">
+          {persone.map((p, i) => {
+            const manager = p.id === managerId
+            const fuori = !!membri && !membri.includes(p.id)
+            return (
+              <motion.li key={p.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.08 + i * 0.04, type: 'spring', stiffness: 260, damping: 26 }}>
+                <button onClick={() => onScegli(p.id)}
+                  className="group flex w-full flex-col items-center gap-2 rounded-[22px] px-2 py-5 transition hover:bg-superficie hover:shadow-alta focus-visible:bg-superficie">
+                  <span className="rounded-full transition group-hover:shadow-[0_0_0_3px_var(--superficie),0_0_0_6px_var(--accento)]">
+                    <Avatar persona={p} size={84} />
+                  </span>
+                  <span className="mt-1 text-[17px] font-semibold">{p.nome}</span>
+                  <span className="-mt-1.5 text-[13px] text-testo-2 first-letter:uppercase">{p.ruolo}</span>
+                  {manager && <span className="rounded-[7px] bg-viola-tenue px-2 py-0.5 text-xs font-semibold text-viola-testo">Manager</span>}
+                  {fuori && <span className="rounded-[7px] bg-riempimento px-2 py-0.5 text-xs font-semibold text-testo-2">Fuori progetto</span>}
+                </button>
+              </motion.li>
+            )
+          })}
         </ul>
       </div>
     </div>
-  )
-}
-
-function Cartellino({ p, manager, fuori, onScegli }: { p: Persona; manager: boolean; fuori: boolean; onScegli: (id: string) => void }) {
-  return (
-    <button
-      onClick={() => onScegli(p.id)}
-      className={clsx(
-        'group relative flex h-full w-full flex-col rounded-[5px] border border-linea-forte bg-foglio text-left transition',
-        'hover:-translate-y-1 hover:border-inchiostro hover:shadow-[5px_5px_0_var(--color-inchiostro)]',
-        fuori && 'border-dashed',
-      )}
-    >
-      {/* la fessura del cartellino */}
-      <span aria-hidden className="absolute top-2.5 left-1/2 h-2 w-12 -translate-x-1/2 rounded-full border border-linea-forte bg-carta" />
-      <span className="condensato mt-7 flex items-center justify-between border-y border-linea px-4 py-1 text-[11.5px] text-grafite">
-        <span>Cartellino {p.id.replace('p-', 'n. ')}</span>
-        {(manager || fuori) && <span className="font-semibold text-inchiostro">{manager ? 'Manager' : 'Fuori progetto'}</span>}
-      </span>
-      <span className="flex items-center gap-3 px-4 pt-4">
-        <Avatar persona={p} size={42} />
-        <span className="min-w-0">
-          <span className="block truncate text-[16px] leading-tight font-bold">{p.nome}</span>
-          <span className="block truncate text-sm text-grafite">{p.ruolo}</span>
-        </span>
-      </span>
-      <span className="flex flex-1 flex-wrap content-start gap-1 px-4 pt-3 pb-4">
-        {p.competenze.filter((a) => a !== 'generale').map((a) => <ChipArea key={a} area={a} />)}
-      </span>
-      <span className="flex items-center justify-between rounded-b-[4px] border-t border-linea px-4 py-2 text-sm font-semibold text-grafite transition-colors group-hover:bg-inchiostro group-hover:text-foglio">
-        Timbra l'ingresso
-        <span aria-hidden className="h-2 w-2 rounded-full bg-linea-forte transition-colors group-hover:bg-segnale" />
-      </span>
-    </button>
   )
 }

@@ -1,44 +1,153 @@
 @import "tailwindcss";
 
 /*
- * Linguaggio visivo: la tavola tecnica di una commessa di automazione.
- * Carta da disegno, inchiostro di Prussia, il giallo dei segnali industriali (RAL 1003)
- * usato solo dove il Brain chiede attenzione, il verde del timbro per le decisioni umane.
+ * Linguaggio visivo: superfici morbide, angoli ampi, tipografia di sistema, blu per le azioni.
+ * Tutti i colori sono token semantici: il tema chiaro e quello scuro cambiano solo i valori qui
+ * sotto (html[data-theme], deciso in index.html prima del primo disegno e da tema.ts).
  */
-@theme {
-  --font-sans: "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme inline {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter Variable", system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 
-  --color-carta: #e9eae4;
-  --color-foglio: #f8f8f4;
-  --color-velina: #f0f1eb;
-  --color-linea: #d2d4cc;
-  --color-linea-forte: #a7aba2;
+  --color-fondo: var(--fondo);
+  --color-superficie: var(--superficie);
+  --color-riempimento: var(--riempimento);
+  --color-riempimento-2: var(--riempimento-2);
+  --color-barra: var(--barra);
+  --color-separatore: var(--separatore);
+  --color-separatore-forte: var(--separatore-forte);
 
-  --color-inchiostro: #14213d;
-  --color-inchiostro-2: #24365e;
-  --color-grafite: #535a6a;
-  --color-traccia: #80858f;
+  --color-testo: var(--testo);
+  --color-testo-2: var(--testo-2);
+  --color-testo-3: var(--testo-3);
 
-  --color-segnale: #f2b705;
-  --color-segnale-chiaro: #fbf0c9;
-  --color-segnale-scuro: #6b4f00;
+  --color-accento: var(--accento);
+  --color-accento-premuto: var(--accento-premuto);
+  --color-accento-testo: var(--accento-testo);
+  --color-accento-tenue: var(--accento-tenue);
+  --color-su-accento: #ffffff;
 
-  --color-timbro: #1d7347;
-  --color-timbro-chiaro: #dcebe1;
-  --color-allarme: #b3342a;
-  --color-allarme-chiaro: #f5dfdb;
-  --color-cavo: #2d64a8;
-  --color-cavo-chiaro: #dfe8f3;
-  --color-viola: #6a4c93;
-  --color-viola-chiaro: #e9e3f1;
+  --color-verde: var(--verde);
+  --color-verde-testo: var(--verde-testo);
+  --color-verde-tenue: var(--verde-tenue);
+  --color-arancio: var(--arancio);
+  --color-arancio-testo: var(--arancio-testo);
+  --color-arancio-tenue: var(--arancio-tenue);
+  --color-rosso: var(--rosso);
+  --color-rosso-testo: var(--rosso-testo);
+  --color-rosso-tenue: var(--rosso-tenue);
+  --color-viola: var(--viola);
+  --color-viola-testo: var(--viola-testo);
+  --color-viola-tenue: var(--viola-tenue);
+  --color-evidenza: var(--evidenza);
+  --color-evidenza-bordo: var(--evidenza-bordo);
+  --color-evidenza-segno: var(--evidenza-segno);
+  --color-evidenza-testo: var(--evidenza-testo);
 
-  --animate-spia: spia 2.4s ease-in-out infinite;
+  --shadow-card: var(--ombra-card);
+  --shadow-alta: var(--ombra-alta);
+  --radius-scheda: 20px;
 }
 
-@keyframes spia {
-  0%, 100% { opacity: 1; filter: none; }
-  50% { opacity: 0.55; filter: saturate(0.7); }
+:root {
+  color-scheme: light;
+  --fondo: #f5f5f7;
+  --superficie: #ffffff;
+  --riempimento: #f2f2f7;
+  --riempimento-2: #e9e9ee;
+  --barra: rgba(236, 236, 240, 0.72);
+  --separatore: rgba(60, 60, 67, 0.12);
+  --separatore-forte: rgba(60, 60, 67, 0.24);
+
+  --testo: #1d1d1f;
+  --testo-2: #6e6e73;
+  --testo-3: #8e8e93;
+
+  --accento: #0071e3;
+  --accento-premuto: #0062c4;
+  --accento-testo: #0066cc;
+  --accento-tenue: #e8f1fd;
+
+  --verde: #34c759;
+  --verde-testo: #1f7a35;
+  --verde-tenue: #e3f5e8;
+  --arancio: #ff9f0a;
+  --arancio-testo: #a84a00;
+  --arancio-tenue: #fff4e0;
+  --rosso: #ff3b30;
+  --rosso-testo: #d70015;
+  --rosso-tenue: #fdeceb;
+  --viola: #5e5ce6;
+  --viola-testo: #3634a3;
+  --viola-tenue: #eeeefc;
+  --evidenza: #fff8d6;
+  --evidenza-bordo: rgba(255, 204, 0, 0.45);
+  --evidenza-segno: #ffe066;
+  --evidenza-testo: #6b5000;
+
+  --ombra-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  --ombra-alta: 0 24px 60px rgba(0, 0, 0, 0.16), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+
+  /* monogrammi delle persone: fondo tenue, iniziali piene */
+  --av0-bg: #e5e7fb; --av0-fg: #3634a3;
+  --av1-bg: #fde8e4; --av1-fg: #a1281a;
+  --av2-bg: #e3eefb; --av2-fg: #0a4fa8;
+  --av3-bg: #e1f4e6; --av3-fg: #1c6b32;
+  --av4-bg: #f3e6fa; --av4-fg: #7b2fa6;
+  --av5-bg: #fce7f0; --av5-fg: #a2275d;
+  --av6-bg: #dff3f4; --av6-fg: #0b6770;
+  --av7-bg: #fff0dc; --av7-fg: #8a4a00;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --fondo: #000000;
+  --superficie: #1c1c1e;
+  --riempimento: #2c2c2e;
+  --riempimento-2: #3a3a3c;
+  --barra: rgba(28, 28, 30, 0.72);
+  --separatore: rgba(84, 84, 88, 0.55);
+  --separatore-forte: rgba(120, 120, 128, 0.6);
+
+  --testo: #f5f5f7;
+  --testo-2: #a1a1a6;
+  --testo-3: #8e8e93;
+
+  --accento: #0a84ff;
+  --accento-premuto: #0071e3;
+  --accento-testo: #4aa3ff;
+  --accento-tenue: rgba(10, 132, 255, 0.18);
+
+  --verde: #30d158;
+  --verde-testo: #4ade80;
+  --verde-tenue: rgba(48, 209, 88, 0.16);
+  --arancio: #ff9f0a;
+  --arancio-testo: #ffb340;
+  --arancio-tenue: rgba(255, 159, 10, 0.16);
+  --rosso: #ff453a;
+  --rosso-testo: #ff6961;
+  --rosso-tenue: rgba(255, 69, 58, 0.16);
+  --viola: #5e5ce6;
+  --viola-testo: #a5a4ff;
+  --viola-tenue: rgba(94, 92, 230, 0.22);
+  --evidenza: rgba(255, 214, 10, 0.13);
+  --evidenza-bordo: rgba(255, 214, 10, 0.35);
+  --evidenza-segno: rgba(255, 214, 10, 0.4);
+  --evidenza-testo: #ffd60a;
+
+  --ombra-card: 0 0 0 0.5px rgba(255, 255, 255, 0.08);
+  --ombra-alta: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 0 0.5px rgba(255, 255, 255, 0.12);
+
+  --av0-bg: rgba(94, 92, 230, 0.3);  --av0-fg: #c3c2ff;
+  --av1-bg: rgba(255, 69, 58, 0.24); --av1-fg: #ffaaa3;
+  --av2-bg: rgba(10, 132, 255, 0.26); --av2-fg: #9ccbff;
+  --av3-bg: rgba(48, 209, 88, 0.22); --av3-fg: #8ee6a8;
+  --av4-bg: rgba(191, 90, 242, 0.26); --av4-fg: #e2b8fa;
+  --av5-bg: rgba(255, 55, 95, 0.24); --av5-fg: #ffa8bc;
+  --av6-bg: rgba(100, 210, 255, 0.2); --av6-fg: #9ee8f5;
+  --av7-bg: rgba(255, 159, 10, 0.22); --av7-fg: #ffca7a;
 }
 
 html {
@@ -46,59 +155,99 @@ html {
 }
 
 body {
-  @apply bg-carta text-inchiostro antialiased;
-  font-stretch: 100%;
+  @apply bg-fondo text-testo antialiased;
+  font-feature-settings: "cv11", "ss01";
+  transition: background-color 0.3s ease;
 }
 
-/* Titoli: larghi e pesanti, come le intestazioni di una tavola. */
-.titolo-tavola {
-  font-stretch: 120%;
-  font-weight: 760;
-  letter-spacing: -0.025em;
-  line-height: 1.02;
+@property --giro {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes giro {
+  to { --giro: 360deg; }
+}
+@keyframes respiro {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.85; }
 }
 
-/* Dati e riferimenti: condensati, a cifre tabulari. */
-.condensato {
-  font-stretch: 76%;
-  font-variant-numeric: tabular-nums;
+@layer components {
+.titolo-grande {
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  line-height: 1.08;
 }
 
 .cifre {
   font-variant-numeric: tabular-nums;
 }
 
-/* Il foglio quadrettato delle schermate di ingresso. */
-.quadrettatura {
-  background-color: var(--color-carta);
-  background-image:
-    linear-gradient(color-mix(in oklab, var(--color-linea) 70%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in oklab, var(--color-linea) 70%, transparent) 1px, transparent 1px);
-  background-size: 24px 24px;
-  background-position: -1px -1px;
+/* --- Il Brain: una sfera di luce; quando parla per primo, il suo messaggio ha un alone --------- */
+
+
+.sfera {
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.95) 0 7%, transparent 30%),
+    conic-gradient(from var(--giro), #0a84ff, #5e5ce6, #bf5af2, #ff375f, #ff9f0a, #0a84ff);
+}
+.sfera-viva {
+  animation: giro 8s linear infinite;
 }
 
-/* Ombra degli oggetti che stanno sopra il foglio: netta, non sfumata. */
-.sopra {
-  box-shadow: 5px 5px 0 var(--color-inchiostro);
+.alone {
+  position: relative;
+  isolation: isolate;
+  border-radius: 24px;
+  padding: 1.5px;
+  background: conic-gradient(from var(--giro), #0a84ff, #5e5ce6, #bf5af2, #ff375f, #ff9f0a, #0a84ff);
+  animation: giro 7s linear infinite;
+}
+.alone::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  z-index: -1;
+  border-radius: 24px;
+  background: inherit;
+  filter: blur(24px);
+  animation: respiro 4s ease-in-out infinite;
+}
+.alone-spento {
+  background: var(--separatore);
+  animation: none;
+}
+.alone-spento::before {
+  display: none;
+}
+
+/* Barre traslucide (barra laterale, intestazione, barra delle schede). */
+.vetro {
+  background: var(--barra);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+}
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-inchiostro);
+  outline: 3px solid color-mix(in oklab, var(--accento) 55%, transparent);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: var(--color-segnale-chiaro);
+  background: color-mix(in oklab, var(--accento) 25%, transparent);
 }
 
-/* La fonte selezionata lampeggia quando la si apre da una citazione. */
+/* La fonte selezionata si accende quando la si apre da una citazione. */
 @keyframes evidenzia {
-  0%, 30% { background-color: color-mix(in oklab, var(--color-segnale) 55%, var(--color-foglio)); }
-  100% { background-color: var(--color-segnale-chiaro); }
+  0%, 30% { background-color: var(--evidenza-segno); }
+  100% { background-color: var(--evidenza); }
 }
-.segmento-evidenziato {
-  animation: evidenzia 1.8s ease-out;
+@layer components {
+  .segmento-evidenziato {
+    animation: evidenzia 1.8s ease-out;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

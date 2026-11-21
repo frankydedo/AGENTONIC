@@ -31,6 +31,16 @@ export interface Progetto {
   descrizione: string
 }
 
+/** Corpo di creazione/modifica di un progetto (PROPOSTA: POST /progetti, PATCH /progetti/{id}). */
+export interface DatiProgetto {
+  nome: string
+  cliente: string
+  manager_id: string
+  membri: string[]
+  scadenza: string
+  descrizione: string
+}
+
 export interface Segmento {
   id: string
   documento_id: string

@@ -17,20 +17,20 @@ export function RigaTask({ t, conAssegnatario = true, compatta = false }: { t: T
   return (
     <div className="min-w-0 flex-1">
       <div className="flex flex-wrap items-center gap-2">
-        <span className={clsx('font-semibold', t.stato === 'fatto' && 'text-traccia line-through')}>{t.titolo}</span>
+        <span className={clsx('text-[15px] font-semibold', t.stato === 'fatto' && 'text-testo-3 line-through')}>{t.titolo}</span>
         <StatoBadge stato={t.stato} />
       </div>
-      <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-grafite">
+      <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[13px] text-testo-2">
         {conAssegnatario && (assegnatario
-          ? <span className="inline-flex items-center gap-1.5"><Avatar persona={assegnatario} size={20} />{assegnatario.nome}</span>
+          ? <span className="inline-flex items-center gap-1.5 text-testo"><Avatar persona={assegnatario} size={20} />{assegnatario.nome}</span>
           : <Badge tono="giallo">Nessun responsabile</Badge>)}
-        <span className="condensato">entro {dataBreve(t.scadenza)}</span>
+        <span>entro {dataBreve(t.scadenza)}</span>
         <Scadenza iso={t.scadenza} stato={t.stato} />
         {!compatta && t.aree.map((a) => <ChipArea key={a} area={a} />)}
       </div>
       {bloccanti.length > 0 && (
-        <p className="mt-1.5 inline-flex items-center gap-1.5 text-sm font-medium text-allarme">
-          <Lock size={13} /> Aspetta: {bloccanti.map((b) => `${b.titolo} (${persone[b.assegnatario_id ?? '']?.nome ?? '?'})`).join(', ')}
+        <p className="mt-1.5 flex items-start gap-1.5 text-[13px] text-rosso-testo">
+          <Lock size={13} strokeWidth={2.4} className="mt-0.5 shrink-0" /> Aspetta: {bloccanti.map((b) => `${b.titolo} (${persone[b.assegnatario_id ?? '']?.nome ?? '?'})`).join(', ')}
         </p>
       )}
       {!compatta && <Citazioni citazioni={t.citazioni} className="mt-2" />}
@@ -99,19 +99,19 @@ export function TodoOggi() {
       {!todo ? <Scheletro righe={2} /> : todo.task.length === 0 ? (
         <Vuoto icona={CalendarCheck} titolo="Nessun task per oggi" testo="Quando il manager approva nuovi task assegnati a te, compaiono qui." />
       ) : (
-        <div className="p-5">
-          <ul className="space-y-2">
+        <div className="pb-5">
+          <ul className="divide-y divide-separatore">
             {todo.task.map((t) => (
-              <li key={t.id} className={clsx('flex gap-3 rounded-[5px] border border-linea bg-foglio p-3 transition-opacity', tolti.has(t.id) && 'border-dashed opacity-45')}>
+              <li key={t.id} className={clsx('flex gap-3.5 px-5 py-3.5 transition-opacity', tolti.has(t.id) && 'opacity-40')}>
                 {!todo.accettata && (
                   <input type="checkbox" checked={!tolti.has(t.id)} onChange={() => alterna(t.id)}
-                    className="mt-1 h-4 w-4 accent-[var(--color-inchiostro)]" aria-label={`Includi oggi: ${t.titolo}`} />
+                    className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--accento)]" aria-label={`Includi oggi: ${t.titolo}`} />
                 )}
                 <RigaTask t={t} conAssegnatario={false} />
               </li>
             ))}
           </ul>
-          {!todo.accettata && <Bottone variante="primario" icona={Check} className="mt-4" onClick={accetta}>Accetta la giornata</Bottone>}
+          {!todo.accettata && <div className="px-5 pt-2"><Bottone variante="primario" icona={Check} className="w-full sm:w-auto" onClick={accetta}>Accetta la giornata</Bottone></div>}
         </div>
       )}
     </Card>

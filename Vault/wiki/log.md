@@ -105,3 +105,7 @@
 - UI: selettore del progetto (solo quelli di cui si è membri), pulsante «Carica riunione» con i passi del Brain, Registro riscritto in frasi italiane (i dati grezzi in «Dettagli tecnici»), inoltro degli avvisi.
 - Proposte al backend in `docs/proposte-contratto-ui.md` §6-7: `GET /progetti`, `Persona.reparto`, `prj-02` (manager Marco Bianchi) e `prj-03` (manager Paola Greco) in `azienda.json`, evento SSE `passo`.
 - File d'esempio fuori dalla repo in `~/Desktop/File esempio` (3 progetti + casi limite, con `LEGGIMI.md`): da `segmenta()` emergono due casi da gestire, l'id duplicato (riu-001) e il progetto dell'intestazione diverso da quello del caricamento.
+
+## [2026-11-21 15:00] decisione | Gestione dei progetti
+- Crea un progetto solo chi ha ruolo «project manager»; lo modifica solo il suo manager; gli altri vedono solo i progetti di cui sono membri, e dentro solo ciò che rientra nelle loro competenze.
+- Per ora solo frontend (pagina «Progetti»: schede, creazione, modifica, membri e manager): finché Pietro non aggiunge `GET/POST /progetti` e `PATCH /progetti/{id}` (`docs/proposte-contratto-ui.md` §8), creare e modificare danno un errore chiaro, senza dati finti.

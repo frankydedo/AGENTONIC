@@ -1,6 +1,6 @@
 import { differenceInCalendarDays, format, parseISO, startOfDay } from 'date-fns'
 import { it } from 'date-fns/locale'
-import type { PassoRegistro, Proposta, StatoTask, Task } from './tipi'
+import type { DatiProgetto, PassoRegistro, Persona, Progetto, Proposta, StatoTask, Task } from './tipi'
 
 // --- Tempo --------------------------------------------------------------------------------------
 
@@ -49,9 +49,8 @@ export const daChiarire = (p: Proposta) =>
 
 // --- Persone ------------------------------------------------------------------------------------
 
-// Toni d'inchiostro, non pastello: stanno sulla carta come i colori dei cavi in un quadro.
-const PALETTE = ['#2d64a8', '#1d7347', '#6a4c93', '#a8456b', '#2a7d77', '#8a5a1c', '#3b4a6b', '#9b3f2f']
-export const coloreDi = (id: string) => PALETTE[[...id].reduce((a, c) => a + c.charCodeAt(0), 0) % PALETTE.length]
+// Otto coppie fondo/iniziali (--av0…--av7 in index.css), diverse per tema chiaro e scuro.
+export const coloreDi = (id: string) => [...id].reduce((a, c) => a + c.charCodeAt(0), 0) % 8
 export const iniziali = (nome: string) => nome.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()
 
 // --- Registro: passi in italiano semplice ---------------------------------------------------------
@@ -87,3 +86,26 @@ export function descriviPasso(p: PassoRegistro, nomePersona: (id: string) => str
 
 export const durata = (ms: number | null | undefined) =>
   ms == null ? null : ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1).replace('.', ',')} s`
+
+// --- Progetti --------------------------------------------------------------------------------------
+
+/**
+ * Chi può creare un progetto: solo chi ha ruolo «project manager» (decisione del team, 21/11).
+ * Nella UI decide solo cosa mostrare: il permesso vero lo deve controllare il backend.
+ */
+export const puoCreareProgetti = (p: Persona) => p.ruolo.trim().toLowerCase() === 'project manager'
+
+/** Modificare un progetto spetta al suo manager. */
+export const puoModificare = (p: Persona, prj: Progetto) => prj.manager_id === p.id
+
+/** Errori del modulo, in italiano; lista vuota se va bene. `oggiIso` = AAAA-MM-GG. */
+export function validaProgetto(d: DatiProgetto, oggiIso: string): string[] {
+  const errori: string[] = []
+  if (!d.nome.trim()) errori.push('Dai un nome al progetto.')
+  if (!d.cliente.trim()) errori.push('Indica il cliente (o «interno»).')
+  if (!d.scadenza) errori.push('Indica la scadenza.')
+  else if (d.scadenza < oggiIso) errori.push('La scadenza non può essere nel passato.')
+  if (!d.manager_id) errori.push('Scegli il manager.')
+  else if (!d.membri.includes(d.manager_id)) errori.push('Il manager deve essere tra i membri.')
+  return errori
+}

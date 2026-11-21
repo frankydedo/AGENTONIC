@@ -88,3 +88,28 @@ describe('dati d\'esempio per gli endpoint mancanti', () => {
     await expect(api.documento('riu-002')).rejects.toMatchObject({ status: 404 })
   })
 })
+
+describe('creare e modificare progetti', () => {
+  const dati = { nome: 'Linea 4', cliente: 'Pastificio', manager_id: 'p-01', membri: ['p-01'], scadenza: '2027-02-01', descrizione: '' }
+
+  it('se il backend non ha l\'endpoint lo dice chiaramente, senza inventare un progetto', async () => {
+    const { api, finti } = await carica()
+    risposte = [{ status: 404, body: { detail: 'Not Found' } }]
+    await expect(api.creaProgetto(dati)).rejects.toMatchObject({ status: 501, message: expect.stringContaining('non permette ancora di creare progetti') })
+    expect(finti.elenco()).toBe('')
+  })
+
+  it('un rifiuto per permessi resta un rifiuto', async () => {
+    const { api } = await carica()
+    risposte = [{ status: 403, body: { detail: 'Solo un project manager può creare progetti.' } }]
+    await expect(api.creaProgetto(dati)).rejects.toMatchObject({ status: 403, message: 'Solo un project manager può creare progetti.' })
+  })
+
+  it('modifica con PATCH sul progetto giusto', async () => {
+    const { api } = await carica()
+    risposte = [{ status: 200, body: { id: 'prj-01', ...dati } }]
+    await api.modificaProgetto('prj-01', dati)
+    expect(chiamate[0].url).toBe('/api/progetti/prj-01')
+    expect(chiamate[0].init.method).toBe('PATCH')
+  })
+})

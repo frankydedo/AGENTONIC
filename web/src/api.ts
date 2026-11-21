@@ -2,7 +2,7 @@
 // (e nel cookie di sessione per l'SSE), mai nel corpo delle richieste.
 import docRiu001 from './finti/riu-001.json'
 import type {
-  Area, Avviso, Citazione, Documento, EsitoCaricamento, Modifiche, PassoRegistro, Persona,
+  Area, Avviso, Citazione, DatiProgetto, Documento, EsitoCaricamento, Modifiche, PassoRegistro, Persona,
   Progetto, Proposta, Risposta, Task, TodoOggi,
 } from './tipi'
 
@@ -60,6 +60,16 @@ async function conRiserva<T>(nome: string, chiamata: () => Promise<T>, riserva: 
   }
 }
 
+/** Per le azioni che scrivono: niente dati d'esempio, ma un errore che dice cosa manca. */
+async function senzaRiserva<T>(azione: string, chiamata: () => Promise<T>): Promise<T> {
+  try {
+    return await chiamata()
+  } catch (e) {
+    if (rottaMancante(e)) throw new ErroreApi(501, `Il backend non permette ancora di ${azione}: endpoint da aggiungere (docs/proposte-contratto-ui.md §8).`)
+    throw e
+  }
+}
+
 // --- Endpoint -----------------------------------------------------------------------------------
 
 export const api = {
@@ -83,6 +93,13 @@ export const api = {
       return esiti.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
     }
   },
+
+  /** Solo chi ha ruolo «project manager» (lo controlla il backend). */
+  creaProgetto: (dati: DatiProgetto) =>
+    senzaRiserva('creare progetti', () => chiama<Progetto>('/progetti', json(dati))),
+  /** Solo il manager del progetto (lo controlla il backend). */
+  modificaProgetto: (id: string, dati: DatiProgetto) =>
+    senzaRiserva('modificare i progetti', () => chiama<Progetto>(`/progetti/${id}`, { method: 'PATCH', body: JSON.stringify(dati) })),
 
   documenti: (progettoId: string) =>
     conRiserva('documenti', () => chiama<Documento[]>(`/documenti?progetto_id=${progettoId}`),

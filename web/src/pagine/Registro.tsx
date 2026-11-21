@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { ChevronRight, CircleAlert, ScrollText, UserCheck } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { api } from '../api'
-import { Avatar, Badge, Card, MarchioBrain, Scheletro, TitoloPagina, Vuoto } from '../componenti/ui'
+import { Avatar, Badge, Card, MarchioBrain, Scheletro, Segmentato, TitoloPagina, Vuoto } from '../componenti/ui'
 import { useApp } from '../contesto'
 import { useDati } from '../dati'
 import { dataBreve, descriviPasso, durata, oraDi, riassuntoOutput } from '../lib'
@@ -43,27 +43,20 @@ export function Registro() {
     <>
       <TitoloPagina titolo="Registro" sottotitolo="Il diario di bordo del progetto: cosa ha fatto il Brain e cosa hanno deciso le persone, in ordine." />
 
-      <Card className="mb-6 flex max-w-4xl gap-3 p-4 text-sm leading-relaxed text-grafite">
-        <ScrollText size={18} className="mt-0.5 shrink-0 text-inchiostro" />
+      <Card className="mb-6 flex max-w-4xl gap-3 p-4 text-sm leading-relaxed text-testo-2">
+        <ScrollText size={18} className="mt-0.5 shrink-0 text-testo" />
         <p>
           Ogni volta che il Brain legge un documento, estrae informazioni o confronta riunioni, e ogni volta che qualcuno
-          approva, rifiuta o fa una domanda, qui resta una riga. Così puoi sempre verificare <b className="text-inchiostro">da dove viene</b> una proposta,
-          <b className="text-inchiostro"> quale modello</b> l'ha prodotta e <b className="text-inchiostro">chi l'ha approvata</b>. Nulla entra nella memoria senza lasciare traccia.
+          approva, rifiuta o fa una domanda, qui resta una riga. Così puoi sempre verificare <b className="text-testo">da dove viene</b> una proposta,
+          <b className="text-testo"> quale modello</b> l'ha prodotta e <b className="text-testo">chi l'ha approvata</b>. Nulla entra nella memoria senza lasciare traccia.
         </p>
       </Card>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <div className="flex rounded-[5px] border border-inchiostro p-0.5">
-          {([['tutti', 'Tutto'], ['brain', 'Solo il Brain'], ['persone', 'Solo le persone']] as const).map(([k, t]) => (
-            <button key={k} onClick={() => setFiltro(k)}
-              aria-pressed={filtro === k}
-              className={clsx('rounded-[3px] px-3 py-1.5 text-sm font-semibold transition-colors', filtro === k ? 'bg-inchiostro text-foglio' : 'text-grafite hover:text-inchiostro')}>
-              {t}
-            </button>
-          ))}
-        </div>
+        <Segmentato etichetta="Chi" valore={filtro} onCambia={setFiltro}
+          opzioni={[['tutti', 'Tutto'], ['brain', 'Solo il Brain'], ['persone', 'Solo le persone']] as const} />
         {docsNelRegistro.length > 0 && (
-          <select value={documento} onChange={(e) => setDocumento(e.target.value)} aria-label="Filtra per documento" className="rounded-[4px] border border-linea-forte bg-foglio px-3 py-2 text-sm">
+          <select value={documento} onChange={(e) => setDocumento(e.target.value)} aria-label="Filtra per documento" className="h-9 rounded-full bg-riempimento-2/80 pr-8 pl-3.5 text-sm font-medium text-testo focus:ring-3 focus:ring-accento/30 focus:outline-none">
             <option value="">Tutti i documenti</option>
             {docsNelRegistro.map((d) => <option key={d} value={d}>{titolo(d) ?? d}</option>)}
           </select>
@@ -80,14 +73,14 @@ export function Registro() {
               const problema = p.esito && p.esito !== 'ok'
               return (
                 <li key={p.id ?? i} className="relative flex gap-4 pb-6 last:pb-0">
-                  {i < visibili.length - 1 && <span className="absolute top-10 bottom-0 left-[17px] w-px bg-linea-forte" />}
+                  {i < visibili.length - 1 && <span className="absolute top-10 bottom-0 left-[17px] w-px bg-testo-3" />}
                   {umano ? <Avatar persona={persone[p.attore]} nome={p.attore} size={36} /> : (
                     <MarchioBrain size={36} />
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-baseline gap-x-3">
                       <p className="font-semibold">{descriviPasso(p, nome, titolo)}</p>
-                      <span className="condensato text-sm text-grafite">{dataBreve(p.quando)}, {oraDi(p.quando)}</span>
+                      <span className="cifre text-sm text-testo-2">{dataBreve(p.quando)}, {oraDi(p.quando)}</span>
                     </div>
                     <div className="mt-1.5 flex flex-wrap gap-1.5">
                       {problema && <Badge tono={p.esito === 'errore' ? 'rosso' : 'giallo'} icona={CircleAlert}>{p.esito === 'errore' ? 'Errore' : 'Scartato'}</Badge>}
@@ -96,16 +89,16 @@ export function Registro() {
                       {durata(p.durata_ms) && <Badge tono="blu">{durata(p.durata_ms)}</Badge>}
                       {(p.tentativi ?? 1) > 1 && <Badge tono="giallo">{p.tentativi} tentativi</Badge>}
                     </div>
-                    {p.motivo && <p className={clsx('mt-1.5 text-sm', problema ? 'text-segnale-scuro' : 'text-grafite')}>{p.motivo}</p>}
+                    {p.motivo && <p className={clsx('mt-1.5 text-sm', problema ? 'text-arancio-testo' : 'text-testo-2')}>{p.motivo}</p>}
                     <details className="group mt-2">
-                      <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-xs font-medium text-grafite hover:text-inchiostro">
+                      <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-xs font-medium text-testo-2 hover:text-testo">
                         <ChevronRight size={12} className="transition group-open:rotate-90" /> Dettagli tecnici
                       </summary>
                       <div className="mt-2 grid gap-2 text-xs sm:grid-cols-2">
-                        <pre className="overflow-x-auto rounded-[4px] border border-linea bg-velina p-2.5 text-grafite"><span className="font-sans font-semibold text-inchiostro">Input </span>{JSON.stringify(p.input, null, 1)}</pre>
-                        <pre className="overflow-x-auto rounded-[4px] border border-linea bg-velina p-2.5 text-grafite"><span className="font-sans font-semibold text-inchiostro">Output </span>{JSON.stringify(p.output, null, 1)}</pre>
+                        <pre className="overflow-x-auto rounded-lg border border-separatore bg-riempimento p-2.5 text-testo-2"><span className="font-sans font-semibold text-testo">Input </span>{JSON.stringify(p.input, null, 1)}</pre>
+                        <pre className="overflow-x-auto rounded-lg border border-separatore bg-riempimento p-2.5 text-testo-2"><span className="font-sans font-semibold text-testo">Output </span>{JSON.stringify(p.output, null, 1)}</pre>
                       </div>
-                      {p.versione_prompt && <p className="mt-1 text-xs text-traccia">Versione del prompt: {p.versione_prompt}</p>}
+                      {p.versione_prompt && <p className="mt-1 text-xs text-testo-3">Versione del prompt: {p.versione_prompt}</p>}
                     </details>
                   </div>
                 </li>
