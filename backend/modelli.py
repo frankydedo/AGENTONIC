@@ -214,10 +214,34 @@ class Avviso(BaseModel):
     creato_il: datetime | None = None       # assegnato dal backend al salvataggio
 
 
+class PassoRegistro(BaseModel):
+    """Una riga del registro (I6): ogni passo del workflow e ogni decisione di una persona.
+
+    Mai segreti (`.env`, token) né testo integrale dei documenti: solo id e conteggi.
+    Il registro lo vede solo il manager del progetto.
+    """
+    id: int | None = None                   # assegnato dal backend al salvataggio
+    quando: datetime
+    tipo: Literal["workflow", "caricamento", "decisione", "domanda"]
+    attore: str                             # "brain" oppure l'id della persona
+    step: str                               # "ingestione", "estrazione", "incongruenze", "approva", ...
+    documento_id: str | None = None
+    provider: Literal["locale", "cloud", "mock"] | None = None   # solo per i passi del modello
+    modello: str | None = None
+    versione_prompt: str | None = None
+    input: dict = {}                        # id in ingresso, parte "x/X", ...
+    output: dict = {}                       # id e conteggi prodotti
+    esito: Literal["ok", "scartato", "errore"] = "ok"
+    motivo: str | None = None               # perché scartato/errore, o il motivo vero di un non_autorizzato
+    tentativi: int = 1
+    durata_ms: int | None = None
+
+
 class RisultatoAnalisi(BaseModel):
     """Uscita di `analizza_documento` (I2). Gli id li assegna il backend al salvataggio."""
     proposte: list[Proposta] = []
     avvisi: list[Avviso] = []
+    passi: list[PassoRegistro] = []         # la traccia del workflow, da salvare nel registro
 
 
 class ContestoProgetto(BaseModel):

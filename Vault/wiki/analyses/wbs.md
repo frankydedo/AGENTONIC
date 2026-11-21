@@ -31,7 +31,7 @@ Dopo le 13:30 queste interfacce si cambiano solo parlandone (`CLAUDE.md` §3).
 |---|---|---|---|---|
 | I1 | Modelli dei dati (Pydantic) e `puo_vedere()` | `backend/modelli.py` | **Pietro**, con Franky per `EstrazioneRiunione` e `Risposta` | tutti |
 | I2 | `analizza_documento(doc: Documento, contesto: ContestoProgetto) -> RisultatoAnalisi` (proposte + avvisi) | `backend/analisi/__init__.py` | **Franky** (firma e stub) | Pietro, da `POST /riunioni` e `POST /documenti` |
-| I3 | `rispondi(domanda: str, persona: Persona, voci: list[Voce]) -> Risposta`, con `voci` **già filtrate** per stato e permessi | `backend/domande.py` | **Franky** (firma e stub) | Pietro, da `POST /domande` |
+| I3 | `rispondi(domanda: str, persona: Persona, voci: list[Voce], manager_nome: str) -> Risposta`, con `voci` **già filtrate** per stato e permessi | `backend/domande.py` | **Franky** (firma e stub) | Pietro, da `POST /domande` |
 | I4 | Endpoint e JSON di esempio di ogni risposta | `docs/api.md` + `web/src/fixtures/*.json` | **Pietro** gli endpoint, **Mauro** i JSON che gli servono | Mauro |
 | I6 | `PassoRegistro` (riga del registro) e campo `passi` in `RisultatoAnalisi`, così il workflow consegna la sua traccia al backend | `backend/modelli.py` | **Franky** propone, **Pietro** approva | Pietro (P8), Mauro (M1.6) |
 | I5 | Identità: la persona attiva arriva da un header di sessione (es. `X-Persona`) scelto dal selettore, **mai dal testo** | `docs/api.md` | **Pietro** | Mauro, Franky |

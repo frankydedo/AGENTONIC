@@ -60,8 +60,16 @@ Persone utili in demo: `p-01` Giulia (manager), `p-02` Marco Bianchi (sviluppo +
 Modifiche di Franky al contratto, da rivedere con Pietro:
 - **Segmentazione**: `segmenta(testo) -> Documento` la scrive Franky (F2, `backend/analisi/`) e la
   chiama `POST /riunioni`.
-- Firme: `analizza_documento(doc: Documento, contesto: ContestoProgetto) -> RisultatoAnalisi` (I2),
-  `rispondi(domanda: str, persona: Persona, voci: list[Voce]) -> Risposta` (I3).
+- Firme (stub pronti, Fase 0):
+  - `backend.analisi.ingestione.segmenta(testo, progetto_id=None) -> Documento`: solleva
+    `DocumentoNonValido` (→ `422`) se manca l'intestazione, non ci sono turni o il testo è troppo grande;
+  - `backend.analisi.analizza_documento(doc, contesto) -> RisultatoAnalisi` (I2);
+  - `backend.domande.rispondi(domanda, persona, voci, manager_nome) -> Risposta` (I3). `voci` già
+    filtrate; con `voci` vuota restituisce il testo neutro senza chiamare il modello. Il motivo vero
+    (`non_autorizzato` o dato mancante) lo scrive nel registro chi chiama.
+- **Registro (I6)**: `PassoRegistro` in `modelli.py`. `RisultatoAnalisi.passi` contiene la traccia del
+  workflow da salvare; caricamenti, decisioni e domande li registra il backend con lo stesso modello.
+  `GET /registro` restituisce `PassoRegistro[]`.
 - **`TaskEstratto.dipende_da`**: ogni task estratto ha un `rif` temporaneo (`t1`, `t2`);
   `dipende_da` contiene `rif` di questa estrazione o id di task già approvati (`task-004`). Li
   risolve il codice e scarta quelli inesistenti.
