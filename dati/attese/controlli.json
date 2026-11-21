@@ -1,0 +1,532 @@
+{
+  "_nota": "Controlli del brief (F10) per scripts/demo_check.py. Formato e percorso della demo in dati/attese/README.md. Ogni controllo parte da un database vuoto (solo dati/azienda.json).",
+  "progetto_id": "prj-01",
+  "controlli": [
+    {
+      "controllo": 1,
+      "nome": "Parla per primo",
+      "descrizione": "Gli avvisi partono da soli all'arrivo di ogni riunione, nessuno li chiede: incongruenze tra riunioni, persone e sistemi mai visti, dipendenze a rischio. Prima dell'inoltro li vede solo il manager.",
+      "passi": [
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-001.md"
+        },
+        {
+          "azione": "approva_tutte",
+          "persona": "p-01",
+          "documento": "riu-001"
+        },
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-002.md"
+        },
+        {
+          "azione": "avvisi",
+          "persona": "p-01",
+          "tipo_atteso": "incongruenza",
+          "contiene": "quadro"
+        },
+        {
+          "azione": "avvisi",
+          "persona": "p-01",
+          "tipo_atteso": "sconosciuto",
+          "contiene": "Venturi"
+        },
+        {
+          "azione": "avvisi",
+          "persona": "p-01",
+          "tipo_atteso": "sconosciuto",
+          "contiene": "MES"
+        },
+        {
+          "azione": "avvisi",
+          "persona": "p-04",
+          "tipo_assente": "incongruenza"
+        },
+        {
+          "azione": "approva_tutte",
+          "persona": "p-01",
+          "documento": "riu-002"
+        },
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-003.md"
+        },
+        {
+          "azione": "avvisi",
+          "persona": "p-01",
+          "tipo_atteso": "incongruenza",
+          "contiene": "inverter"
+        },
+        {
+          "azione": "approva_tutte",
+          "persona": "p-01",
+          "documento": "riu-003",
+          "tranne": [
+            {
+              "tipo": "nuovo_fatto",
+              "contiene": "secondo pannello"
+            }
+          ]
+        },
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-004.md"
+        },
+        {
+          "azione": "approva_tutte",
+          "persona": "p-01",
+          "documento": "riu-004"
+        },
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-005.md"
+        },
+        {
+          "azione": "avvisi",
+          "persona": "p-01",
+          "tipo_atteso": "incongruenza",
+          "contiene": "HMI"
+        },
+        {
+          "azione": "avvisi",
+          "persona": "p-01",
+          "tipo_atteso": "punto_oscuro",
+          "contiene": "prova al banco"
+        }
+      ]
+    },
+    {
+      "controllo": 2,
+      "nome": "Le persone curano la memoria",
+      "descrizione": "Il manager approva una proposta (nuovo costo degli inverter) e ne rifiuta un'altra (secondo pannello HMI solo accennato); la domanda trova solo la voce approvata.",
+      "passi": [
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-001.md"
+        },
+        {
+          "azione": "approva_tutte",
+          "persona": "p-01",
+          "documento": "riu-001"
+        },
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-002.md"
+        },
+        {
+          "azione": "approva_tutte",
+          "persona": "p-01",
+          "documento": "riu-002"
+        },
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-003.md"
+        },
+        {
+          "azione": "approva",
+          "persona": "p-01",
+          "proposta": {
+            "tipo": "nuovo_fatto",
+            "contiene": "7.400"
+          }
+        },
+        {
+          "azione": "rifiuta",
+          "persona": "p-01",
+          "proposta": {
+            "tipo": "nuovo_fatto",
+            "contiene": "secondo pannello"
+          }
+        },
+        {
+          "azione": "proposte",
+          "persona": "p-01",
+          "stato": "rifiutata",
+          "deve_esserci": [
+            {
+              "tipo": "nuovo_fatto",
+              "contiene": "secondo pannello"
+            }
+          ]
+        },
+        {
+          "azione": "domanda",
+          "persona": "p-01",
+          "testo": "Qual è l'ultimo preventivo degli inverter?",
+          "esito_atteso": "risposta",
+          "deve_contenere": [
+            "7.400"
+          ],
+          "cita": [
+            "riu-003#s002"
+          ]
+        },
+        {
+          "azione": "domanda",
+          "persona": "p-01",
+          "testo": "Il cliente vuole un secondo pannello HMI?",
+          "esito_atteso": "non_lo_so"
+        }
+      ]
+    },
+    {
+      "controllo": 3,
+      "nome": "Sa chi chiede",
+      "descrizione": "Stessa domanda da persone con competenze diverse: Marco Bianchi (sviluppo + budget) ed Elena Russo (fornitori + budget) ricevono la risposta, Sara Colombo (solo sviluppo) il testo neutro.",
+      "passi": [
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-001.md"
+        },
+        {
+          "azione": "approva_tutte",
+          "persona": "p-01",
+          "documento": "riu-001"
+        },
+        {
+          "azione": "domanda",
+          "persona": "p-02",
+          "testo": "Quanto budget resta?",
+          "esito_atteso": "risposta",
+          "deve_contenere": [
+            "35.500"
+          ],
+          "cita": [
+            "riu-001#s003"
+          ]
+        },
+        {
+          "azione": "domanda",
+          "persona": "p-04",
+          "testo": "Quanto budget resta?",
+          "esito_atteso": "non_lo_so",
+          "non_deve_contenere": [
+            "35.500",
+            "48.000",
+            "12.500"
+          ]
+        },
+        {
+          "azione": "domanda",
+          "persona": "p-06",
+          "testo": "Quanto costano gli inverter?",
+          "esito_atteso": "risposta",
+          "deve_contenere": [
+            "6.200"
+          ],
+          "cita": [
+            "riu-001#s007"
+          ]
+        },
+        {
+          "azione": "domanda",
+          "persona": "p-04",
+          "testo": "Quanto costano gli inverter?",
+          "esito_atteso": "non_lo_so",
+          "non_deve_contenere": [
+            "6.200"
+          ]
+        },
+        {
+          "azione": "todo",
+          "persona": "p-04",
+          "task": {
+            "task-005": {
+              "stato": "da_fare"
+            }
+          },
+          "task_assenti": [
+            "task-001",
+            "task-003"
+          ]
+        }
+      ]
+    },
+    {
+      "controllo": 4,
+      "nome": "Cita",
+      "descrizione": "La risposta porta la citazione della riunione (titolo, data, orario, chi parla, frase), che si apre dal suo id di segmento.",
+      "passi": [
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-001.md"
+        },
+        {
+          "azione": "approva_tutte",
+          "persona": "p-01",
+          "documento": "riu-001"
+        },
+        {
+          "azione": "domanda",
+          "persona": "p-01",
+          "testo": "Chi prepara il primo SAL per il cliente?",
+          "esito_atteso": "risposta",
+          "deve_contenere": [
+            "Luca"
+          ],
+          "cita": [
+            "riu-001#s002"
+          ]
+        },
+        {
+          "azione": "segmento",
+          "persona": "p-01",
+          "id": "riu-001#s002",
+          "campi": {
+            "documento_id": "riu-001",
+            "titolo": "Kick-off revamping linea 3",
+            "data": "2026-11-16",
+            "orario": "09:30",
+            "speaker": "Luca Gallo"
+          }
+        }
+      ]
+    },
+    {
+      "controllo": 5,
+      "nome": "Ammette le lacune",
+      "descrizione": "«Non lo so» se il dato non c'è; task senza responsabile e nomi ambigui segnalati; persone e sistemi mai visti segnalati come sconosciuti, chi è in azienda ma fuori dal progetto riconosciuto.",
+      "passi": [
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-001.md"
+        },
+        {
+          "azione": "approva_tutte",
+          "persona": "p-01",
+          "documento": "riu-001"
+        },
+        {
+          "azione": "domanda",
+          "persona": "p-01",
+          "testo": "Che PLC usa il cliente nella linea 2?",
+          "esito_atteso": "non_lo_so"
+        },
+        {
+          "azione": "domanda",
+          "persona": "p-01",
+          "testo": "Chi aggiorna il manuale d'uso per gli operatori?",
+          "esito_atteso": "risposta",
+          "deve_contenere": [
+            "responsabile"
+          ],
+          "cita": [
+            "riu-001#s014"
+          ]
+        },
+        {
+          "azione": "avvisi",
+          "persona": "p-01",
+          "tipo_atteso": "punto_oscuro",
+          "contiene": "ambiguo"
+        },
+        {
+          "azione": "avvisi",
+          "persona": "p-01",
+          "tipo_atteso": "punto_oscuro",
+          "contiene": "manuale"
+        },
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-002.md"
+        },
+        {
+          "azione": "avvisi",
+          "persona": "p-01",
+          "tipo_atteso": "sconosciuto",
+          "contiene": "Venturi"
+        },
+        {
+          "azione": "avvisi",
+          "persona": "p-01",
+          "tipo_atteso": "sconosciuto",
+          "contiene": "Paola Greco"
+        }
+      ]
+    },
+    {
+      "controllo": 6,
+      "nome": "Propone soltanto",
+      "descrizione": "La nuova scadenza del quadro elettrico resta una proposta in attesa: la to-do mostra ancora il 10 dicembre finché il manager non approva; un membro non può approvare.",
+      "passi": [
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-001.md"
+        },
+        {
+          "azione": "approva_tutte",
+          "persona": "p-01",
+          "documento": "riu-001"
+        },
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-002.md"
+        },
+        {
+          "azione": "proposte",
+          "persona": "p-01",
+          "stato": "in_attesa",
+          "deve_esserci": [
+            {
+              "tipo": "aggiorna_task",
+              "contiene": "2026-12-18"
+            }
+          ]
+        },
+        {
+          "azione": "todo",
+          "persona": "p-03",
+          "task": {
+            "task-002": {
+              "scadenza": "2026-12-10"
+            }
+          }
+        },
+        {
+          "azione": "approva",
+          "persona": "p-04",
+          "proposta": {
+            "tipo": "aggiorna_task",
+            "contiene": "2026-12-18"
+          },
+          "stato_http": 403
+        },
+        {
+          "azione": "todo",
+          "persona": "p-03",
+          "task": {
+            "task-002": {
+              "scadenza": "2026-12-10"
+            }
+          }
+        },
+        {
+          "azione": "approva",
+          "persona": "p-01",
+          "proposta": {
+            "tipo": "aggiorna_task",
+            "contiene": "2026-12-18"
+          }
+        },
+        {
+          "azione": "todo",
+          "persona": "p-03",
+          "task": {
+            "task-002": {
+              "scadenza": "2026-12-18"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "controllo": 7,
+      "nome": "Si inserisce nella giornata",
+      "descrizione": "To-do del mattino di Marco Bianchi con la lista dei tag; la riunione di fine giornata («ho finito la lista dei tag») chiude il task e sblocca la HMI di Sara.",
+      "passi": [
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-001.md"
+        },
+        {
+          "azione": "approva_tutte",
+          "persona": "p-01",
+          "documento": "riu-001"
+        },
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-002.md"
+        },
+        {
+          "azione": "approva_tutte",
+          "persona": "p-01",
+          "documento": "riu-002"
+        },
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-003.md"
+        },
+        {
+          "azione": "approva_tutte",
+          "persona": "p-01",
+          "documento": "riu-003",
+          "tranne": [
+            {
+              "tipo": "nuovo_fatto",
+              "contiene": "secondo pannello"
+            }
+          ]
+        },
+        {
+          "azione": "todo_oggi",
+          "persona": "p-02",
+          "deve_contenere": [
+            "task-004"
+          ]
+        },
+        {
+          "azione": "accetta_todo",
+          "persona": "p-02",
+          "task_ids": [
+            "task-004"
+          ]
+        },
+        {
+          "azione": "carica_riunione",
+          "persona": "p-01",
+          "file": "dati/riunioni/riu-004.md"
+        },
+        {
+          "azione": "proposte",
+          "persona": "p-01",
+          "stato": "in_attesa",
+          "deve_esserci": [
+            {
+              "tipo": "chiudi_task",
+              "contiene": "task-004"
+            },
+            {
+              "tipo": "aggiorna_task",
+              "contiene": "task-005"
+            }
+          ]
+        },
+        {
+          "azione": "approva_tutte",
+          "persona": "p-01",
+          "documento": "riu-004"
+        },
+        {
+          "azione": "todo",
+          "persona": "p-04",
+          "task": {
+            "task-004": {
+              "stato": "fatto"
+            },
+            "task-005": {
+              "stato": "in_corso"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

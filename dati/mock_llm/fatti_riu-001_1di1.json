@@ -1,0 +1,78 @@
+{
+  "fatti": [
+    {
+      "soggetto": "progetto",
+      "attributo": "scadenza",
+      "valore": "collaudo presso il cliente entro il 2027-01-20",
+      "aree": [
+        "generale"
+      ],
+      "segmenti": [
+        "riu-001#s001"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "progetto",
+      "attributo": "budget",
+      "valore": "48.000 € di budget interno approvato, 12.500 € già impegnati per la progettazione",
+      "aree": [
+        "budget"
+      ],
+      "segmenti": [
+        "riu-001#s003"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "PLC",
+      "attributo": "decisione",
+      "valore": "Siemens S7-1500 al posto del vecchio S7-300, programma riscritto da zero",
+      "aree": [
+        "sviluppo"
+      ],
+      "segmenti": [
+        "riu-001#s004",
+        "riu-001#s005"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "inverter",
+      "attributo": "fornitore",
+      "valore": "Elettrotecnica Piemonte, consegna in tre settimane dall'ordine",
+      "aree": [
+        "fornitori"
+      ],
+      "segmenti": [
+        "riu-001#s007"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "inverter",
+      "attributo": "costo",
+      "valore": "6.200 € (preventivo di Elettrotecnica Piemonte)",
+      "aree": [
+        "fornitori",
+        "budget"
+      ],
+      "segmenti": [
+        "riu-001#s007"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "cliente",
+      "attributo": "requisito",
+      "valore": "un SAL al mese, il primo entro il 2026-12-15",
+      "aree": [
+        "commerciale"
+      ],
+      "segmenti": [
+        "riu-001#s002"
+      ],
+      "sicurezza": "alta"
+    }
+  ]
+}

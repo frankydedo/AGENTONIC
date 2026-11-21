@@ -1,0 +1,28 @@
+{
+  "fatti": [
+    {
+      "soggetto": "cablaggi esistenti verso i motori",
+      "attributo": "altro",
+      "valore": "riutilizzabili, verificato al sopralluogo",
+      "aree": [
+        "sviluppo"
+      ],
+      "segmenti": [
+        "riu-002#s004"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "Davide Conti",
+      "attributo": "altro",
+      "valore": "in ferie dal 2026-12-22 al 2027-01-06, ferie già approvate",
+      "aree": [
+        "personale"
+      ],
+      "segmenti": [
+        "riu-002#s012"
+      ],
+      "sicurezza": "alta"
+    }
+  ]
+}

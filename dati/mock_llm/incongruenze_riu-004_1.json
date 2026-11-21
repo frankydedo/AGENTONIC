@@ -1,0 +1,10 @@
+{
+  "giudizi": [
+    {
+      "candidato_id": "fat-001",
+      "stessa_cosa": false,
+      "in_conflitto": false,
+      "spiegazione": "La consegna degli inverter e il collaudo del progetto sono scadenze diverse."
+    }
+  ]
+}

@@ -30,3 +30,8 @@ def test_non_membro_non_vede_nulla():
 
 def test_senza_aree_restrittivo():
     assert not puo_vedere(PERSONE["p-04"], PRJ, [])
+
+
+def test_generale_insieme_ad_altre_aree_non_apre_a_tutti():
+    assert not puo_vedere(PERSONE["p-04"], PRJ, ["budget", "generale"])   # Sara: niente budget
+    assert puo_vedere(PERSONE["p-02"], PRJ, ["budget", "generale"])       # Marco B. via budget

@@ -116,7 +116,7 @@ def _chiama_openai(cfg: Config, messaggi: list[dict], schema: type[BaseModel] | 
     if schema is not None:
         corpo["response_format"] = {
             "type": "json_schema",
-            "json_schema": {"name": schema.__name__, "schema": schema.model_json_schema(), "strict": True},
+            "json_schema": {"name": schema.__name__, "schema": schema.model_json_schema(), "strict": False},
         }
     intestazioni = {"Authorization": f"Bearer {cfg.api_key}"} if cfg.api_key else {}
     proprio = client is None
@@ -127,7 +127,7 @@ def _chiama_openai(cfg: Config, messaggi: list[dict], schema: type[BaseModel] | 
         return r.json()["choices"][0]["message"]["content"] or ""
     except httpx.HTTPStatusError as e:
         raise LLMNonDisponibile(f"Il modello ha risposto HTTP {e.response.status_code}.") from None
-    except (httpx.HTTPError, KeyError, IndexError, ValueError) as e:
+    except Exception as e:  # noqa: BLE001 - qualunque guasto (rete, URL, JSON, null) -> fail closed
         raise LLMNonDisponibile(f"Modello non raggiungibile o risposta inattesa ({type(e).__name__}).") from None
     finally:
         if proprio:

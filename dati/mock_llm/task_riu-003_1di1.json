@@ -1,0 +1,39 @@
+{
+  "task": [
+    {
+      "rif": "t1",
+      "titolo": "Chiedere al cliente una conferma scritta sul secondo pannello HMI",
+      "assegnatario_detto": "Luca",
+      "scadenza": "2026-11-27",
+      "aree": [
+        "commerciale"
+      ],
+      "segmenti": [
+        "riu-003#s009",
+        "riu-003#s010"
+      ],
+      "sicurezza": "alta",
+      "dipende_da": []
+    }
+  ],
+  "aggiornamenti": [
+    {
+      "task_id": "task-003",
+      "campo": "scadenza",
+      "valore": "2026-11-27",
+      "segmenti": [
+        "riu-003#s005"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "task_id": "task-004",
+      "campo": "scadenza",
+      "valore": "2026-11-27",
+      "segmenti": [
+        "riu-003#s007"
+      ],
+      "sicurezza": "alta"
+    }
+  ]
+}

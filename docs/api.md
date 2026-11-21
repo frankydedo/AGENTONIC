@@ -67,6 +67,14 @@ Modifiche di Franky al contratto, da rivedere con Pietro:
   - `backend.domande.rispondi(domanda, persona, voci, manager_nome) -> Risposta` (I3). `voci` già
     filtrate; con `voci` vuota restituisce il testo neutro senza chiamare il modello. Il motivo vero
     (`non_autorizzato` o dato mancante) lo scrive nel registro chi chiama.
+- **PDF (F11)**: `Segmento.pagina` e `Citazione.pagina` (opzionali, solo PDF). Id dei segmenti PDF:
+  `doc-001#p02s03` (pagina 2, paragrafo 3). La UI mostra «pag. N» nella citazione.
+- **Workflow interno**: come si compongono i moduli di `backend/analisi/` è in `docs/analisi.md`.
+- **`puo_vedere()` e `generale`**: `generale` apre a tutti i membri solo se è l'**unica** area.
+  `[budget, generale]` vale come `[budget]`, anche se il manager lo conferma così all'approvazione.
+- **Da sistemare (Pietro), sicurezza**: `GET /segmenti/{id}` oggi restituisce qualunque segmento a
+  qualunque membro, cioè le trascrizioni grezze senza filtro per area. Proposta: un segmento si vede
+  solo se si è manager oppure se lo cita almeno una voce approvata che la persona può vedere.
 - **Registro (I6)**: `PassoRegistro` in `modelli.py`. `RisultatoAnalisi.passi` contiene la traccia del
   workflow da salvare; caricamenti, decisioni e domande li registra il backend con lo stesso modello.
   `GET /registro` restituisce `PassoRegistro[]`.

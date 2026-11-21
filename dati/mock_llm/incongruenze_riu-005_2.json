@@ -1,0 +1,16 @@
+{
+  "giudizi": [
+    {
+      "candidato_id": "fat-007",
+      "stessa_cosa": false,
+      "in_conflitto": false,
+      "spiegazione": "Il banco di prova e i cablaggi verso i motori sono cose diverse."
+    },
+    {
+      "candidato_id": "fat-008",
+      "stessa_cosa": false,
+      "in_conflitto": false,
+      "spiegazione": "La disponibilità del banco e le ferie di Davide Conti sono cose diverse."
+    }
+  ]
+}
