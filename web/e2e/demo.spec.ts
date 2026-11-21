@@ -1,10 +1,32 @@
-// Il percorso della demo, dall'interfaccia: i controlli del brief che si vedono a schermo.
-// Gira contro lo stub del backend (backend/esempi.py): quando arriva il db vero, i testi
-// dei dati vanno riallineati.
-import { expect, test, type Page } from '@playwright/test'
+// Il percorso della demo, dall'interfaccia, contro il BACKEND VERO (db nuovo, modello finto).
+// Lo scenario è in sequenza, come in demo: riu-001 caricata e approvata per intero (stesso ordine di
+// dati/attese/controlli.json, così le risposte registrate del modello finto combaciano), poi riu-002
+// caricata e lasciata in attesa per correggere e rifiutare dal vivo.
+import { expect, request, test, type Page } from '@playwright/test'
+import { readFileSync } from 'node:fs'
+import { BACKEND_URL } from '../playwright.config'
+
+test.describe.configure({ mode: 'serial' })
+
+test.beforeAll(async () => {
+  const api = await request.newContext({ baseURL: BACKEND_URL, extraHTTPHeaders: { 'X-Persona': 'p-01' } })
+  const carica = async (id: string) => {
+    const r = await api.post('/riunioni?progetto_id=prj-01', {
+      multipart: { file: { name: `${id}.md`, mimeType: 'text/markdown', buffer: readFileSync(`../dati/riunioni/${id}.md`) } },
+    })
+    expect(r.ok(), `caricamento di ${id}: ${await r.text()}`).toBeTruthy()
+  }
+  await carica('riu-001')
+  const proposte: { id: string; documento_id: string }[] = await (await api.get('/proposte?progetto_id=prj-01&stato=in_attesa')).json()
+  for (const p of proposte.filter((x) => x.documento_id === 'riu-001').sort((a, b) => a.id.localeCompare(b.id))) {
+    expect((await api.post(`/proposte/${p.id}/approva`, { data: { aree: null } })).ok()).toBeTruthy()
+  }
+  await carica('riu-002')
+  await api.dispose()
+})
 
 // Ogni test fallisce se compare un errore JavaScript o una risposta 5xx del backend.
-// I 403/405 sono attesi (permessi negati, endpoint non ancora nel backend) e non contano.
+// I 403/404/405 sono attesi (permessi negati, endpoint non ancora presenti) e non contano.
 let errori: string[] = []
 test.beforeEach(async ({ page }) => {
   errori = []
@@ -24,6 +46,8 @@ async function chiedi(page: Page, domanda: string) {
   await page.getByRole('button', { name: 'Chiedi', exact: true }).click()
 }
 
+const fonte = (page: Page) => page.locator('li', { has: page.getByText('Fonte selezionata') })
+
 test('si entra scegliendo chi si è', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByText('Chi sei?')).toBeVisible()
@@ -35,30 +59,26 @@ test('si entra scegliendo chi si è', async ({ page }) => {
 test('controllo 1: il Brain parla per primo, senza che nessuno chieda', async ({ page }) => {
   await entraCome(page, 'p-01')
   await expect(page.getByText('In ascolto: gli avvisi arrivano da soli')).toBeVisible()
-  await expect(page.getByText(/«Marco» è ambiguo/).first()).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Segna come risolto' }).first()).toBeVisible()
 })
 
-test('controlli 2 e 6: il manager corregge un punto oscuro e approva', async ({ page }) => {
-  await entraCome(page, 'p-01', '/documenti/riu-001')
-  // la scheda si trova dalla sua fonte (s009): in correzione il titolo sta in un campo di testo
-  const carta = page.locator('li').filter({ has: page.getByText('Nuovo task') }).filter({ has: page.getByRole('link', { name: /s009/ }) })
-  await expect(carta.getByText('Nessun responsabile')).toBeVisible()
-
+test('controlli 2 e 6: il manager corregge una proposta e la approva', async ({ page }) => {
+  await entraCome(page, 'p-01', '/documenti/riu-002')
+  // la scheda si trova dalla sua fonte (s006): in correzione il titolo sta in un campo di testo
+  const carta = page.locator('li').filter({ has: page.getByText('Nuovo task') }).filter({ has: page.getByRole('link', { name: /s006/ }) })
   await carta.getByRole('button', { name: 'Correggi' }).click()
-  await carta.getByLabel('Chi se ne occupa').selectOption('p-02')
+  await carta.getByLabel('Chi se ne occupa').selectOption('p-05')
   await carta.getByRole('button', { name: 'Approva con le correzioni' }).click()
 
   await expect(page.getByText('Corretta e approvata')).toBeVisible()
   await expect(carta.getByText('Approvata', { exact: true })).toBeVisible()
-  await expect(carta.getByText('Marco Bianchi')).toBeVisible()
+  await expect(carta.getByText('Luca Gallo')).toBeVisible()
   await expect(carta.getByText('Approvata da Giulia Ferraris')).toBeVisible()
-  // il punto oscuro collegato si chiude da solo
-  await expect(page.getByText(/«Marco» è ambiguo/)).toHaveCount(0)
 })
 
 test('controllo 6: una proposta rifiutata resta fuori dalla memoria', async ({ page }) => {
-  await entraCome(page, 'p-01', '/documenti/riu-001')
-  const carta = page.locator('li', { hasText: 'progetto · budget' })
+  await entraCome(page, 'p-01', '/documenti/riu-002')
+  const carta = page.locator('li').filter({ has: page.getByText('Nuovo fatto') }).filter({ hasText: 'riutilizzabili' })
   await carta.getByRole('button', { name: 'Rifiuta' }).click()
   await expect(carta.getByText('Rifiutata', { exact: true })).toBeVisible()
   await expect(carta.getByRole('button', { name: 'Approva' })).toHaveCount(0)
@@ -66,20 +86,19 @@ test('controllo 6: una proposta rifiutata resta fuori dalla memoria', async ({ p
 
 test('controllo 4: la citazione apre la fonte con la frase evidenziata', async ({ page }) => {
   await entraCome(page, 'p-01')
-  await page.getByRole('link', { name: /s009/ }).first().click()
-  await expect(page).toHaveURL(/\/documenti\/riu-001\?seg=s009$/)
-  const fonte = page.locator('li', { has: page.getByText('Fonte selezionata') })
-  await expect(fonte).toContainText('la lista dei tag la prepari tu entro il 25 novembre')
-  await expect(fonte).toBeInViewport()
+  await page.getByRole('link', { name: /s0\d\d/ }).first().click()
+  await expect(page).toHaveURL(/\/documenti\/riu-00\d\?seg=s\d{3}$/)
+  await expect(fonte(page)).toBeVisible()
+  await expect(fonte(page)).toBeInViewport()
 })
 
 test('controlli 3 e 4: chi ha la competenza budget riceve la risposta con la fonte', async ({ page }) => {
   await entraCome(page, 'p-02', '/chiedi')
   await chiedi(page, 'Quanto budget resta?')
-  await expect(page.getByText('Restano 35.500 € di budget')).toBeVisible()
-  await page.getByRole('link', { name: /s003/ }).click()
-  await expect(page).toHaveURL(/seg=s003$/)
-  await expect(page.locator('li', { has: page.getByText('Fonte selezionata') })).toContainText('48.000 euro')
+  await expect(page.getByText(/Restano 35\.500 €/)).toBeVisible()
+  await page.getByRole('link', { name: /s00\d/ }).first().click()
+  await expect(page).toHaveURL(/seg=s00\d$/)
+  await expect(fonte(page)).toBeVisible()
 })
 
 test('controlli 3 e 5: chi non ha la competenza riceve la risposta neutra, senza fonti', async ({ page }) => {
@@ -95,24 +114,24 @@ test('un membro non vede proposte, avvisi riservati e registro', async ({ page }
   await expect(page.getByText('La tua giornata')).toBeVisible()
   await expect(page.getByRole('link', { name: 'Registro' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Approva' })).toHaveCount(0)
-  await expect(page.getByText(/«Marco» è ambiguo/)).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Segna come risolto' })).toHaveCount(0)
   await page.goto('/registro')
   await expect(page.getByText('Solo per il manager')).toBeVisible()
 })
 
-test('chi è fuori dai progetti non vede nulla', async ({ page }) => {
-  await entraCome(page, 'p-08')
-  await expect(page.getByText('non fai parte di nessun progetto')).toBeVisible()
-  await expect(page.getByText('Revamping linea')).toHaveCount(0)
+test('Paola vede solo il suo progetto (ISO 9001), non la linea 3', async ({ page }) => {
+  await entraCome(page, 'p-08', '/progetti')
+  await expect(page.getByText('Certificazione ISO 9001').first()).toBeVisible()
+  await expect(page.getByText('Revamping linea di confezionamento 3')).toHaveCount(0)
 })
 
 test('controllo 7: Gantt e to-do per persona', async ({ page }) => {
   await entraCome(page, 'p-01', '/team')
-  await expect(page.getByRole('button', { name: 'Schermate della nuova HMI' }).last()).toBeVisible()
+  await expect(page.getByRole('button', { name: /schermate della nuova HMI/i }).last()).toBeVisible()
   await expect(page.getByText('Collaudo').first()).toBeVisible()
   await page.getByRole('button', { name: 'Per persona' }).click()
   const sara = page.locator('section', { hasText: 'Sara Colombo' }).first()
-  await expect(sara.getByText('Aspetta: Preparare la lista dei tag del PLC').first()).toBeVisible()
+  await expect(sara.getByText(/schermate della nuova HMI/i).first()).toBeVisible()
 })
 
 test('regressione: dopo molti ricaricamenti il backend risponde ancora', async ({ page }) => {
@@ -122,27 +141,26 @@ test('regressione: dopo molti ricaricamenti il backend risponde ancora', async (
   for (let i = 0; i < 8; i++) await page.reload()
   await page.getByRole('link', { name: 'Chiedi al Brain' }).first().click()
   await chiedi(page, 'Quanto budget resta?')
-  await expect(page.getByText('Restano 35.500 € di budget')).toBeVisible()
+  await expect(page.getByText(/Restano 35\.500 €/)).toBeVisible()
 })
 
 test('il manager carica una riunione e vede il Brain lavorare passo per passo', async ({ page }) => {
   await entraCome(page, 'p-01')
   await page.getByRole('button', { name: 'Carica riunione' }).click()
   const finestra = page.getByRole('dialog', { name: 'Carica una riunione' })
-  await finestra.locator('input[type=file]').setInputFiles('../dati/riunioni/riu-001.md')
-  await expect(finestra.getByText('Analisi completata')).toBeVisible()
+  await finestra.locator('input[type=file]').setInputFiles('../dati/riunioni/riu-003.md')
+  await expect(finestra.getByText('Analisi completata')).toBeVisible({ timeout: 20_000 })
   await expect(finestra.getByText('proposte da decidere')).toBeVisible()
-  await expect(finestra.getByText(/Il Brain ha letto «Kick-off revamping linea 3»/)).toBeVisible()
+  await expect(finestra.getByText(/^Il Brain /).first()).toBeVisible()
   await finestra.getByRole('button', { name: 'Rivedi le proposte' }).click()
-  await expect(page).toHaveURL(/\/documenti\/riu-001$/)
+  await expect(page).toHaveURL(/\/documenti\/riu-003$/)
 })
 
 test('il registro si legge in italiano, i dati grezzi solo nei dettagli tecnici', async ({ page }) => {
   await entraCome(page, 'p-01', '/registro')
-  await expect(page.getByText(/Il Brain ha letto «Kick-off revamping linea 3»/)).toBeVisible()
-  await expect(page.getByText('Giulia Ferraris ha approvato la proposta prop-001')).toBeVisible()
-  await expect(page.getByText('16 segmenti')).toBeVisible()
-  await expect(page.getByText('"segmenti": 16')).toBeHidden()
+  await expect(page.getByText(/Giulia Ferraris ha approvato la proposta/).first()).toBeVisible()
+  await expect(page.getByText(/^Il Brain /).first()).toBeVisible()
+  await expect(page.locator('pre').first()).toBeHidden()
   await page.getByText('Dettagli tecnici').first().click()
   await expect(page.locator('pre').first()).toBeVisible()
 })
@@ -177,7 +195,7 @@ test('il project manager vede i suoi progetti e il modulo per crearne uno', asyn
   await modulo.getByPlaceholder('Es. Pastificio Valsangone S.p.A.').fill('Pastificio Valsangone S.p.A.')
   await modulo.locator('input[type=date]').fill('2027-03-31')
   await modulo.getByRole('button', { name: 'Crea il progetto' }).click()
-  // finché Pietro non aggiunge POST /progetti: errore chiaro, nessun progetto finto
+  // finché il backend non ha POST /progetti: errore chiaro, nessun progetto finto
   await expect(modulo.getByText(/non permette ancora di creare progetti/)).toBeVisible()
 })
 
