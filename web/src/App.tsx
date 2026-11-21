@@ -10,6 +10,7 @@ import { Chiedi } from './pagine/Chiedi'
 import { Documenti } from './pagine/Documenti'
 import { Documento } from './pagine/Documento'
 import { Panoramica } from './pagine/Panoramica'
+import { Posta } from './pagine/Posta'
 import { Progetti } from './pagine/Progetti'
 import { Registro } from './pagine/Registro'
 import { SceltaPersona } from './pagine/SceltaPersona'
@@ -130,6 +131,7 @@ export default function App() {
             <Route path="documenti/:id" element={<Documento />} />
             <Route path="team" element={<Team />} />
             <Route path="chiedi" element={<Chiedi />} />
+            <Route path="posta" element={<Posta />} />
             <Route path="registro" element={<Registro />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

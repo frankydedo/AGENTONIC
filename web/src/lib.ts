@@ -79,6 +79,7 @@ export function descriviPasso(p: PassoRegistro, nomePersona: (id: string) => str
   if (step === 'approva') return `${chi} ha approvato la proposta${proposta}`
   if (step === 'rifiuta') return `${chi} ha rifiutato la proposta${proposta}`
   if (step.includes('inoltr')) return `${chi} ha inoltrato un avviso`
+  if (step.includes('mail')) return `${chi} ha risposto a una domanda su una mail${typeof p.input.chi === 'string' ? ` di ${nomePersona(p.input.chi)}` : ''}`
   if (p.tipo === 'caricamento') return `${chi} ha caricato ${doc}`
   if (p.tipo === 'domanda') return `${chi} ha fatto una domanda al Brain`
   return `${chi}: ${leggibile(p.step)}`

@@ -207,3 +207,31 @@ test('un membro vede solo i suoi progetti, senza crearne né modificarli', async
   await expect(page.getByRole('button', { name: 'Nuovo progetto' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: /Modifica/ })).toHaveCount(0)
 })
+
+test('posta: il Brain risponde su una mail citandola, e la mail-trappola resta un dato', async ({ page }) => {
+  await entraCome(page, 'p-01', '/posta')
+  await page.getByRole('button', { name: /Preventivo inverter aggiornato/ }).click()
+  await page.getByRole('button', { name: 'Chiedi al Brain' }).click()
+  const brain = page.getByRole('complementary', { name: 'Brain sulla mail' })
+  await brain.getByRole('button', { name: 'È coerente con quello che sa il progetto?' }).click()
+  await expect(brain.getByText(/da 6\.200 € a 7\.400 €/)).toBeVisible()
+  await expect(brain.getByText('Da questa mail')).toBeVisible()
+
+  // il pannello resta aperto cambiando mail; ogni mail ha la sua conversazione
+  await page.getByRole('button', { name: /nuovo listino componenti 2027/ }).click()
+  await expect(brain.getByText(/da 6\.200 € a 7\.400 €/)).toHaveCount(0)
+  await brain.getByRole('button', { name: 'Riassumi questa mail' }).click()
+  await expect(brain.getByText(/le ho trattate come testo e non le eseguo/)).toBeVisible()
+
+  // si chiude e si riapre, e la conversazione è ancora lì
+  await page.getByRole('button', { name: 'Nascondi il Brain' }).click()
+  await expect(brain).toHaveCount(0)
+  await page.getByRole('button', { name: 'Chiedi al Brain' }).click()
+  await expect(brain.getByText(/le ho trattate come testo e non le eseguo/)).toBeVisible()
+})
+
+test('posta: ognuno vede solo la propria casella', async ({ page }) => {
+  await entraCome(page, 'p-04', '/posta')
+  await expect(page.getByRole('button', { name: /Prima parte della lista tag/ })).toBeVisible()
+  await expect(page.getByText('Preventivo inverter aggiornato')).toHaveCount(0)
+})

@@ -17,7 +17,7 @@ export class ErroreApi extends Error {
   }
 }
 
-async function chiama<T>(percorso: string, init: RequestInit = {}): Promise<T> {
+export async function chiama<T>(percorso: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers)
   if (personaAttiva) headers.set('X-Persona', personaAttiva)
   if (init.body && !(init.body instanceof FormData)) headers.set('content-type', 'application/json')
