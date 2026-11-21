@@ -86,21 +86,21 @@ def persona_corrente(conn: sqlite3.Connection = Depends(get_db),
                      persona: str | None = Cookie(default=None)) -> Persona:
     chi = db.persona(conn, x_persona or persona or "")
     if chi is None:
-        raise HTTPException(401, "Sessione mancante: scegli una persona.")
+        raise HTTPException(401, "Missing session: choose a person.")
     return chi
 
 
 def membro(conn: sqlite3.Connection, progetto_id: str, chi: Persona) -> Progetto:
     prj = db.progetto(conn, progetto_id)
     if prj is None or chi.id not in prj.membri:
-        raise HTTPException(403, "Non fai parte di questo progetto.")
+        raise HTTPException(403, "You are not part of this project.")
     return prj
 
 
 def manager(conn: sqlite3.Connection, progetto_id: str, chi: Persona) -> Progetto:
     prj = membro(conn, progetto_id, chi)
     if chi.id != prj.manager_id:
-        raise HTTPException(403, "Solo il manager del progetto può farlo.")
+        raise HTTPException(403, "Only the project manager can do this.")
     return prj
 
 
@@ -127,7 +127,7 @@ def apri_sessione(body: RichiestaSessione, response: Response,
                   conn: sqlite3.Connection = Depends(get_db)) -> Persona:
     chi = db.persona(conn, body.persona_id)
     if chi is None:
-        raise HTTPException(404, "Persona sconosciuta.")
+        raise HTTPException(404, "Unknown person.")
     response.set_cookie("persona", chi.id, httponly=True, samesite="lax")
     return chi
 
@@ -165,19 +165,19 @@ def _valida_progetto(conn: sqlite3.Connection, d: DatiProgetto) -> DatiProgetto:
     manager sempre tra i membri."""
     nome, cliente = " ".join(d.nome.split()), " ".join(d.cliente.split())
     if not nome or not cliente:
-        raise HTTPException(422, "Nome e cliente del progetto non possono essere vuoti.")
+        raise HTTPException(422, "The project name and client cannot be empty.")
     if len(nome) > 200 or len(cliente) > 200 or len(d.descrizione) > 2000:
-        raise HTTPException(422, "Testo troppo lungo.")
+        raise HTTPException(422, "Text too long.")
     try:
         scadenza = date.fromisoformat(d.scadenza)
     except ValueError:
-        raise HTTPException(422, "La scadenza deve essere una data AAAA-MM-GG.")
+        raise HTTPException(422, "The deadline must be a YYYY-MM-DD date.")
     if scadenza < date.today():
-        raise HTTPException(422, "La scadenza non può essere nel passato.")
+        raise HTTPException(422, "The deadline cannot be in the past.")
     membri = list(dict.fromkeys([*d.membri, d.manager_id]))   # senza doppioni, manager compreso
     sconosciute = [pid for pid in membri if db.persona(conn, pid) is None]
     if sconosciute:
-        raise HTTPException(422, f"Persone inesistenti: {', '.join(sconosciute)}.")
+        raise HTTPException(422, f"Unknown people: {', '.join(sconosciute)}.")
     return d.model_copy(update={"nome": nome, "cliente": cliente, "membri": membri,
                                 "scadenza": scadenza.isoformat(), "descrizione": d.descrizione.strip()})
 
@@ -192,7 +192,7 @@ def crea_progetto(body: DatiProgetto, chi: Persona = Depends(persona_corrente),
                   conn: sqlite3.Connection = Depends(get_db)) -> Progetto:
     """Solo chi ha ruolo «project manager» crea un progetto (decisione del team, 21/11)."""
     if chi.ruolo.strip().lower() != "project manager":
-        raise HTTPException(403, "Solo un project manager può creare progetti.")
+        raise HTTPException(403, "Only a project manager can create projects.")
     d = _valida_progetto(conn, body)
     n = conn.execute("SELECT COUNT(*) FROM progetti").fetchone()[0] + 1
     while conn.execute("SELECT 1 FROM progetti WHERE id = ?", (f"prj-{n:02d}",)).fetchone():
@@ -254,7 +254,7 @@ def _leggi_documento(conn: sqlite3.Connection, file: UploadFile, prj: Progetto, 
     id, titolo e data arrivano dalla richiesta o si ricavano)."""
     dati = file.file.read(MAX_BYTE + 1)
     if len(dati) > MAX_BYTE:
-        raise HTTPException(413, "File troppo grande (massimo 10 MB).")
+        raise HTTPException(413, "File too large (10 MB maximum).")
     nome = PurePath(file.filename or "").name
     try:
         if dati[:1024].lstrip().startswith(b"%PDF") or nome.lower().endswith(".pdf"):
@@ -266,14 +266,14 @@ def _leggi_documento(conn: sqlite3.Connection, file: UploadFile, prj: Progetto, 
         else:
             doc = segmenta(dati.decode("utf-8"))   # senza progetto: resta quello scritto nell'intestazione
     except DocumentoNonValido as errore:
-        raise HTTPException(422, f"Documento non valido. {errore}")
+        raise HTTPException(422, f"Invalid document. {errore}")
     except UnicodeDecodeError:
-        raise HTTPException(422, "Documento non valido. Il file non è un testo UTF-8 né un PDF.")
+        raise HTTPException(422, "Invalid document. The file is neither UTF-8 text nor a PDF.")
     if doc.progetto_id and doc.progetto_id != prj.id:
         # Mai cambiare progetto in silenzio: chi carica deve accorgersene e decidere.
-        raise HTTPException(422, f"L'intestazione del documento indica il progetto «{doc.progetto_id}», ma lo stai "
-                                 f"caricando nel progetto «{prj.id}». Non è stato caricato nulla: scegli il "
-                                 "progetto giusto oppure correggi l'intestazione.")
+        raise HTTPException(422, f"The document header names project “{doc.progetto_id}”, but you are "
+                                 f"uploading it to project “{prj.id}”. Nothing was uploaded: choose the "
+                                 "right project or fix the header.")
     doc.progetto_id, doc.tipo = prj.id, tipo
     return doc
 
@@ -283,9 +283,9 @@ def _rifiuta_doppione(conn: sqlite3.Connection, doc: Documento, prj: Progetto) -
     r = conn.execute("SELECT progetto_id, titolo, data FROM documenti WHERE id = ?", (doc.id,)).fetchone()
     if r is None:
         return
-    quale = f"«{r['titolo']}» del {r['data']}" if r["progetto_id"] == prj.id else "in un altro progetto"
-    raise HTTPException(409, f"Esiste già un documento con id «{doc.id}» ({quale}). Non è stato sostituito né "
-                             "modificato: se questo è un documento nuovo, dagli un id diverso.")
+    quale = f"“{r['titolo']}” of {r['data']}" if r["progetto_id"] == prj.id else "in another project"
+    raise HTTPException(409, f"A document with id “{doc.id}” already exists ({quale}). It was neither replaced nor "
+                             "changed: if this is a new document, give it a different id.")
 
 
 def _citazioni_vere(conn: sqlite3.Connection, citazioni: list[Citazione], progetto_id: str) -> list[dict]:
@@ -376,7 +376,7 @@ def _carica(conn: sqlite3.Connection, progetto_id: str, file: UploadFile, chi: P
     except sqlite3.IntegrityError:   # due caricamenti dello stesso id nello stesso istante
         conn.rollback()
         _rifiuta_doppione(conn, doc, prj)
-        raise HTTPException(409, f"Esiste già un documento con id «{doc.id}».")
+        raise HTTPException(409, f"A document with id “{doc.id}” already exists.")
     conn.executemany(
         "INSERT INTO segmenti (id, documento_id, n, speaker, persona_id, inizio, fine, pagina, testo) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -395,7 +395,7 @@ def _carica(conn: sqlite3.Connection, progetto_id: str, file: UploadFile, chi: P
         db.registra(conn, "workflow", "brain", "analisi", progetto_id=prj.id, documento_id=doc.id,
                     esito="errore", motivo=f"{type(errore).__name__}: {errore}"[:300])
         conn.commit()
-        raise HTTPException(502, "L'analisi non è riuscita. Il documento non è stato salvato: riprova.")
+        raise HTTPException(502, "The analysis failed. The document was not saved: try again.")
 
     falliti: list[str] = []
     for passo in risultato.passi:   # la traccia del workflow, così come la scrive il cervello
@@ -443,10 +443,50 @@ def dettaglio_documento(documento_id: str, chi: Persona = Depends(persona_corren
     r = conn.execute("SELECT * FROM documenti WHERE id = ?", (documento_id,)).fetchone()
     prj = db.progetto(conn, r["progetto_id"]) if r else None
     if prj is None or chi.id not in prj.membri:
-        raise HTTPException(404, "Documento non trovato.")   # stessa risposta se esiste in un altro progetto
+        raise HTTPException(404, "Document not found.")   # stessa risposta se esiste in un altro progetto
     visibili = segmenti_visibili(conn, prj, chi)
     righe = conn.execute("SELECT * FROM segmenti WHERE documento_id = ? ORDER BY n", (documento_id,))
     return db.documento(r, [db.segmento(s) for s in righe if visibili is None or s["id"] in visibili])
+
+
+class EsitoAnnullamento(BaseModel):
+    documento_id: str
+    segmenti: int
+    proposte: int
+    avvisi: int
+
+
+@app.delete("/documenti/{documento_id}")
+def annulla_caricamento(documento_id: str, chi: Persona = Depends(persona_corrente),
+                        conn: sqlite3.Connection = Depends(get_db)) -> EsitoAnnullamento:
+    """Annulla il caricamento di un documento sbagliato. Solo il manager, e solo se NESSUNA proposta
+    del documento è stata approvata: niente di suo è entrato nella memoria, quindi togliere documento,
+    segmenti, proposte (in attesa o rifiutate) e avvisi non lascia buchi. Se qualcosa è già approvato
+    -> 409. Il registro non si cancella: l'annullamento resta tracciato."""
+    r = conn.execute("SELECT progetto_id FROM documenti WHERE id = ?", (documento_id,)).fetchone()
+    prj = db.progetto(conn, r["progetto_id"]) if r else None
+    if prj is None or chi.id not in prj.membri:
+        raise HTTPException(404, "Document not found.")
+    manager(conn, prj.id, chi)
+    approvate = [x[0] for x in conn.execute(
+        "SELECT id FROM proposte WHERE documento_id = ? AND stato = 'approvata' ORDER BY id", (documento_id,))]
+    if approvate:
+        raise HTTPException(409, f"The upload can’t be undone: {len(approvate)} proposals from this document "
+                                 f"have already been approved ({', '.join(approvate)}) and are in the project "
+                                 "memory. The document stays as it is.")
+    tolte = [x[0] for x in conn.execute("SELECT id FROM proposte WHERE documento_id = ?", (documento_id,))]
+    avvisi = conn.execute("DELETE FROM avvisi WHERE documento_id = ?", (documento_id,)).rowcount
+    for a in conn.execute("SELECT id, basato_su_proposte FROM avvisi WHERE progetto_id = ?", (prj.id,)).fetchall():
+        if set(json.loads(a["basato_su_proposte"] or "[]")) & set(tolte):   # avvisi nati da quelle proposte
+            conn.execute("DELETE FROM avvisi WHERE id = ?", (a["id"],))
+            avvisi += 1
+    conn.execute("DELETE FROM proposte WHERE documento_id = ?", (documento_id,))
+    segmenti = conn.execute("DELETE FROM segmenti WHERE documento_id = ?", (documento_id,)).rowcount
+    conn.execute("DELETE FROM documenti WHERE id = ?", (documento_id,))
+    db.registra(conn, "decisione", chi.id, "annulla_caricamento", progetto_id=prj.id, documento_id=documento_id,
+                output={"segmenti": segmenti, "proposte": len(tolte), "avvisi": avvisi})
+    conn.commit()
+    return EsitoAnnullamento(documento_id=documento_id, segmenti=segmenti, proposte=len(tolte), avvisi=avvisi)
 
 
 @app.get("/segmenti/{segmento_id}")
@@ -460,7 +500,7 @@ def dettaglio_segmento(segmento_id: str, chi: Persona = Depends(persona_corrente
         visibili = segmenti_visibili(conn, prj, chi)
         if visibili is None or segmento_id in visibili:
             return db.citazione(conn, segmento_id, prj.id)
-    raise HTTPException(404, "Segmento non trovato.")   # stessa risposta se esiste ma non è visibile
+    raise HTTPException(404, "Segment not found.")   # stessa risposta se esiste ma non è visibile
 
 
 # --- Proposte: il manager cura la memoria -------------------------------------------------------
@@ -490,11 +530,11 @@ def elenco_proposte(progetto_id: str, stato: str = "in_attesa", chi: Persona = D
 def _proposta_in_attesa(conn: sqlite3.Connection, proposta_id: str, chi: Persona) -> tuple[Proposta, Progetto]:
     r = conn.execute("SELECT * FROM proposte WHERE id = ?", (proposta_id,)).fetchone()
     if r is None:
-        raise HTTPException(404, "Proposta non trovata.")
+        raise HTTPException(404, "Proposal not found.")
     p = db.proposta(r)
     prj = manager(conn, p.progetto_id, chi)
     if p.stato != "in_attesa":
-        raise HTTPException(409, f"Proposta già {p.stato}.")
+        raise HTTPException(409, f"Proposal already {p.stato}.")
     return p, prj
 
 
@@ -507,19 +547,19 @@ def _correggi(p: Proposta, prj: Progetto, contenuto: dict, modifiche: dict) -> d
         if campo not in MODIFICABILI.get(p.tipo, ()):
             if valore is None:
                 continue   # un campo che non riguarda questa proposta, lasciato vuoto
-            raise HTTPException(422, f"In una proposta «{p.tipo}» il campo «{campo}» non si può modificare.")
+            raise HTTPException(422, f"In a “{p.tipo}” proposal the field “{campo}” cannot be changed.")
         if campo in ("assegnatario_id", "scadenza"):
             if valore is not None and not isinstance(valore, str):
-                raise HTTPException(422, f"Il campo «{campo}» non è valido.")
+                raise HTTPException(422, f"The field “{campo}” is not valid.")
             if campo == "assegnatario_id" and valore is not None and valore not in prj.membri:
-                raise HTTPException(422, "L'assegnatario deve essere un membro del progetto.")
+                raise HTTPException(422, "The owner must be a project member.")
             if campo == "scadenza" and valore is not None and not data_valida(valore):
-                raise HTTPException(422, "La scadenza deve essere una data nel formato AAAA-MM-GG.")
+                raise HTTPException(422, "The deadline must be a date in YYYY-MM-DD format.")
         else:   # titolo, valore: testo scritto a mano, che poi entra nei prompt come dato
             if valore is None:
                 continue
             if not isinstance(valore, str) or not valore.strip():
-                raise HTTPException(422, f"Il campo «{campo}» non può essere vuoto.")
+                raise HTTPException(422, f"The field “{campo}” cannot be empty.")
             valore = neutralizza(" ".join(valore.split()))[:500]
         if contenuto.get(campo) != valore:
             contenuto[campo] = cambiate[campo] = valore
@@ -536,7 +576,7 @@ def _applica(conn: sqlite3.Connection, p: Proposta, prj: Progetto, aree: list[st
     """Porta una proposta approvata nella memoria del progetto. Restituisce l'id della voce toccata."""
     if p.tipo == "nuovo_task":
         if contenuto.get("assegnatario_id") not in (None, *prj.membri):
-            raise HTTPException(422, "L'assegnatario deve essere un membro del progetto.")
+            raise HTTPException(422, "The owner must be a project member.")
         stato = contenuto.get("stato") if contenuto.get("stato") in STATI_TASK else "da_fare"
         t = Task(id=db.nuovo_id_voce(conn, "task", "task", prj.id), progetto_id=prj.id, aree=aree,
                  titolo=contenuto.get("titolo"), assegnatario_id=contenuto.get("assegnatario_id"),
@@ -561,7 +601,7 @@ def _applica(conn: sqlite3.Connection, p: Proposta, prj: Progetto, aree: list[st
     r = conn.execute("SELECT * FROM task WHERE id = ? AND progetto_id = ?",
                      (contenuto.get("task_id"), prj.id)).fetchone()
     if r is None:
-        raise HTTPException(409, "Il task da aggiornare non è nella lista del progetto.")
+        raise HTTPException(409, "The task to update is not in the project list.")
     campo = contenuto.get("campo") or ("stato" if p.tipo == "chiudi_task" else None)
     valore = contenuto.get("valore")
     if p.tipo == "chiudi_task":
@@ -573,7 +613,7 @@ def _applica(conn: sqlite3.Connection, p: Proposta, prj: Progetto, aree: list[st
                   or (campo == "scadenza" and data_valida(valore))
                   or (campo == "titolo" and isinstance(valore, str) and bool(valore.strip())))
     if not valido:
-        raise HTTPException(422, "Aggiornamento non valido: la proposta va rifiutata.")
+        raise HTTPException(422, "Invalid update: the proposal should be rejected.")
     colonna = {"stato": "stato", "scadenza": "scadenza", "assegnatario": "assegnatario_id", "titolo": "titolo"}[campo]
     citazioni = {c["segmento_id"]: c for c in json.loads(r["citazioni"]) + [c.model_dump() for c in p.citazioni]}
     conn.execute(f"UPDATE task SET {colonna} = ?, citazioni = ? WHERE id = ?",
@@ -595,7 +635,7 @@ def approva(proposta_id: str, body: Decisione, chi: Persona = Depends(persona_co
     try:
         voce_id = _applica(conn, p, prj, aree, contenuto)
     except ValidationError:
-        raise HTTPException(422, "La proposta non è valida e non può essere approvata: rifiutala.")
+        raise HTTPException(422, "The proposal is not valid and cannot be approved: reject it.")
     conn.execute("UPDATE proposte SET stato = 'approvata', contenuto = ?, aree_confermate = ?, decisa_da = ?, "
                  "decisa_il = ? WHERE id = ?", (db._j(contenuto), db._j(aree), chi.id, db.ora(), p.id))
     db.registra(conn, "decisione", chi.id, "approva", progetto_id=prj.id, documento_id=p.documento_id,
@@ -669,11 +709,11 @@ def inoltra_avviso(avviso_id: str, body: Inoltro, chi: Persona = Depends(persona
     """Il manager decide chi vede l'avviso: da qui vale `puo_vedere_avviso()`."""
     r = conn.execute("SELECT * FROM avvisi WHERE id = ?", (avviso_id,)).fetchone()
     if r is None:
-        raise HTTPException(404, "Avviso non trovato.")
+        raise HTTPException(404, "Alert not found.")
     prj = manager(conn, r["progetto_id"], chi)
     ignoti = [pid for pid in body.persona_ids if pid not in prj.membri]
     if ignoti:
-        raise HTTPException(422, f"Non sono membri del progetto: {', '.join(ignoti)}")
+        raise HTTPException(422, f"Not project members: {', '.join(ignoti)}")
     aree = body.aree or json.loads(r["aree"])
     conn.execute("UPDATE avvisi SET solo_manager = 0, inoltrato_a = ?, aree = ? WHERE id = ?",
                  (db._j(body.persona_ids), db._j(aree), avviso_id))
@@ -687,7 +727,7 @@ def risolvi_avviso(avviso_id: str, chi: Persona = Depends(persona_corrente),
                    conn: sqlite3.Connection = Depends(get_db)) -> Avviso:
     r = conn.execute("SELECT * FROM avvisi WHERE id = ?", (avviso_id,)).fetchone()
     if r is None:
-        raise HTTPException(404, "Avviso non trovato.")
+        raise HTTPException(404, "Alert not found.")
     prj = manager(conn, r["progetto_id"], chi)
     conn.execute("UPDATE avvisi SET risolto = 1 WHERE id = ?", (avviso_id,))
     db.registra(conn, "decisione", chi.id, "risolvi_avviso", progetto_id=prj.id, documento_id=r["documento_id"],
@@ -725,7 +765,7 @@ def todo_oggi(persona_id: str, chi: Persona = Depends(persona_corrente),
     diretti = [p.id for p in db.progetti_di(conn, chi.id)
                if p.manager_id == chi.id and persona is not None and persona.id in p.membri]
     if not diretti:
-        raise HTTPException(403, "Puoi vedere solo la tua to-do, o quella delle persone dei progetti che dirigi.")
+        raise HTTPException(403, "You can only see your own to-do list, or those of people in the projects you lead.")
     return TodoOggi(**todo.todo_oggi(conn, persona, diretti))
 
 
@@ -786,7 +826,7 @@ def simula_evento(body: EventoSimulato, chi: Persona = Depends(persona_corrente)
     avviso_id = db.nuovo_id(conn, "avvisi", "avv")
     testo = neutralizza(" ".join(body.descrizione.split()))[:500]
     if not testo:
-        raise HTTPException(422, "Descrivi l'evento.")
+        raise HTTPException(422, "Describe the event.")
     conn.execute("INSERT INTO avvisi (id, progetto_id, tipo, testo, solo_manager, creato_il) VALUES (?, ?, ?, ?, 1, ?)",
                  (avviso_id, prj.id, "evento_esterno", testo, db.ora()))
     db.registra(conn, "caricamento", chi.id, "simula_evento", progetto_id=prj.id,

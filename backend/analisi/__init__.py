@@ -28,10 +28,10 @@ _ESTRATTORI = ("task", "fatti", "lacune")       # ordine fisso: estrazione.estra
 # Temi dei punti oscuri generati dal codice: (frasi fisse scritte da `proposte.in_proposte`, parole
 # che in un punto oscuro del modello dicono che parla della stessa cosa). Vedi `_togli_doppi`.
 _TEMI = (
-    (("non ha un responsabile", "è ambiguo", "non è un membro del progetto"),          # responsabile
-     re.compile(r"\b(chi|responsabil\w*|assegnat\w*|incaric\w*|ambigu\w*|omonim\w*|occup\w*)\b")),
-    (("non è una data chiara",),                                                        # data
-     re.compile(r"\b(data|date|scadenz\w*|quando|entro|termine)\b")),
+    (("has no owner", "is ambiguous", "is not a project member"),                        # responsabile
+     re.compile(r"\b(who|owner\w*|assign\w*|responsib\w*|ambiguous|in charge|take care)\b")),
+    (("is not a clear date",),                                                          # data
+     re.compile(r"\b(date|dates|deadline\w*|when|due)\b")),
 )
 
 
@@ -118,6 +118,9 @@ def analizza_documento(doc: Documento, contesto: ContestoProgetto,
         if dati is None:
             falliti.append(nome)
     estr = estrazione.unisci(estratti["task"], estratti["fatti"], estratti["lacune"])
+    titolati = persone.sconosciuti_con_titolo(doc, contesto.persone, estr.sconosciuti)   # regola, non modello
+    if titolati:
+        estr = estr.model_copy(update={"sconosciuti": estr.sconosciuti + titolati})
 
     # 3. proposte e avvisi (codice)
     lista_proposte, avvisi, passo = proposte.in_proposte(estr, doc, contesto)
@@ -139,7 +142,7 @@ def analizza_documento(doc: Documento, contesto: ContestoProgetto,
     # Il manager deve sapere che il risultato è incompleto
     for nome in falliti:
         avvisi.append(Avviso(progetto_id=contesto.progetto.id, documento_id=doc.id, tipo="punto_oscuro",
-                             testo=f"L'analisi di {nome} non è riuscita: il documento va ricontrollato a mano.",
+                             testo=f"The {nome} analysis failed: the document needs checking by hand.",
                              solo_manager=True))
 
     passi.append(_passo("risultato", doc, input={"documento_id": doc.id},
@@ -147,5 +150,5 @@ def analizza_documento(doc: Documento, contesto: ContestoProgetto,
                                 "avvisi": dict(Counter(a.tipo for a in avvisi)),
                                 "punti_oscuri_doppi_tolti": doppi, "analisi_non_riuscite": falliti},
                         esito="errore" if falliti else "ok",
-                        motivo=f"Analisi non riuscita: {', '.join(falliti)}." if falliti else None))
+                        motivo=f"Analysis failed: {', '.join(falliti)}." if falliti else None))
     return RisultatoAnalisi(proposte=lista_proposte, avvisi=avvisi, passi=passi)

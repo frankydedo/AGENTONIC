@@ -4,7 +4,7 @@
       "candidato_id": "fat-006",
       "stessa_cosa": false,
       "in_conflitto": false,
-      "spiegazione": "Le prove di collaudo e il SAL mensile sono requisiti diversi."
+      "spiegazione": "The second HMI panel and the monthly progress report are different client requests."
     }
   ]
 }

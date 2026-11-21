@@ -54,7 +54,7 @@ def crea_router(get_db: Callable, persona_corrente: Callable,
         except CasellaNonConfigurata as e:
             raise _non_collegata(e) from None
         if m is None:
-            raise HTTPException(404, "Mail non trovata.")
+            raise HTTPException(404, "Email not found.")
         return m
 
     @r.get("/messaggi/{mail_id}")

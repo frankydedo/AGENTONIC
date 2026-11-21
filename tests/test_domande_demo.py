@@ -55,7 +55,7 @@ def task_riu001() -> list[Task]:
 # Stato 1: riu-001 approvata (controlli 3, 4, 5).
 TASK_1 = task_riu001()
 FATTI_1 = fatti_da_mock("riu-001", 1)
-# Stato 2 (controllo 2): riu-001 e riu-002 approvate, di riu-003 solo il 7.400 (fat-009).
+# Stato 2 (controllo 2): riu-001 e riu-002 approvate, di riu-003 solo il 7,400 (fat-009).
 # Il fatto rifiutato sul secondo pannello (indice 3 del mock di riu-003) non entra in memoria.
 FATTI_2 = FATTI_1 + fatti_da_mock("riu-002", 7) + fatti_da_mock("riu-003", 9, indici=[0])
 
@@ -71,8 +71,8 @@ def segmenti(r) -> list[str]:
 
 
 def test_memoria_ricostruita_come_da_readme():
-    assert [f.id for f in FATTI_2][-1] == "fat-009" and "7.400" in FATTI_2[-1].valore
-    assert not any("secondo pannello" in f.valore for f in FATTI_2)
+    assert [f.id for f in FATTI_2][-1] == "fat-009" and "7,400" in FATTI_2[-1].valore
+    assert not any("second HMI panel" in f.valore for f in FATTI_2)
     assert TASK_1[4].dipende_da == ["task-004"]
 
 
@@ -81,16 +81,16 @@ def test_memoria_ricostruita_come_da_readme():
 def test_voce_da_task_compatta():
     v = voce_da_task(TASK_1[0], PERSONE)
     assert v.id == "task-001" and v.tipo == "task"
-    assert "Preparare il primo SAL" in v.testo and "Luca Gallo" in v.testo and "15/12/2026" in v.testo
-    assert "da fare" in v.testo
+    assert "Prepare the first progress report" in v.testo and "Luca Gallo" in v.testo and "15/12/2026" in v.testo
+    assert "to do" in v.testo
     assert v.citazioni[0].segmento_id == "riu-001#s002"
-    assert "nessun responsabile" in voce_da_task(TASK_1[6], PERSONE).testo
+    assert "no owner" in voce_da_task(TASK_1[6], PERSONE).testo
     assert "task-004" in voce_da_task(TASK_1[4], PERSONE).testo
 
 
 def test_voce_da_fatto():
     v = voce_da_fatto(FATTI_1[4])
-    assert v.testo.startswith("inverter — costo: 6.200 €")
+    assert v.testo.startswith("inverter — costo: €6,200 (Elettrotecnica Piemonte quote)")
     assert v.aree == ["fornitori", "budget"]
 
 
@@ -105,17 +105,17 @@ def test_voci_visibili_per_persona():
 # --- controlli ----------------------------------------------------------------------------------
 
 def test_controllo_2_solo_la_voce_approvata():
-    r, _ = chiedi("p-01", "Qual è l'ultimo preventivo degli inverter?", fatti=FATTI_2)
-    assert r.esito == "risposta" and "7.400" in r.testo
+    r, _ = chiedi("p-01", "What is the latest inverter quote?", fatti=FATTI_2)
+    assert r.esito == "risposta" and "7,400" in r.testo
     assert segmenti(r) == ["riu-003#s002"]
     assert "riu-003#s008" not in segmenti(r)
-    r, _ = chiedi("p-01", "Il cliente vuole un secondo pannello HMI?", fatti=FATTI_2)
+    r, _ = chiedi("p-01", "Does the client want a second HMI panel?", fatti=FATTI_2)
     assert r.esito == "non_lo_so" and r.testo == NEUTRO
 
 
 @pytest.mark.parametrize("persona,domanda,atteso,seg", [
-    ("p-02", "Quanto budget resta?", "35.500", "riu-001#s003"),
-    ("p-06", "Quanto costano gli inverter?", "6.200", "riu-001#s007"),
+    ("p-02", "How much budget is left?", "35,500", "riu-001#s003"),
+    ("p-06", "How much do the inverters cost?", "6,200", "riu-001#s007"),
 ])
 def test_controllo_3_chi_ha_i_permessi(persona, domanda, atteso, seg):
     r, _ = chiedi(persona, domanda)
@@ -123,8 +123,8 @@ def test_controllo_3_chi_ha_i_permessi(persona, domanda, atteso, seg):
 
 
 @pytest.mark.parametrize("domanda,vietati", [
-    ("Quanto budget resta?", ["35.500", "48.000", "12.500"]),
-    ("Quanto costano gli inverter?", ["6.200"]),
+    ("How much budget is left?", ["35,500", "48,000", "12,500"]),
+    ("How much do the inverters cost?", ["6,200"]),
 ])
 def test_controllo_3_sara_riceve_il_testo_neutro(domanda, vietati):
     r, voci = chiedi("p-04", domanda)
@@ -132,24 +132,24 @@ def test_controllo_3_sara_riceve_il_testo_neutro(domanda, vietati):
     assert r.esito == "non_lo_so" and r.testo == NEUTRO and r.citazioni == []
     assert not any(x in r.testo for x in vietati)
     # identico al «dato mancante»
-    assert r.testo == chiedi("p-01", "Che PLC usa il cliente nella linea 2?")[0].testo
+    assert r.testo == chiedi("p-01", "Which PLC does the client use on line 2?")[0].testo
 
 
 def test_paola_fuori_progetto_testo_neutro():
-    r, voci = chiedi("p-08", "Quanto budget resta?")
+    r, voci = chiedi("p-08", "How much budget is left?")
     assert voci == [] and r.testo == NEUTRO
 
 
 def test_controllo_4_cita():
-    r, _ = chiedi("p-01", "Chi prepara il primo SAL per il cliente?")
+    r, _ = chiedi("p-01", "Who is preparing the first progress report for the client?")
     assert r.esito == "risposta" and "Luca" in r.testo
     c = r.citazioni[0]
     assert (c.segmento_id, c.documento_id, c.titolo, c.data, c.orario, c.speaker) == (
-        "riu-001#s002", "riu-001", "Kick-off revamping linea 3", "2026-11-16", "09:30", "Luca Gallo")
+        "riu-001#s002", "riu-001", "Line 3 revamping kick-off", "2026-11-16", "09:30", "Luca Gallo")
 
 
 def test_controllo_5_lacune():
-    r, _ = chiedi("p-01", "Che PLC usa il cliente nella linea 2?")
+    r, _ = chiedi("p-01", "Which PLC does the client use on line 2?")
     assert r.esito == "non_lo_so" and r.testo == NEUTRO
-    r, _ = chiedi("p-01", "Chi aggiorna il manuale d'uso per gli operatori?")
-    assert r.esito == "risposta" and "responsabile" in r.testo and "riu-001#s014" in segmenti(r)
+    r, _ = chiedi("p-01", "Who is updating the operating manual for the operators?")
+    assert r.esito == "risposta" and "owner" in r.testo and "riu-001#s014" in segmenti(r)

@@ -24,11 +24,11 @@ export function Progetti() {
   return (
     <>
       <TitoloPagina
-        titolo="Progetti"
+        titolo="Projects"
         sottotitolo={creatore
-          ? 'I progetti a cui partecipi. Puoi crearne di nuovi e decidere chi ci lavora e chi li guida.'
-          : 'Vedi solo i progetti a cui sei assegnato. Dentro ognuno vedi solo ciò che rientra nelle tue competenze.'}
-        azioni={creatore && <Bottone variante="primario" icona={FolderPlus} onClick={() => setModulo({ aperto: true, progetto: null })}>Nuovo progetto</Bottone>}
+          ? 'The projects you’re part of. You can create new ones and decide who works on them and who leads them.'
+          : 'You only see the projects you’re assigned to. Inside each one you only see what falls within your areas.'}
+        azioni={creatore && <Bottone variante="primario" icona={FolderPlus} onClick={() => setModulo({ aperto: true, progetto: null })}>New project</Bottone>}
       />
       <ul className="grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
         {ordinati.map((p, i) => (
@@ -38,7 +38,7 @@ export function Progetti() {
         ))}
       </ul>
       <Modale aperto={modulo.aperto} onChiudi={() => setModulo({ aperto: false, progetto: null })}
-        titolo={modulo.progetto ? `Modifica «${modulo.progetto.nome}»` : 'Nuovo progetto'}>
+        titolo={modulo.progetto ? `Edit “${modulo.progetto.nome}”` : 'New project'}>
         <ModuloProgetto key={modulo.progetto?.id ?? 'nuovo'} progetto={modulo.progetto} onFatto={() => setModulo({ aperto: false, progetto: null })}
           io={io} tutte={Object.values(persone)} ricaricaProgetti={ricaricaProgetti} scegliProgetto={scegliProgetto} />
       </Modale>
@@ -74,9 +74,9 @@ function SchedaProgetto({ p, onModifica }: { p: Progetto; onModifica: () => void
     <Card className={clsx('flex h-full flex-col', attuale && 'ring-2 ring-accento')}>
       <div className="flex-1 p-5">
         <div className="flex flex-wrap items-center gap-1.5">
-          {sonoManager ? <Badge tono="viola" icona={Crown}>Sei il manager</Badge> : <Badge>Membro</Badge>}
-          {attuale && <Badge tono="giallo" icona={Check}>Aperto ora</Badge>}
-          <Badge tono={scad.tono} icona={CalendarClock}>{giorniA(p.scadenza) >= 0 ? `scade ${scad.testo}` : scad.testo}</Badge>
+          {sonoManager ? <Badge tono="viola" icona={Crown}>You’re the manager</Badge> : <Badge>Member</Badge>}
+          {attuale && <Badge tono="giallo" icona={Check}>Open now</Badge>}
+          <Badge tono={scad.tono} icona={CalendarClock}>{giorniA(p.scadenza) >= 0 ? `due ${scad.testo}` : scad.testo}</Badge>
         </div>
         <h2 className="mt-3 text-[19px] leading-snug font-bold tracking-[-0.015em]">{p.nome}</h2>
         <p className="text-sm text-testo-2">{p.cliente}</p>
@@ -88,12 +88,12 @@ function SchedaProgetto({ p, onModifica }: { p: Progetto; onModifica: () => void
         </div>
         <div className="mt-3 flex items-center gap-2">
           <span className="flex -space-x-1.5">{p.membri.slice(0, 8).map((id) => <Avatar key={id} persona={persone[id]} nome={id} size={24} />)}</span>
-          <span className="text-xs text-testo-2">{p.membri.length} persone</span>
+          <span className="text-xs text-testo-2">{p.membri.length} people</span>
         </div>
 
         {!sonoManager && (
           <p className="mt-4 flex flex-wrap items-center gap-1 text-xs text-testo-2">
-            <Eye size={13} /> Qui vedi: {io.competenze.map((a) => <ChipArea key={a} area={a} />)}
+            <Eye size={13} /> Here you see: {io.competenze.map((a) => <ChipArea key={a} area={a} />)}
           </p>
         )}
       </div>
@@ -101,20 +101,20 @@ function SchedaProgetto({ p, onModifica }: { p: Progetto; onModifica: () => void
       <div className="mx-5 grid grid-cols-2 gap-2">
         <div className="rounded-2xl bg-riempimento/70 px-3.5 py-3">
           <p className="cifre text-[24px] leading-none font-bold">{conti ? conti.miei : '·'}</p>
-          <p className="mt-1 text-xs text-testo-2">task tuoi aperti</p>
+          <p className="mt-1 text-xs text-testo-2">your open tasks</p>
         </div>
         <div className="rounded-2xl bg-riempimento/70 px-3.5 py-3">
           {sonoManager
-            ? <><p className={clsx('cifre text-[24px] leading-none font-bold', conti?.daDecidere && 'text-arancio-testo')}>{conti?.daDecidere ?? '·'}</p><p className="mt-1 text-xs text-testo-2">proposte da decidere</p></>
-            : <><p className="text-[24px] leading-none font-bold text-testo-3">—</p><p className="mt-1 text-xs text-testo-2">le decide il manager</p></>}
+            ? <><p className={clsx('cifre text-[24px] leading-none font-bold', conti?.daDecidere && 'text-arancio-testo')}>{conti?.daDecidere ?? '·'}</p><p className="mt-1 text-xs text-testo-2">proposals to decide</p></>
+            : <><p className="text-[24px] leading-none font-bold text-testo-3">—</p><p className="mt-1 text-xs text-testo-2">the manager decides</p></>}
         </div>
       </div>
 
       <div className="flex gap-2 p-5 pt-4">
         <Bottone variante={attuale ? 'secondario' : 'primario'} icona={ArrowRight} className="flex-1" onClick={() => scegliProgetto(p.id)}>
-          {attuale ? 'Vai alla panoramica' : 'Apri il progetto'}
+          {attuale ? 'Go to the overview' : 'Open the project'}
         </Bottone>
-        {puoModificare(io, p) && <Bottone icona={Pencil} onClick={onModifica} aria-label={`Modifica ${p.nome}`}>Modifica</Bottone>}
+        {puoModificare(io, p) && <Bottone icona={Pencil} onClick={onModifica} aria-label={`Edit ${p.nome}`}>Edit</Bottone>}
       </div>
     </Card>
   )
@@ -146,7 +146,7 @@ export function ModuloProgetto({ progetto, onFatto, io, tutte, ricaricaProgetti,
     try {
       const salvato = progetto ? await api.modificaProgetto(progetto.id, d) : await api.creaProgetto(d)
       await ricaricaProgetti()
-      toast.success(progetto ? 'Progetto aggiornato' : 'Progetto creato', { description: salvato.nome })
+      toast.success(progetto ? 'Project updated' : 'Project created', { description: salvato.nome })
       onFatto()
       if (!progetto) scegliProgetto(salvato.id)
     } catch (e) {
@@ -161,7 +161,7 @@ export function ModuloProgetto({ progetto, onFatto, io, tutte, ricaricaProgetti,
     setOccupato(true)
     try {
       await api.eliminaProgetto(progetto.id)
-      toast.success('Progetto eliminato', { description: progetto.nome })
+      toast.success('Project deleted', { description: progetto.nome })
       onFatto()
       await ricaricaProgetti()
     } catch (e) {
@@ -173,21 +173,21 @@ export function ModuloProgetto({ progetto, onFatto, io, tutte, ricaricaProgetti,
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); salva() }} className="space-y-4">
-      <Campo etichetta="Nome del progetto">
-        <input value={d.nome} onChange={(e) => setD({ ...d, nome: e.target.value })} className={INPUT} placeholder="Es. Revamping linea 4" />
+      <Campo etichetta="Project name">
+        <input value={d.nome} onChange={(e) => setD({ ...d, nome: e.target.value })} className={INPUT} placeholder="E.g. Line 4 retrofit" />
       </Campo>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Campo etichetta="Cliente">
-          <input value={d.cliente} onChange={(e) => setD({ ...d, cliente: e.target.value })} className={INPUT} placeholder="Es. Pastificio Valsangone S.p.A." />
+        <Campo etichetta="Client">
+          <input value={d.cliente} onChange={(e) => setD({ ...d, cliente: e.target.value })} className={INPUT} placeholder="E.g. Valsangone Pasta Co." />
         </Campo>
-        <Campo etichetta="Scadenza">
+        <Campo etichetta="Deadline">
           <input type="date" value={d.scadenza} onChange={(e) => setD({ ...d, scadenza: e.target.value })} className={INPUT} />
         </Campo>
       </div>
-      <Campo etichetta="Descrizione">
+      <Campo etichetta="Description">
         <textarea value={d.descrizione} onChange={(e) => setD({ ...d, descrizione: e.target.value })} rows={2} className={INPUT} />
       </Campo>
-      <Campo etichetta="Manager (approva le proposte di Agentonic e vede tutto il progetto)">
+      <Campo etichetta="Manager (approves Agentonic’s proposals and sees the whole project)">
         <select value={d.manager_id} onChange={(e) => scegliManager(e.target.value)} className={INPUT}>
           {tutte.map((p) => <option key={p.id} value={p.id}>{p.nome}, {p.ruolo}</option>)}
         </select>
@@ -195,9 +195,9 @@ export function ModuloProgetto({ progetto, onFatto, io, tutte, ricaricaProgetti,
 
       <fieldset>
         <legend className="mb-1.5 text-xs font-semibold text-testo-2">Chi ci lavora ({d.membri.length})</legend>
-        <SelettorePersone inline etichetta="Membri del progetto" persone={tutte} valore={d.membri} bloccate={[d.manager_id]}
+        <SelettorePersone inline etichetta="Project members" persone={tutte} valore={d.membri} bloccate={[d.manager_id]}
           onCambia={(ids) => setD((x) => ({ ...x, membri: ids.includes(x.manager_id) ? ids : [...ids, x.manager_id] }))} />
-        <p className="mt-1.5 text-xs text-testo-2">Ogni membro vedrà del progetto solo ciò che rientra nelle sue competenze.</p>
+        <p className="mt-1.5 text-xs text-testo-2">Each member will only see the parts of the project within their areas.</p>
       </fieldset>
 
       {tentato && errori.length > 0 && (
@@ -208,11 +208,11 @@ export function ModuloProgetto({ progetto, onFatto, io, tutte, ricaricaProgetti,
       )}
 
       <div className="flex gap-2">
-        <Bottone type="submit" variante="primario" icona={Check} disabled={occupato}>{progetto ? 'Salva le modifiche' : 'Crea il progetto'}</Bottone>
-        <Bottone type="button" variante="secondario" onClick={onFatto}>Annulla</Bottone>
+        <Bottone type="submit" variante="primario" icona={Check} disabled={occupato}>{progetto ? 'Save changes' : 'Create project'}</Bottone>
+        <Bottone type="button" variante="secondario" onClick={onFatto}>Cancel</Bottone>
         {progetto && (conferma
-          ? <Bottone type="button" variante="pericolo" className="ml-auto" disabled={occupato} onClick={elimina}>Elimina davvero, con tutti i dati</Bottone>
-          : <Bottone type="button" variante="fantasma" className="ml-auto" onClick={() => setConferma(true)}>Elimina progetto</Bottone>)}
+          ? <Bottone type="button" variante="pericolo" className="ml-auto" disabled={occupato} onClick={elimina}>Really delete, with all its data</Bottone>
+          : <Bottone type="button" variante="fantasma" className="ml-auto" onClick={() => setConferma(true)}>Delete project</Bottone>)}
       </div>
     </form>
   )

@@ -1,4 +1,5 @@
 // Ricerca delle persone all'ingresso: deve reggere migliaia di dipendenti.
+import { ETICHETTE_AREA } from './componenti/ui'
 import type { Persona } from './tipi'
 
 const norma = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim()
@@ -9,8 +10,8 @@ function punteggio(p: Persona, q: string): number | null {
   if (nome.startsWith(q)) return 0                                   // «gi» → Giulia Ferraris
   if (nome.split(/\s+/).some((parola) => parola.startsWith(q))) return 1   // «fer» → Giulia Ferraris
   if (nome.includes(q)) return 2
-  const altro = norma(`${p.ruolo} ${p.reparto ?? ''} ${p.alias.join(' ')} ${p.competenze.join(' ')}`)
-  if (altro.split(/\s+/).some((parola) => parola.startsWith(q))) return 3  // «budget», «acquisti»
+  const altro = norma(`${p.ruolo} ${p.reparto ?? ''} ${p.alias.join(' ')} ${p.competenze.map((a) => `${a} ${ETICHETTE_AREA[a]}`).join(' ')}`)
+  if (altro.split(/\s+/).some((parola) => parola.startsWith(q))) return 3  // «budget», «purchasing», «engineering»
   if (altro.includes(q)) return 4
   return null
 }
@@ -32,7 +33,7 @@ export function cercaPersone(persone: Persona[], testo: string, max = 50): { ris
     }
     if (somma >= 0) trovate.push([p, somma])
   }
-  trovate.sort((a, b) => a[1] - b[1] || a[0].nome.localeCompare(b[0].nome, 'it'))
+  trovate.sort((a, b) => a[1] - b[1] || a[0].nome.localeCompare(b[0].nome, 'en'))
   return { risultati: trovate.slice(0, max).map(([p]) => p), totale: trovate.length }
 }
 

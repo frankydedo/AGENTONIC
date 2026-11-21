@@ -269,7 +269,7 @@ class Risposta(BaseModel):
     citazioni: list[Citazione] = Field(default_factory=list)  # obbligatorie se esito == "risposta"
 
 
-TESTO_NEUTRO = "Non ho informazioni che puoi vedere su questo. Puoi chiedere a {manager}."
+TESTO_NEUTRO = "I don't have any information you can see about this. You can ask {manager}."
 
 
 # --- Permessi (unica regola per tutti) ----------------------------------------------------------

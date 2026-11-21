@@ -15,7 +15,7 @@ from scripts.genera_pdf_esempio import SORGENTE, pagine_da_markdown, pdf_da_pagi
 
 DATI = Path(__file__).parent.parent / "dati"
 PDF = (DATI / "documenti" / "doc-001.pdf").read_bytes()
-TITOLO = "Capitolato tecnico del cliente Pastificio Valsangone per il revamping della linea 3"
+TITOLO = "Pastificio Valsangone technical specification for the line 3 revamping"
 
 
 def segmenta(dati: bytes):
@@ -38,9 +38,9 @@ def test_pdf_di_esempio_segmenti_e_pagine():
     assert [s.pagina for s in doc.segmenti] == [1] * 6 + [2] * 4
     assert all(s.speaker == "(documento)" and s.documento_id == "doc-001" for s in doc.segmenti)
     testi = {s.id: s.testo for s in doc.segmenti}
-    assert "bilingue, italiano e inglese" in testi["doc-001#p01s04"]
-    assert "15 gennaio 2027" in testi["doc-001#p01s06"]
-    assert testi["doc-001#p02s03"].startswith("7. Referente del committente.")
+    assert "bilingual, Italian and English" in testi["doc-001#p01s04"]
+    assert "15 January 2027" in testi["doc-001#p01s06"]
+    assert testi["doc-001#p02s03"].startswith("7. Client contact.")
     assert "\n" not in "".join(testi.values())     # righe dello stesso paragrafo unite
 
 
@@ -54,7 +54,7 @@ def test_pdf_corrisponde_al_sorgente():
 def test_citazione_con_pagina():
     c = citazione(segmenta(PDF), "doc-001#p02s03")
     assert c.pagina == 2 and c.speaker == "(documento)" and c.titolo == TITOLO
-    assert "ing. Venturi" in c.frase
+    assert "Mr Venturi" in c.frase
 
 
 # --- Rifiuti ------------------------------------------------------------------------------------
@@ -233,4 +233,4 @@ def test_mock_contiene_i_casi_per_gli_altri_agenti():
     assert len(scadenze) == 1 and "2027-01-15" in scadenze[0]["valore"]   # in conflitto con il 2027-01-20
     assert {"commerciale", "fornitori"} <= {a for f in fatti for a in f["aree"]}
     assert all(len(f["aree"]) == 1 for f in fatti)                         # un paragrafo, un'area
-    assert [s["nome"] for s in carica_mock("lacune")["sconosciuti"]] == ["ing. Venturi"]
+    assert [s["nome"] for s in carica_mock("lacune")["sconosciuti"]] == ["Mr Venturi"]

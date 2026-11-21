@@ -1,19 +1,25 @@
 {
   "punti_oscuri": [
     {
-      "descrizione": "Le prove di collaudo vanno fatte «alla velocità nominale», ma il capitolato non dice qual è la velocità nominale per ciascun formato di pasta.",
-      "segmenti": ["doc-001#p01s05"]
+      "descrizione": "The acceptance tests must run “at nominal speed”, but the specification doesn't say what the nominal speed is for each pasta shape.",
+      "segmenti": [
+        "doc-001#p01s05"
+      ]
     },
     {
-      "descrizione": "La penale si calcola sul «valore dell'ordine», ma il capitolato non dice quale importo considerare.",
-      "segmenti": ["doc-001#p02s01"]
+      "descrizione": "The penalty is calculated on the “order value”, but the specification doesn't say which amount to use.",
+      "segmenti": [
+        "doc-001#p02s01"
+      ]
     }
   ],
   "sconosciuti": [
     {
-      "nome": "ing. Venturi",
-      "descrizione": "Responsabile manutenzione dello stabilimento del cliente e referente tecnico per il revamping; approva il verbale di collaudo. Non è tra le persone del progetto.",
-      "segmenti": ["doc-001#p02s03"]
+      "nome": "Mr Venturi",
+      "descrizione": "Maintenance manager at the client's plant and technical contact for the revamping; approves the acceptance test report. Not one of the project's people.",
+      "segmenti": [
+        "doc-001#p02s03"
+      ]
     }
   ]
 }

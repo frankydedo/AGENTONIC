@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { AREE, type Area, type Persona } from '../tipi'
-import { Avatar, ChipArea } from './ui'
+import { Avatar, ChipArea, ETICHETTE_AREA } from './ui'
 
 /** Chiude un menu con un clic fuori (dal bottone e dal menu) o con Esc. */
 function useChiudiFuori(aperto: boolean, chiudi: () => void, rifs: RefObject<HTMLElement | null>[]) {
@@ -101,18 +101,18 @@ function Voce({ attiva, onClick, children }: { attiva: boolean; onClick: () => v
 }
 
 /** Aree di visibilità: mostra le scelte in poco spazio, le altre si cercano nel menu. */
-export function SelettoreAree({ valore, onCambia, etichetta = 'Visibile a' }: { valore: Area[]; onCambia: (a: Area[]) => void; etichetta?: string }) {
+export function SelettoreAree({ valore, onCambia, etichetta = 'Visible to' }: { valore: Area[]; onCambia: (a: Area[]) => void; etichetta?: string }) {
   const [aperto, setAperto] = useState(false)
   const [cerca, setCerca] = useState('')
   const alterna = (a: Area) => onCambia(valore.includes(a) ? valore.filter((x) => x !== a) : [...valore, a])
   const riassunto = valore.length === 0
-    ? <span className="text-rosso-testo">nessuna area</span>
+    ? <span className="text-rosso-testo">no areas</span>
     : <>{valore.slice(0, 2).map((a) => <ChipArea key={a} area={a} />)}{valore.length > 2 && <span className="text-testo-2">+{valore.length - 2}</span>}</>
   return (
     <Tendina etichetta={etichetta} riassunto={riassunto} aperto={aperto} setAperto={(a) => { setAperto(a); if (!a) setCerca('') }}>
-      <CampoRicerca valore={cerca} onCambia={setCerca} segnaposto="Cerca un'area…" />
+      <CampoRicerca valore={cerca} onCambia={setCerca} segnaposto="Search for an area…" />
       <ul role="menu" className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-1">
-        {AREE.filter((a) => corrisponde(a, cerca)).map((a) => (
+        {AREE.filter((a) => corrisponde(`${ETICHETTE_AREA[a]} ${a}`, cerca)).map((a) => (
           <Voce key={a} attiva={valore.includes(a)} onClick={() => alterna(a)}><ChipArea area={a} /></Voce>
         ))}
       </ul>
@@ -136,9 +136,9 @@ export function SelettorePersone({ persone, valore, onCambia, bloccate = [], eti
   const filtrate = persone.filter((p) => corrisponde(`${p.nome} ${p.ruolo} ${p.reparto ?? ''}`, cerca))
   const elenco = (
     <>
-      <CampoRicerca valore={cerca} onCambia={setCerca} segnaposto={`Cerca tra ${persone.length} persone…`} />
+      <CampoRicerca valore={cerca} onCambia={setCerca} segnaposto={`Search ${persone.length} people…`} />
       <ul role="menu" className={clsx('overflow-y-auto overscroll-contain py-1', inline ? 'max-h-64' : 'min-h-0 flex-1')}>
-        {filtrate.length === 0 && <li className="px-3 py-3 text-sm text-testo-2">Nessuno trovato.</li>}
+        {filtrate.length === 0 && <li className="px-3 py-3 text-sm text-testo-2">Nobody found.</li>}
         {filtrate.map((p) => (
           <Voce key={p.id} attiva={valore.includes(p.id)} onClick={() => alterna(p.id)}>
             <Avatar persona={p} size={22} />
@@ -154,8 +154,8 @@ export function SelettorePersone({ persone, valore, onCambia, bloccate = [], eti
   if (inline) return <div className="overflow-hidden rounded-xl border border-separatore" aria-label={etichetta}>{elenco}</div>
   const scelti = persone.filter((p) => valore.includes(p.id))
   const riassunto = scelti.length === 0
-    ? <span className="text-testo-2">Scegli…</span>
-    : <><span className="flex -space-x-1">{scelti.slice(0, 4).map((p) => <Avatar key={p.id} persona={p} size={18} />)}</span><span className="text-testo-2">{scelti.length} {scelti.length === 1 ? 'persona' : 'persone'}</span></>
+    ? <span className="text-testo-2">Choose…</span>
+    : <><span className="flex -space-x-1">{scelti.slice(0, 4).map((p) => <Avatar key={p.id} persona={p} size={18} />)}</span><span className="text-testo-2">{scelti.length} {scelti.length === 1 ? 'person' : 'people'}</span></>
   return (
     <Tendina etichetta={etichetta} riassunto={riassunto} aperto={aperto} setAperto={(a) => { setAperto(a); if (!a) setCerca('') }} larghezza={320}>
       {elenco}

@@ -1,9 +1,9 @@
 {
   "fatti": [
     {
-      "soggetto": "progetto",
+      "soggetto": "project",
       "attributo": "scadenza",
-      "valore": "collaudo presso il cliente entro il 2027-01-20",
+      "valore": "acceptance test at the client's site by 2027-01-20",
       "aree": [
         "generale"
       ],
@@ -13,9 +13,9 @@
       "sicurezza": "alta"
     },
     {
-      "soggetto": "progetto",
+      "soggetto": "project",
       "attributo": "budget",
-      "valore": "48.000 € di budget interno approvato, 12.500 € già impegnati per la progettazione",
+      "valore": "€48,000 of approved internal budget, €12,500 already committed for the design",
       "aree": [
         "budget"
       ],
@@ -27,7 +27,7 @@
     {
       "soggetto": "PLC",
       "attributo": "decisione",
-      "valore": "Siemens S7-1500 al posto del vecchio S7-300, programma riscritto da zero",
+      "valore": "Siemens S7-1500 instead of the old S7-300, program rewritten from scratch",
       "aree": [
         "sviluppo"
       ],
@@ -40,7 +40,7 @@
     {
       "soggetto": "inverter",
       "attributo": "fornitore",
-      "valore": "Elettrotecnica Piemonte, consegna in tre settimane dall'ordine",
+      "valore": "Elettrotecnica Piemonte, delivery three weeks from the order",
       "aree": [
         "fornitori"
       ],
@@ -52,7 +52,7 @@
     {
       "soggetto": "inverter",
       "attributo": "costo",
-      "valore": "6.200 € (preventivo di Elettrotecnica Piemonte)",
+      "valore": "€6,200 (Elettrotecnica Piemonte quote)",
       "aree": [
         "fornitori",
         "budget"
@@ -63,9 +63,9 @@
       "sicurezza": "alta"
     },
     {
-      "soggetto": "cliente",
+      "soggetto": "client",
       "attributo": "requisito",
-      "valore": "un SAL al mese, il primo entro il 2026-12-15",
+      "valore": "one progress report a month, the first by 2026-12-15",
       "aree": [
         "commerciale"
       ],

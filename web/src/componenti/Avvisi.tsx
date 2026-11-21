@@ -20,11 +20,11 @@ const ICONA: Record<Tono, string> = {
 }
 
 const TIPI: Record<TipoAvviso, [string, Tono, LucideIcon]> = {
-  incongruenza: ['Incongruenza', 'rosso', TriangleAlert],
-  punto_oscuro: ['Punto oscuro', 'giallo', CircleHelp],
-  sconosciuto: ['Non lo conosco', 'viola', UserRoundX],
-  dipendenza_a_rischio: ['Dipendenza a rischio', 'rosso', GitBranch],
-  evento_esterno: ['Evento esterno', 'blu', Zap],
+  incongruenza: ['Inconsistency', 'rosso', TriangleAlert],
+  punto_oscuro: ['Unclear point', 'giallo', CircleHelp],
+  sconosciuto: ['Unknown to me', 'viola', UserRoundX],
+  dipendenza_a_rischio: ['Dependency at risk', 'rosso', GitBranch],
+  evento_esterno: ['External event', 'blu', Zap],
   brief: ['Brief', 'grigio', Sparkles],
 }
 
@@ -44,34 +44,34 @@ export function CartaAvviso({ a }: { a: Avviso }) {
       <div className="min-w-0 flex-1">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
         <span className="font-semibold">{etichetta}</span>
-        {a.basato_su_proposte?.length ? <Badge tono="grigio" icona={Hourglass} className="bg-superficie/70">da proposte non ancora approvate</Badge> : null}
-        {sonoManager && a.solo_manager && <span className="text-testo-2">visibile solo a te</span>}
+        {a.basato_su_proposte?.length ? <Badge tono="grigio" icona={Hourglass} className="bg-superficie/70">from proposals not yet approved</Badge> : null}
+        {sonoManager && a.solo_manager && <span className="text-testo-2">visible only to you</span>}
       </div>
       <p className="mt-1 text-[15px] leading-snug">{a.testo}</p>
       <Citazioni citazioni={a.citazioni} className="mt-2 [&_a]:bg-superficie/80" />
       {sonoManager && !!a.inoltrato_a?.length && (
         <p className="mt-2 flex items-center gap-1.5 text-xs text-testo-2">
-          <Forward size={12} /> Inoltrato a
+          <Forward size={12} /> Forwarded to
           <span className="flex -space-x-1">{a.inoltrato_a.map((id) => <Avatar key={id} persona={persone[id]} size={18} />)}</span>
         </p>
       )}
       {sonoManager && (
         <div className="mt-2.5 -ml-1 flex flex-wrap gap-1">
-          {correggibile && <Bottone piccolo variante="primario" onClick={() => setCorreggi(true)}>Correggi</Bottone>}
-          <Bottone piccolo variante="fantasma" icona={Forward} onClick={() => setInoltra(true)}>Inoltra</Bottone>
-          <Bottone piccolo variante="fantasma" icona={CircleCheck} onClick={() => risolvi(a.id)}>Segna come risolto</Bottone>
+          {correggibile && <Bottone piccolo variante="primario" onClick={() => setCorreggi(true)}>Correct</Bottone>}
+          <Bottone piccolo variante="fantasma" icona={Forward} onClick={() => setInoltra(true)}>Forward</Bottone>
+          <Bottone piccolo variante="fantasma" icona={CircleCheck} onClick={() => risolvi(a.id)}>Mark as resolved</Bottone>
         </div>
       )}
       {proposta && (
-        <Modale aperto={correggi} onChiudi={() => setCorreggi(false)} titolo="Correggi la proposta di Agentonic">
+        <Modale aperto={correggi} onChiudi={() => setCorreggi(false)} titolo="Correct Agentonic’s proposal">
           <p className="mb-4 text-[15px] text-testo-2">
-            Sistema i campi incerti e approva: l'avviso si chiude da solo e la voce entra nella memoria del progetto.
+            Fix the uncertain fields and approve: the alert closes on its own and the item enters the project memory.
           </p>
           <CartaProposta p={proposta} correggiSubito onDecisa={() => setCorreggi(false)} />
         </Modale>
       )}
       {sonoManager && (
-        <Modale aperto={inoltra} onChiudi={() => setInoltra(false)} titolo="Inoltra l'avviso">
+        <Modale aperto={inoltra} onChiudi={() => setInoltra(false)} titolo="Forward the alert">
           <Inoltro a={a} onFatto={() => setInoltra(false)} />
         </Modale>
       )}
@@ -91,12 +91,12 @@ export function ListaAvvisi({ documentoId, griglia }: { documentoId?: string; gr
           {connesso && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-verde opacity-60" />}
           <span className={clsx('relative inline-flex h-2 w-2 rounded-full', connesso ? 'bg-verde' : 'bg-testo-3')} />
         </span>
-        {connesso ? 'In ascolto: gli avvisi arrivano da soli' : 'Connessione agli avvisi in corso…'}
+        {connesso ? 'Listening: alerts arrive on their own' : 'Connecting to alerts…'}
       </div>
       {aperti.length === 0
         ? (griglia
-          ? <p className="flex items-center gap-2 px-5 pt-2 pb-5 text-sm text-testo-2 sm:pl-[78px]"><CircleCheck size={15} className="text-verde-testo" /> Tutto chiaro: Agentonic non ha nulla da segnalarti in questo momento.</p>
-          : <Vuoto icona={CircleCheck} titolo="Tutto chiaro" testo="Agentonic non ha nulla da segnalarti in questo momento." />)
+          ? <p className="flex items-center gap-2 px-5 pt-2 pb-5 text-sm text-testo-2 sm:pl-[78px]"><CircleCheck size={15} className="text-verde-testo" /> All clear: Agentonic has nothing to flag right now.</p>
+          : <Vuoto icona={CircleCheck} titolo="All clear" testo="Agentonic has nothing to flag right now." />)
         : (
           <ul className={clsx('gap-2.5 p-4 pt-3', griglia ? 'grid sm:p-5 sm:pt-3 md:grid-cols-2' : 'flex flex-col')}>
             <AnimatePresence initial={false}>{aperti.map((a) => <CartaAvviso key={a.id} a={a} />)}</AnimatePresence>
@@ -117,11 +117,11 @@ function Inoltro({ a, onFatto }: { a: Avviso; onFatto: () => void }) {
   return (
     <div>
       <p className="rounded-2xl bg-riempimento p-3.5 text-[15px] text-testo-2">{a.testo}</p>
-      <p className="mt-5 mb-2 text-[13px] font-semibold text-testo-2">A chi</p>
-      <SelettorePersone inline etichetta="Inoltra a" persone={membri.filter((m) => m.id !== progetto.manager_id)}
+      <p className="mt-5 mb-2 text-[13px] font-semibold text-testo-2">To whom</p>
+      <SelettorePersone inline etichetta="Forward to" persone={membri.filter((m) => m.id !== progetto.manager_id)}
         valore={[...scelti]} onCambia={(ids) => setScelti(new Set(ids))} />
-      <p className="mt-5 mb-2 text-[13px] font-semibold text-testo-2">Oppure a chi ha queste competenze</p>
-      <SelettoreAree etichetta="Competenze" valore={aree} onCambia={setAree} />
+      <p className="mt-5 mb-2 text-[13px] font-semibold text-testo-2">Or to anyone with these areas</p>
+      <SelettoreAree etichetta="Areas" valore={aree} onCambia={setAree} />
       <Bottone variante="primario" icona={Forward} className="mt-5" disabled={occupato || (!scelti.size && !aree.length)}
         onClick={async () => { setOccupato(true); if (await inoltra(a.id, [...scelti], aree)) onFatto(); setOccupato(false) }}>
         Inoltra

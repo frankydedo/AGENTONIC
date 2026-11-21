@@ -7,6 +7,7 @@ tipografici come quello dritto) su nome completo, alias, nome (anche composto: �
 diventa un punto oscuro per il manager.
 """
 
+import re
 import unicodedata
 
 from pydantic import BaseModel
@@ -43,14 +44,14 @@ def _chiavi(p: Persona) -> set[str]:
 
 
 def _elenco(nomi: list[str]) -> str:
-    return nomi[0] if len(nomi) == 1 else f"{', '.join(nomi[:-1])} o {nomi[-1]}"
+    return nomi[0] if len(nomi) == 1 else f"{', '.join(nomi[:-1])} or {nomi[-1]}"
 
 
 def abbina_nome(nome: str | None, persone: list[Persona]) -> Abbinamento:
     """Nome detto -> persona. Univoco -> id; più candidati -> None + motivo; nessuno -> None + motivo."""
     chiave = normalizza(nome or "")
     if not chiave:
-        return Abbinamento(motivo="nessun nome indicato")
+        return Abbinamento(motivo="no name given")
     trovate: dict[str, Persona] = {}
     for p in persone:
         if chiave in _chiavi(p):
@@ -60,8 +61,8 @@ def abbina_nome(nome: str | None, persone: list[Persona]) -> Abbinamento:
         return Abbinamento(persona_id=next(iter(trovate)), candidati=list(trovate))
     if len(trovate) > 1:
         nomi = [p.nome for p in trovate.values()]
-        return Abbinamento(candidati=list(trovate), motivo=f'"{detto}" è ambiguo: {_elenco(nomi)}')
-    return Abbinamento(motivo=f'"{detto}" non è un membro del progetto')
+        return Abbinamento(candidati=list(trovate), motivo=f'"{detto}" is ambiguous: {_elenco(nomi)}')
+    return Abbinamento(motivo=f'"{detto}" is not a project member')
 
 
 def abbina_speaker(doc: Documento, persone: list[Persona]) -> Documento:
@@ -74,3 +75,29 @@ def abbina_speaker(doc: Documento, persone: list[Persona]) -> Documento:
 def classifica_sconosciuto(s: Sconosciuto, persone_azienda: list[Persona]) -> Sconosciuto:
     """Imposta `persona_id` se lo sconosciuto è un dipendente fuori dal progetto (altrimenti None)."""
     return s.model_copy(update={"persona_id": abbina_nome(s.nome, persone_azienda).persona_id})
+
+
+# Persone con un titolo ("l'ingegner Venturi", "il dott. Rossi"): regola deterministica, così uno
+# sconosciuto non dipende solo dal modello. Il nome che segue il titolo deve iniziare con la maiuscola.
+_TITOLO = re.compile(
+    r"\b((?i:mr\.?|mrs\.?|ms\.?|dr\.?|eng\.|ing\.|ingegner[ea]?|dott\.(?:ssa)?|dottor(?:essa)?|sig\.(?:ra)?|signor[a]?|avv\.|avvocat[oa]|"
+    r"geom\.|geometra|arch\.|architett[oa]))\s+([A-ZÀ-Ý][a-zà-ÿ']+(?:\s+[A-ZÀ-Ý][a-zà-ÿ']+)?)")
+
+
+def sconosciuti_con_titolo(doc: Documento, membri: list[Persona], gia: list[Sconosciuto]) -> list[Sconosciuto]:
+    """Persone citate con un titolo che non sono membri del progetto né già tra gli sconosciuti."""
+    noti = {normalizza(s.nome) for s in gia}
+    nuovi: list[Sconosciuto] = []
+    for seg in doc.segmenti:
+        for m in _TITOLO.finditer(seg.testo):
+            nome = re.sub(r"['’]s$", "", m.group(2))     # genitivo inglese: «Mr Venturi's» è Venturi
+            a = abbina_nome(nome, membri)
+            if a.persona_id or a.candidati:    # è (o può essere) un membro: non è uno sconosciuto
+                continue
+            chiave = normalizza(nome)
+            if any(chiave in n for n in noti):
+                continue
+            noti.add(chiave)
+            nuovi.append(Sconosciuto(nome=f"{m.group(1)} {nome}", segmenti=[seg.id],
+                                     descrizione="A person mentioned in the document who is not a project member."))
+    return nuovi

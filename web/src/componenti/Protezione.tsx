@@ -12,10 +12,10 @@ export class Protezione extends Component<{ nome: string; children: ReactNode },
     if (this.state.errore) {
       return (
         <div className="rounded-xl border border-rosso/30 bg-rosso-tenue p-4 text-sm text-rosso-testo">
-          <p className="font-medium">Il pannello «{this.props.nome}» ha avuto un problema.</p>
+          <p className="font-medium">The “{this.props.nome}” panel ran into a problem.</p>
           <p className="mt-1 font-mono text-xs">{this.state.errore}</p>
           <button onClick={() => this.setState({ errore: null })} className="mt-2 text-xs font-medium underline">
-            Riprova
+            Try again
           </button>
         </div>
       )

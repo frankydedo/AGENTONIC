@@ -60,31 +60,31 @@ export function SceltaPersona({ persone, managerId, membri, onScegli }: {
         <MarchioBrain size={72} parla className="shadow-[0_14px_44px_rgba(94,92,230,0.38)]" />
         <h1 className="titolo-grande mt-7 text-[44px] sm:text-[60px]">Agentonic</h1>
         <p className="mt-4 max-w-xl text-[19px] leading-snug text-testo-2 sm:text-[21px]">
-          Il membro del team che legge le riunioni, tiene la memoria del progetto e ti dice cosa richiede la tua attenzione.
-          Chiede sempre prima di agire.
+          The team member who reads the meetings, keeps the project’s memory and tells you what needs your attention.
+          It always asks before acting.
         </p>
 
-        <h2 className="mt-16 text-[22px] font-semibold tracking-[-0.01em]">Chi sei?</h2>
-        <p className="mt-1.5 text-[15px] text-testo-2">Ognuno vede solo ciò che rientra nelle sue competenze.</p>
+        <h2 className="mt-16 text-[22px] font-semibold tracking-[-0.01em]">Who are you?</h2>
+        <p className="mt-1.5 text-[15px] text-testo-2">Everyone only sees what falls within their areas.</p>
 
         {/* ricerca: sempre pronta */}
         <div className="mt-8 w-full max-w-xl">
           <label className="flex items-center gap-3 rounded-2xl bg-superficie px-4 py-3 shadow-alta ring-1 ring-separatore focus-within:ring-2 focus-within:ring-accento">
             <Search size={20} className="shrink-0 text-testo-3" />
             <input ref={input} autoFocus value={cerca} onChange={(e) => setCerca(e.target.value)} onKeyDown={tasti}
-              role="combobox" aria-expanded={cercando} aria-controls="risultati-persone" aria-label="Cerca chi sei"
+              role="combobox" aria-expanded={cercando} aria-controls="risultati-persone" aria-label="Find yourself"
               aria-activedescendant={cercando && risultati[indice] ? `persona-${risultati[indice].id}` : undefined}
-              placeholder="Cerca per nome, ruolo, reparto o competenza"
+              placeholder="Search by name, role, department or area"
               className="min-w-0 flex-1 bg-transparent text-[17px] text-testo placeholder:text-testo-3 focus:outline-none focus-visible:outline-none" />
             {cercando
-              ? <button type="button" onClick={() => { setCerca(''); input.current?.focus() }} aria-label="Cancella la ricerca"
+              ? <button type="button" onClick={() => { setCerca(''); input.current?.focus() }} aria-label="Clear the search"
                   className="rounded-full p-1 text-testo-3 hover:bg-riempimento hover:text-testo"><X size={16} /></button>
               : <kbd className="hidden rounded-md bg-riempimento px-1.5 py-0.5 text-xs text-testo-2 sm:block">⌘K</kbd>}
           </label>
           <p className="mt-2 h-5 truncate text-left text-[13px] text-testo-2" aria-live="polite">
             {cercando
-              ? totale === 0 ? `Nessuno trovato per «${cerca.trim()}».` : `${totale} ${totale === 1 ? 'persona' : 'persone'}${totale > MAX_RISULTATI ? `: mostro le prime ${MAX_RISULTATI}, aggiungi una parola (es. reparto) per restringere` : ''}`
-              : `${persone.length} persone in azienda. Bastano le prime lettere del nome; frecce e Invio per entrare.`}
+              ? totale === 0 ? `Nobody found for “${cerca.trim()}”.` : `${totale} ${totale === 1 ? 'person' : 'people'}${totale > MAX_RISULTATI ? `: showing the first ${MAX_RISULTATI}, add a word (e.g. department) to narrow it down` : ''}`
+              : `${persone.length} people in the company. The first letters of a name are enough; arrow keys and Enter to sign in.`}
           </p>
         </div>
 
@@ -94,11 +94,11 @@ export function SceltaPersona({ persone, managerId, membri, onScegli }: {
             {risultati.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
                 <Search size={26} className="text-testo-3" />
-                <p className="font-semibold">Nessuno trovato</p>
-                <p className="text-sm text-testo-2">Prova con meno lettere, oppure con il ruolo o il reparto.</p>
+                <p className="font-semibold">Nobody found</p>
+                <p className="text-sm text-testo-2">Try fewer letters, or the role or department.</p>
               </div>
             ) : (
-              <ul ref={elenco} id="risultati-persone" role="listbox" aria-label="Persone trovate"
+              <ul ref={elenco} id="risultati-persone" role="listbox" aria-label="People found"
                 className="h-full overflow-y-auto overscroll-contain p-1.5">
                 {risultati.map((p, i) => (
                   <RigaPersona key={p.id} p={p} cerca={cerca} attiva={i === indice} {...etichette(p)}
@@ -111,7 +111,7 @@ export function SceltaPersona({ persone, managerId, membri, onScegli }: {
           <GrigliaSchede persone={persone} etichette={etichette} onEntra={entra} />
         ) : recenti.length > 0 ? (
           <>
-            <p className="mt-10 text-[13px] font-semibold text-testo-2">Usati di recente su questo dispositivo</p>
+            <p className="mt-10 text-[13px] font-semibold text-testo-2">Recently used on this device</p>
             <GrigliaSchede persone={recenti} etichette={etichette} onEntra={entra} />
           </>
         ) : null}
@@ -141,7 +141,7 @@ function RigaPersona({ p, cerca, attiva, manager, fuori, onEntra, onSopra }: {
           <span className="block truncate text-[13px] text-testo-2 first-letter:uppercase">{p.ruolo}{p.reparto ? ` · ${p.reparto}` : ''}</span>
         </span>
         {manager && <span className="rounded-[7px] bg-viola-tenue px-2 py-0.5 text-xs font-semibold text-viola-testo">Manager</span>}
-        {fuori && <span className="rounded-[7px] bg-riempimento px-2 py-0.5 text-xs font-semibold text-testo-2">Fuori progetto</span>}
+        {fuori && <span className="rounded-[7px] bg-riempimento px-2 py-0.5 text-xs font-semibold text-testo-2">Not on a project</span>}
         {attiva && <CornerDownLeft size={15} className="shrink-0 text-testo-3" aria-hidden />}
       </button>
     </li>
@@ -166,7 +166,7 @@ function GrigliaSchede({ persone, etichette, onEntra }: {
               <span className="mt-1 text-[17px] font-semibold">{p.nome}</span>
               <span className="-mt-1.5 text-[13px] text-testo-2 first-letter:uppercase">{p.ruolo}</span>
               {manager && <span className="rounded-[7px] bg-viola-tenue px-2 py-0.5 text-xs font-semibold text-viola-testo">Manager</span>}
-              {fuori && <span className="rounded-[7px] bg-riempimento px-2 py-0.5 text-xs font-semibold text-testo-2">Fuori progetto</span>}
+              {fuori && <span className="rounded-[7px] bg-riempimento px-2 py-0.5 text-xs font-semibold text-testo-2">Not on a project</span>}
             </button>
           </motion.li>
         )

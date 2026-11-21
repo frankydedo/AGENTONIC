@@ -8,3 +8,9 @@ __pycache__/
 !.env.example
 *.db-wal
 *.db-shm
+
+# risultati delle prove con il modello vero (scripts/prova_offline.py)
+prove/
+
+# cache di Vite
+web/.vite/

@@ -90,17 +90,17 @@ def in_proposte(estr: EstrazioneRiunione, doc: Documento, contesto: ContestoProg
         aree = regola_aree(t.aree)
         ab = abbina_nome(t.assegnatario_detto, contesto.persone)
         if not (t.assegnatario_detto or "").strip():
-            dubbio = f'Il task "{t.titolo}" non ha un responsabile. Chi se ne occupa?'
+            dubbio = f'The task "{t.titolo}" has no owner. Who will take care of it?'
         elif ab.persona_id is None and ab.candidati:
-            dubbio = f'{ab.motivo}. Chi si occupa di "{t.titolo}"?'
+            dubbio = f'{ab.motivo}. Who is taking care of "{t.titolo}"?'
         elif ab.persona_id is None:
-            dubbio = (f'Per il task "{t.titolo}" è indicato "{t.assegnatario_detto.strip()}", che non è un '
-                      f'membro del progetto. Chi se ne occupa?')
+            dubbio = (f'The task "{t.titolo}" names "{t.assegnatario_detto.strip()}", who is not a '
+                      f'project member. Who will take care of it?')
         else:
             dubbio = None
 
         if t.sicurezza == "bassa":
-            testo = f'Non è chiaro se "{t.titolo}" sia un task deciso: non è stato proposto, va verificato.'
+            testo = f'It\'s not clear whether "{t.titolo}" is a decided task: it wasn\'t proposed and needs checking.'
             avvisa("punto_oscuro", f"{testo} {dubbio}" if dubbio else testo, cit, aree)
             continue
 
@@ -116,7 +116,7 @@ def in_proposte(estr: EstrazioneRiunione, doc: Documento, contesto: ContestoProg
         scadenza = t.scadenza
         if scadenza is not None and not data_valida(scadenza.strip()):
             date_non_chiare += 1
-            avvisa("punto_oscuro", f'La scadenza "{scadenza.strip()}" di "{t.titolo}" non è una data chiara.',
+            avvisa("punto_oscuro", f'The deadline "{scadenza.strip()}" of "{t.titolo}" is not a clear date.',
                    cit, aree)
             scadenza = None
         elif scadenza is not None:
@@ -154,7 +154,7 @@ def in_proposte(estr: EstrazioneRiunione, doc: Documento, contesto: ContestoProg
                 continue
         elif a.campo == "scadenza" and not data_valida(valore):
             date_non_chiare += 1
-            avvisa("punto_oscuro", f'La scadenza "{valore}" di "{task.titolo}" non è una data chiara.', cit, aree)
+            avvisa("punto_oscuro", f'The deadline "{valore}" of "{task.titolo}" is not a clear date.', cit, aree)
             continue
         elif a.campo == "assegnatario":
             ab = abbina_nome(valore, contesto.persone)
@@ -173,8 +173,8 @@ def in_proposte(estr: EstrazioneRiunione, doc: Documento, contesto: ContestoProg
             continue
         aree = regola_aree(f.aree, f.attributo)
         if f.sicurezza == "bassa":
-            avvisa("punto_oscuro", f"Informazione incerta, non proposta: {f.soggetto}, {f.attributo}: "
-                   f"{f.valore}. Va verificata.", cit, aree)
+            avvisa("punto_oscuro", f"Uncertain information, not proposed: {f.soggetto}, {f.attributo}: "
+                   f"{f.valore}. It needs checking.", cit, aree)
             continue
         contenuto = {"progetto_id": progetto_id, "soggetto": f.soggetto, "attributo": f.attributo,
                      "valore": f.valore, "aree": list(aree)}
@@ -199,11 +199,11 @@ def in_proposte(estr: EstrazioneRiunione, doc: Documento, contesto: ContestoProg
         s = classifica_sconosciuto(s, contesto.persone_azienda)
         if s.persona_id:
             nome = next(p.nome for p in contesto.persone_azienda if p.id == s.persona_id)
-            testo = f"Nel documento compare {nome}, che non fa parte del progetto."
+            testo = f"The document mentions {nome}, who is not part of the project."
         else:
-            testo = f'"{s.nome.strip()}" non è tra le persone o i contesti noti del progetto.'
+            testo = f'"{s.nome.strip()}" is not among the project\'s known people or contexts.'
         if s.descrizione.strip():
-            testo += f" Contesto: {s.descrizione.strip()}"
+            testo += f" Context: {s.descrizione.strip()}"
         avvisa("sconosciuto", testo, cit)
 
     # --- Passo del registro (solo conteggi, mai testo del documento) -----------------------------

@@ -7,7 +7,7 @@ const p = (id: string, nome: string, ruolo = 'tecnico', extra: Partial<Persona> 
 
 const azienda = [
   p('p-01', 'Giulia Ferraris', 'project manager', { competenze: ['budget'] }),
-  p('p-02', 'Marco Bianchi', 'senior software engineer PLC'),
+  p('p-02', 'Marco Bianchi', 'senior PLC programmer', { competenze: ['sviluppo'] }),
   p('p-03', 'Marco Rinaldi', 'tecnico quadri elettrici'),
   p('p-06', 'Elena Russo', 'responsabile acquisti', { reparto: 'Acquisti' }),
   p('p-09', 'Niccolò Ferri', 'magazziniere'),
@@ -22,13 +22,14 @@ describe('ricerca delle persone all\'ingresso', () => {
   })
 
   it('tutte le parole devono corrispondere', () => {
-    expect(ids('marco rin')).toEqual(['p-03'])
+    expect(ids('marco rinal')).toEqual(['p-03'])
     expect(ids('marco acquisti')).toEqual([])
   })
 
   it('trova anche per ruolo, reparto e competenza; ignora maiuscole e accenti', () => {
     expect(ids('acquisti')).toEqual(['p-06'])
     expect(ids('BUDGET')).toEqual(['p-01'])
+    expect(ids('engineering')).toEqual(['p-02'])   // l'area «sviluppo», come la vede l'interfaccia
     expect(ids('niccolo')).toEqual(['p-09'])
   })
 

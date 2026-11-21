@@ -69,7 +69,7 @@ def test_file_di_prova_riu_006():
     assert doc.id == "riu-006" and len(doc.segmenti) == 7
     assert all(s.inizio is not None and s.fine > s.inizio for s in doc.segmenti)
     assert doc.segmenti[3].speaker == "speaker_3"           # il tecnico del cliente non è in azienda
-    assert "(risate)" not in doc.segmenti[3].testo
+    assert "(laughter)" not in doc.segmenti[3].testo
 
 
 # --- Dal caricamento: il JSON passa dallo stesso percorso di minute e PDF ----------------------------

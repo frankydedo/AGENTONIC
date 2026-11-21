@@ -106,16 +106,16 @@ export default function App() {
       <div className="grid min-h-screen place-items-center">
         <div className="flex flex-col items-center gap-4" role="status">
           <MarchioBrain size={56} parla />
-          <p className="text-[15px] text-testo-2">{fase === 'carico' ? 'Agentonic prepara la tua giornata…' : 'Accensione…'}</p>
+          <p className="text-[15px] text-testo-2">{fase === 'carico' ? 'Agentonic is preparing your day…' : 'Starting up…'}</p>
         </div>
       </div>
     )
   }
   if (fase === 'offline') {
     return (
-      <Schermo icona={<ServerCrash size={26} />} titolo="Il backend non risponde"
-        testo="Controlla che il server FastAPI sia acceso (vedi README) e riprova.">
-        <Bottone variante="primario" onClick={avvia}>Riprova</Bottone>
+      <Schermo icona={<ServerCrash size={26} />} titolo="The backend isn’t responding"
+        testo="Check that the FastAPI server is running (see the README) and try again.">
+        <Bottone variante="primario" onClick={avvia}>Try again</Bottone>
       </Schermo>
     )
   }
@@ -124,21 +124,21 @@ export default function App() {
     // app vuota: chi può creare progetti parte da qui
     return (
       <div className="mx-auto max-w-xl px-4 py-16">
-        <h1 className="text-2xl font-semibold tracking-tight">Ciao {io.nome.split(' ')[0]}, non ci sono ancora progetti</h1>
-        <p className="mt-2 text-testo-2">Crea il primo: scegli chi ci lavora e chi lo guida. Poi carica la minuta di una riunione e Agentonic inizia a lavorare.</p>
+        <h1 className="text-2xl font-semibold tracking-tight">Hi {io.nome.split(' ')[0]}, there are no projects yet</h1>
+        <p className="mt-2 text-testo-2">Create the first one: choose who works on it and who leads it. Then upload the minutes of a meeting and Agentonic gets to work.</p>
         <div className="mt-8 rounded-2xl bg-superficie p-6 shadow-alta">
           <ModuloProgetto progetto={null} io={io} tutte={persone} ricaricaProgetti={ricaricaProgetti}
             scegliProgetto={scegliProgetto} onFatto={() => {}} />
         </div>
-        <Bottone variante="secondario" className="mt-6" onClick={esci}>Cambia persona</Bottone>
+        <Bottone variante="secondario" className="mt-6" onClick={esci}>Switch person</Bottone>
       </div>
     )
   }
   if (fase === 'non_membro' || !ctx) {
     return (
-      <Schermo icona={<UserRoundX size={26} />} titolo={`${io.nome.split(' ')[0]}, non fai parte di nessun progetto`}
-        testo="Agentonic non ti mostra nulla dei progetti di cui non sei membro: né i dati, né che esistono. Chiedi a un manager di aggiungerti.">
-        <div className="flex items-center gap-3"><Avatar persona={io} size={32} /><Bottone onClick={esci}>Cambia persona</Bottone></div>
+      <Schermo icona={<UserRoundX size={26} />} titolo={`${io.nome.split(' ')[0]}, you’re not part of any project`}
+        testo="Agentonic shows you nothing about projects you’re not a member of: not their data, not even that they exist. Ask a manager to add you.">
+        <div className="flex items-center gap-3"><Avatar persona={io} size={32} /><Bottone onClick={esci}>Switch person</Bottone></div>
       </Schermo>
     )
   }
@@ -149,14 +149,14 @@ export default function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<Panoramica />} />
-            <Route path="progetti" element={<Progetti />} />
-            <Route path="impostazioni" element={<Impostazioni />} />
-            <Route path="documenti" element={<Documenti />} />
-            <Route path="documenti/:id" element={<Documento />} />
+            <Route path="projects" element={<Progetti />} />
+            <Route path="settings" element={<Impostazioni />} />
+            <Route path="documents" element={<Documenti />} />
+            <Route path="documents/:id" element={<Documento />} />
             <Route path="team" element={<Team />} />
-            <Route path="chiedi" element={<Chiedi />} />
-            <Route path="posta" element={<Posta />} />
-            <Route path="registro" element={<Registro />} />
+            <Route path="ask" element={<Chiedi />} />
+            <Route path="mail" element={<Posta />} />
+            <Route path="log" element={<Registro />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

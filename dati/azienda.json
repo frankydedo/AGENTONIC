@@ -1,105 +1,179 @@
 {
-  "_nota": "Dati sintetici di una PMI inventata. Aree ammesse (competenze): sviluppo, budget, commerciale, fornitori, personale, generale. Il reparto è l'area aziendale della persona; le competenze decidono cosa può vedere.",
+  "_nota": "Synthetic data for an invented SME. Allowed areas (competenze): sviluppo, budget, commerciale, fornitori, personale, generale (contract values; the UI shows them as engineering, budget, sales, suppliers, HR, general). The department is the person's business unit; the areas decide what they can see.",
   "azienda": {
     "nome": "Automazioni Dora S.r.l.",
-    "settore": "automazione industriale (quadri elettrici, PLC, HMI, revamping di linee)",
-    "sede": "Settimo Torinese (TO)"
+    "settore": "industrial automation (control panels, PLCs, HMIs, line revamping)",
+    "sede": "Settimo Torinese, Turin (Italy)"
   },
   "persone": [
     {
       "id": "p-01",
       "nome": "Giulia Ferraris",
       "ruolo": "project manager",
-      "reparto": "Direzione progetti",
-      "alias": ["Giulia", "Ferraris"],
-      "competenze": ["sviluppo", "budget", "commerciale", "fornitori", "personale", "generale"]
+      "reparto": "Project management",
+      "alias": [
+        "Giulia",
+        "Ferraris"
+      ],
+      "competenze": [
+        "sviluppo",
+        "budget",
+        "commerciale",
+        "fornitori",
+        "personale",
+        "generale"
+      ]
     },
     {
       "id": "p-02",
       "nome": "Marco Bianchi",
-      "ruolo": "senior software engineer PLC",
-      "reparto": "Ufficio tecnico software",
-      "alias": ["Marco B.", "Bianchi"],
-      "competenze": ["sviluppo", "budget", "generale"],
-      "_nota": "sviluppo dal ruolo, budget aggiunto personalmente (senior)"
+      "ruolo": "senior PLC software engineer",
+      "reparto": "Software engineering",
+      "alias": [
+        "Marco B.",
+        "Bianchi"
+      ],
+      "competenze": [
+        "sviluppo",
+        "budget",
+        "generale"
+      ],
+      "_nota": "engineering from the role, budget added personally (senior)"
     },
     {
       "id": "p-03",
       "nome": "Marco Rinaldi",
-      "ruolo": "tecnico quadri elettrici",
-      "reparto": "Ufficio tecnico elettrico",
-      "alias": ["Marco R.", "Rinaldi"],
-      "competenze": ["sviluppo", "generale"]
+      "ruolo": "control panel technician",
+      "reparto": "Electrical engineering",
+      "alias": [
+        "Marco R.",
+        "Rinaldi"
+      ],
+      "competenze": [
+        "sviluppo",
+        "generale"
+      ]
     },
     {
       "id": "p-04",
       "nome": "Sara Colombo",
-      "ruolo": "sviluppatrice HMI/SCADA",
-      "reparto": "Ufficio tecnico software",
-      "alias": ["Sara", "Colombo"],
-      "competenze": ["sviluppo", "generale"]
+      "ruolo": "HMI/SCADA developer",
+      "reparto": "Software engineering",
+      "alias": [
+        "Sara",
+        "Colombo"
+      ],
+      "competenze": [
+        "sviluppo",
+        "generale"
+      ]
     },
     {
       "id": "p-05",
       "nome": "Luca Gallo",
-      "ruolo": "account commerciale",
-      "reparto": "Commerciale",
-      "alias": ["Luca", "Gallo"],
-      "competenze": ["commerciale", "generale"]
+      "ruolo": "account manager",
+      "reparto": "Sales",
+      "alias": [
+        "Luca",
+        "Gallo"
+      ],
+      "competenze": [
+        "commerciale",
+        "generale"
+      ]
     },
     {
       "id": "p-06",
       "nome": "Elena Russo",
-      "ruolo": "responsabile acquisti",
-      "reparto": "Acquisti",
-      "alias": ["Elena", "Russo"],
-      "competenze": ["fornitori", "budget", "generale"]
+      "ruolo": "purchasing manager",
+      "reparto": "Purchasing",
+      "alias": [
+        "Elena",
+        "Russo"
+      ],
+      "competenze": [
+        "fornitori",
+        "budget",
+        "generale"
+      ]
     },
     {
       "id": "p-07",
       "nome": "Davide Conti",
-      "ruolo": "tecnico di messa in servizio",
-      "reparto": "Service e messa in servizio",
-      "alias": ["Davide", "Conti"],
-      "competenze": ["sviluppo", "generale"]
+      "ruolo": "commissioning technician",
+      "reparto": "Service & commissioning",
+      "alias": [
+        "Davide",
+        "Conti"
+      ],
+      "competenze": [
+        "sviluppo",
+        "generale"
+      ]
     },
     {
       "id": "p-08",
       "nome": "Paola Greco",
-      "ruolo": "amministrazione e personale",
-      "reparto": "Amministrazione",
-      "alias": ["Paola", "Greco"],
-      "competenze": ["personale", "budget", "generale"],
-      "_nota": "non è membro del progetto prj-01"
+      "ruolo": "administration & HR",
+      "reparto": "Administration",
+      "alias": [
+        "Paola",
+        "Greco"
+      ],
+      "competenze": [
+        "personale",
+        "budget",
+        "generale"
+      ],
+      "_nota": "not a member of project prj-01"
     }
   ],
   "progetti": [
     {
       "id": "prj-01",
-      "nome": "Revamping linea di confezionamento 3",
+      "nome": "Packaging line 3 revamping",
       "cliente": "Pastificio Valsangone S.p.A.",
       "manager_id": "p-01",
-      "membri": ["p-01", "p-02", "p-03", "p-04", "p-05", "p-06", "p-07"],
+      "membri": [
+        "p-01",
+        "p-02",
+        "p-03",
+        "p-04",
+        "p-05",
+        "p-06",
+        "p-07"
+      ],
       "scadenza": "2027-01-20",
-      "descrizione": "Sostituzione del PLC e del quadro elettrico della linea 3, nuova HMI, collaudo presso il cliente."
+      "descrizione": "Replacement of the line 3 PLC and control panel, new HMI, acceptance test at the client's site."
     },
     {
       "id": "prj-02",
-      "nome": "Retrofit sicurezza pressa 2",
+      "nome": "Press 2 safety retrofit",
       "cliente": "Officine Meccaniche Canavese S.r.l.",
       "manager_id": "p-02",
-      "membri": ["p-02", "p-03", "p-05", "p-06", "p-07"],
+      "membri": [
+        "p-02",
+        "p-03",
+        "p-05",
+        "p-06",
+        "p-07"
+      ],
       "scadenza": "2026-12-21",
-      "descrizione": "Barriere fotoelettriche, circuito di sicurezza e arresto di emergenza sulla pressa piegatrice 2."
+      "descrizione": "Light curtains, safety circuit and emergency stop on press brake 2."
     },
     {
       "id": "prj-03",
-      "nome": "Certificazione ISO 9001",
-      "cliente": "interno",
+      "nome": "ISO 9001 certification",
+      "cliente": "internal",
       "manager_id": "p-08",
-      "membri": ["p-08", "p-01", "p-04", "p-06"],
+      "membri": [
+        "p-08",
+        "p-01",
+        "p-04",
+        "p-06"
+      ],
       "scadenza": "2027-03-03",
-      "descrizione": "Procedure, qualifica fornitori e audit dell'ente certificatore."
+      "descrizione": "Procedures, supplier qualification and the certification body's audit."
     }
   ]
 }

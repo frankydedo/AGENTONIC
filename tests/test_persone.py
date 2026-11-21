@@ -24,7 +24,7 @@ def test_marco_ambiguo():
     ab = abbina_nome("Marco", MEMBRI)
     assert ab.persona_id is None
     assert ab.candidati == ["p-02", "p-03"]
-    assert ab.motivo == '"Marco" è ambiguo: Marco Bianchi o Marco Rinaldi'
+    assert ab.motivo == '"Marco" is ambiguous: Marco Bianchi or Marco Rinaldi'
 
 
 def test_alias_con_punto_e_cognome():
@@ -52,7 +52,7 @@ def test_nome_composto_di_piu_parole():
     # l'ambiguità non cambia: «Marco» resta fra i due Marco e non include Gian Marco Rossi
     ab = abbina_nome("Marco", persone)
     assert ab.persona_id is None and ab.candidati == ["p-02", "p-03"]
-    assert ab.motivo == '"Marco" è ambiguo: Marco Bianchi o Marco Rinaldi'
+    assert ab.motivo == '"Marco" is ambiguous: Marco Bianchi or Marco Rinaldi'
     assert abbina_nome("Marco Bianchi", persone).persona_id == "p-02"
     # «Gian Marco» non si abbina a «Marco Bianchi», né un pezzo di parola a un nome
     senza_gian = abbina_nome("Gian Marco", MEMBRI)
@@ -61,7 +61,7 @@ def test_nome_composto_di_piu_parole():
     # due persone con lo stesso nome composto: ambiguo, non si sceglie
     doppio = abbina_nome("Gian Marco", persone + [Persona(id="p-91", nome="Gian Marco Bruni", ruolo="test")])
     assert doppio.persona_id is None and doppio.candidati == ["p-90", "p-91"]
-    assert doppio.motivo == '"Gian Marco" è ambiguo: Gian Marco Rossi o Gian Marco Bruni'
+    assert doppio.motivo == '"Gian Marco" is ambiguous: Gian Marco Rossi or Gian Marco Bruni'
 
 
 def test_apostrofo_tipografico():
@@ -78,7 +78,7 @@ def test_apostrofo_tipografico():
 def test_non_membro_e_nome_vuoto():
     ab = abbina_nome("Paola Greco", MEMBRI)
     assert ab.persona_id is None and ab.candidati == []
-    assert ab.motivo == '"Paola Greco" non è un membro del progetto'
+    assert ab.motivo == '"Paola Greco" is not a project member'
     assert abbina_nome(None, MEMBRI).persona_id is None
     assert abbina_nome("  ", MEMBRI).candidati == []
 
@@ -108,3 +108,15 @@ def test_paola_greco_fuori_progetto():
 def test_sconosciuto_vero_e_persona_id_del_modello_ignorato():
     s = Sconosciuto(nome="Ing. Venturi", descrizione="referente", segmenti=["riu-002#s001"], persona_id="p-01")
     assert classifica_sconosciuto(s, FUORI).persona_id is None
+
+
+def test_sconosciuti_con_titolo_regola_deterministica():
+    from backend.analisi.ingestione import segmenta
+    from backend.analisi.persone import sconosciuti_con_titolo
+    doc = segmenta("---\nid: riu-099\ntitolo: t\ndata: 2026-11-23\n---\n"
+                   "**Giulia Ferraris:** L'ingegner Venturi del cliente vuole le schermate.\n\n"
+                   "**Giulia Ferraris:** Ne parlo con l'ing. Rinaldi e con il dott. Rossi.")
+    nomi = [s.nome for s in sconosciuti_con_titolo(doc, MEMBRI, [])]
+    assert nomi == ["ingegner Venturi", "dott. Rossi"]          # Rinaldi è un membro
+    gia = [s for s in sconosciuti_con_titolo(doc, MEMBRI, [])][:1]
+    assert [s.nome for s in sconosciuti_con_titolo(doc, MEMBRI, gia)] == ["dott. Rossi"]   # niente doppioni

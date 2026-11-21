@@ -1,7 +1,7 @@
 {
   "punti_oscuri": [
     {
-      "descrizione": "Non è chiaro se il collegamento della nuova linea al MES del cliente rientri nel progetto né chi dovrebbe occuparsene.",
+      "descrizione": "It's not clear whether connecting the new line to the client's MES is part of the project, nor who should handle it.",
       "segmenti": [
         "riu-002#s005",
         "riu-002#s006"
@@ -10,22 +10,22 @@
   ],
   "sconosciuti": [
     {
-      "nome": "ingegner Venturi",
-      "descrizione": "Responsabile della manutenzione del pastificio, mai citato prima: chiede di collegare la nuova linea al MES del cliente.",
+      "nome": "Mr Venturi",
+      "descrizione": "The pasta factory's maintenance manager, never mentioned before: asks to connect the new line to the client's MES.",
       "segmenti": [
         "riu-002#s005"
       ]
     },
     {
       "nome": "MES",
-      "descrizione": "Sistema di gestione della produzione del cliente, mai citato nel progetto.",
+      "descrizione": "The client's production management system, never mentioned in the project.",
       "segmenti": [
         "riu-002#s005"
       ]
     },
     {
       "nome": "Paola Greco",
-      "descrizione": "Citata da Davide Conti perché ha approvato le sue ferie; non è tra i membri del progetto.",
+      "descrizione": "Mentioned by Davide Conti because she approved his holidays; not a member of the project.",
       "segmenti": [
         "riu-002#s012"
       ]

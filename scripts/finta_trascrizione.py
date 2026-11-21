@@ -3,8 +3,8 @@
 Uso:
     .venv/bin/python scripts/finta_trascrizione.py dati/audio/riu-006.copione.md
 
-Legge un copione scritto come una minuta (`**Nome:** testo`; `[risate]` nel testo è un evento audio)
-e scrive accanto `riu-006.json`, il file che il Brain accetta al caricamento (vedi `backend/voce.py`):
+Legge un copione scritto come una minuta (`**Nome:** testo`; `[laughter]` nel testo è un evento audio)
+e scrive accanto `riu-006.json`, il file che Agentonic accetta al caricamento (vedi `backend/voce.py`):
 - `stt`: la risposta come la darebbe ElevenLabs con `diarize=true`: parole con orari in secondi e
   `speaker_0`, `speaker_1`, ... al posto dei nomi. Gli orari sono stimati, sempre uguali a ogni esecuzione.
 - `parlanti`: chi è chi, solo per i nomi che esistono in `dati/azienda.json`. Gli altri restano
@@ -22,7 +22,7 @@ sys.path.insert(0, str(RADICE))
 
 from backend.analisi.ingestione import segmenta  # noqa: E402
 
-_PEZZI = re.compile(r"\[([^\]]+)\]|\S+")   # «[risate]» è un evento audio, il resto sono parole
+_PEZZI = re.compile(r"\[([^\]]+)\]|\S+")   # «[laughter]» è un evento audio, il resto sono parole
 PAUSA_TRA_TURNI = 0.7
 
 
@@ -52,7 +52,7 @@ def trascrizione(copione: str, nomi_noti: set[str]) -> dict:
         "meta": {"id": doc.id, "progetto": doc.progetto_id, "titolo": doc.titolo, "data": doc.data,
                  "ora_inizio": doc.ora_inizio, "partecipanti": doc.partecipanti},
         "parlanti": {sid: nome for nome, sid in speaker.items() if nome in nomi_noti},
-        "stt": {"language_code": "ita", "language_probability": 0.99,
+        "stt": {"language_code": "eng", "language_probability": 0.99,
                 "text": " ".join(testi), "words": parole},
     }
 

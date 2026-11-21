@@ -57,7 +57,7 @@ export function DatiProvider({ children }: { children: ReactNode }) {
       lavori.push(Promise.all(stati.map((s) => api.proposte(progetto.id, s))).then((xs) => setProposteServer(xs.flat())))
     }
     const ko = (await Promise.allSettled(lavori)).find((e) => e.status === 'rejected')
-    if (ko) toast.error('Non riesco a caricare tutti i dati', { description: String((ko as PromiseRejectedResult).reason?.message ?? '') })
+    if (ko) toast.error('Couldn’t load all the data', { description: String((ko as PromiseRejectedResult).reason?.message ?? '') })
     setPronto(true)
   }, [progetto.id, sonoManager, caricaTask])
 
@@ -114,7 +114,7 @@ export function DatiProvider({ children }: { children: ReactNode }) {
       await api.risolviAvviso(id)
       setRisolti((s) => new Set(s).add(id))
     } catch (e) {
-      toast.error('Non riesco a risolvere l\'avviso', { description: (e as Error).message })
+      toast.error('Couldn’t resolve the alert', { description: (e as Error).message })
     }
   }, [])
 
@@ -122,10 +122,10 @@ export function DatiProvider({ children }: { children: ReactNode }) {
     try {
       const a = await api.inoltraAvviso(id, personaIds, aree)
       setAvvisiServer((xs) => xs.map((x) => (x.id === id ? { ...x, ...a } : x)))
-      toast.success('Avviso inoltrato', { description: 'Ora lo vede chi hai scelto.' })
+      toast.success('Alert forwarded', { description: 'The people you chose can now see it.' })
       return true
     } catch (e) {
-      toast.error('Non riesco a inoltrare l\'avviso', { description: (e as Error).message })
+      toast.error('Couldn’t forward the alert', { description: (e as Error).message })
       return false
     }
   }, [])
@@ -134,9 +134,9 @@ export function DatiProvider({ children }: { children: ReactNode }) {
     try {
       const r = await api.riapriProposta(p.id)
       setDecise((d) => ({ ...d, [p.id]: r }))
-      toast.success('Proposta recuperata', { description: 'È di nuovo tra quelle da decidere.' })
+      toast.success('Proposal restored', { description: 'It’s back among those to decide.' })
     } catch (e) {
-      toast.error('Non riesco a recuperarla', { description: (e as Error).message })
+      toast.error('Couldn’t restore it', { description: (e as Error).message })
       throw e
     }
   }, [])
@@ -148,13 +148,13 @@ export function DatiProvider({ children }: { children: ReactNode }) {
         : await api.rifiuta(p.id)
       const finale = opz.modifiche ? { ...r, contenuto: { ...r.contenuto, ...opz.modifiche } } : r
       setDecise((d) => ({ ...d, [p.id]: finale }))
-      toast.success(esito === 'approva' ? (opz.modifiche ? 'Corretta e approvata' : 'Proposta approvata') : 'Proposta rifiutata',
+      toast.success(esito === 'approva' ? (opz.modifiche ? 'Corrected and approved' : 'Proposal approved') : 'Proposal rejected',
         { description: titoloProposta(finale) })
       const av = avvisoDiProposta(p)
       if (av && !av.risolto) await risolvi(av.id)
       caricaTask().catch(() => {})
     } catch (e) {
-      toast.error('Operazione non riuscita', { description: (e as Error).message })
+      toast.error('Something went wrong', { description: (e as Error).message })
       throw e
     }
   }, [avvisoDiProposta, risolvi, caricaTask])

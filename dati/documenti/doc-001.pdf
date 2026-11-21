@@ -15,50 +15,48 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>
 endobj
 6 0 obj
-<< /Length 1463 >>
+<< /Length 1343 >>
 stream
 BT
 72 770 Td
 /F2 13 Tf
-(Capitolato tecnico - Revamping della linea di confezionamento 3) Tj
+(Technical specification - Revamping of packaging line 3) Tj
 0 -17 Td
 0 -10 Td
 /F1 10.5 Tf
-(Committente: Pastificio Valsangone S.p.A. Appaltatore: Automazioni Dora S.r.l. Documento) Tj
+(Client: Pastificio Valsangone S.p.A. Contractor: Automazioni Dora S.r.l. Document sent by) Tj
 0 -14 Td
-(inviato dal committente il 18 novembre 2026, revisione 1.) Tj
-0 -14 Td
-0 -10 Td
-/F1 10.5 Tf
-(1. Oggetto. Il presente capitolato integra l'ordine firmato e descrive i requisiti tecnici) Tj
-0 -14 Td
-(per la sostituzione del PLC, del quadro elettrico e dell'interfaccia operatore della linea) Tj
-0 -14 Td
-(di confezionamento 3.) Tj
+(the client on 18 November 2026, revision 1.) Tj
 0 -14 Td
 0 -10 Td
 /F1 10.5 Tf
-(2. Interfaccia operatore. La nuova HMI deve essere bilingue, italiano e inglese, con il) Tj
+(1. Scope. This specification supplements the signed order and describes the technical) Tj
 0 -14 Td
-(cambio della lingua dalla schermata principale e senza riavviare il pannello. Tutti i) Tj
+(requirements for replacing the PLC, the control panel and the operator interface of) Tj
 0 -14 Td
-(messaggi di allarme devono essere tradotti in entrambe le lingue.) Tj
-0 -14 Td
-0 -10 Td
-/F1 10.5 Tf
-(3. Prove di collaudo. Il collaudo di accettazione si svolge presso lo stabilimento del) Tj
-0 -14 Td
-(committente con tre formati di pasta: penne rigate, fusilli e spaghetti. Per ogni formato la) Tj
-0 -14 Td
-(linea deve lavorare due ore consecutive alla velocità nominale, senza fermi dovuti) Tj
-0 -14 Td
-(all'automazione.) Tj
+(packaging line 3.) Tj
 0 -14 Td
 0 -10 Td
 /F1 10.5 Tf
-(4. Data del collaudo. Il committente richiede che il collaudo di accettazione si concluda) Tj
+(2. Operator interface. The new HMI must be bilingual, Italian and English, with the language) Tj
 0 -14 Td
-(entro il 15 gennaio 2027, per riprendere la produzione piena della linea a metà gennaio.) Tj
+(switch on the main screen and without restarting the panel. All alarm messages must be) Tj
+0 -14 Td
+(translated into both languages.) Tj
+0 -14 Td
+0 -10 Td
+/F1 10.5 Tf
+(3. Acceptance tests. The acceptance test takes place at the client's plant with three pasta) Tj
+0 -14 Td
+(shapes: penne rigate, fusilli and spaghetti. For each shape the line must run for two) Tj
+0 -14 Td
+(consecutive hours at nominal speed, with no stops caused by the automation.) Tj
+0 -14 Td
+0 -10 Td
+/F1 10.5 Tf
+(4. Acceptance test date. The client requires the acceptance test to be completed by 15) Tj
+0 -14 Td
+(January 2027, so that the line can return to full production in mid-January.) Tj
 0 -14 Td
 0 -10 Td
 ET
@@ -68,38 +66,38 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 8 0 R >>
 endobj
 8 0 obj
-<< /Length 1097 >>
+<< /Length 1044 >>
 stream
 BT
 72 770 Td
 /F1 10.5 Tf
-(5. Penale per ritardo. Se il collaudo si conclude dopo la data indicata al punto 4, il) Tj
+(5. Late penalty. If the acceptance test is completed after the date in point 4, the client) Tj
 0 -14 Td
-(committente applica una penale dello 0,5% del valore dell'ordine per ogni giorno lavorativo) Tj
+(applies a penalty of 0.5% of the order value for each working day of delay, up to a maximum) Tj
 0 -14 Td
-(di ritardo, fino a un massimo del 10%.) Tj
-0 -14 Td
-0 -10 Td
-/F1 10.5 Tf
-(6. Motori. Per uniformità con i ricambi delle altre linee, il committente chiede di montare) Tj
-0 -14 Td
-(motori del suo fornitore preferito, Motori Canavese S.r.l. Altri marchi sono ammessi solo) Tj
-0 -14 Td
-(con l'approvazione scritta dell'ufficio acquisti del committente.) Tj
+(of 10%.) Tj
 0 -14 Td
 0 -10 Td
 /F1 10.5 Tf
-(7. Referente del committente. Per le questioni tecniche durante il revamping e il collaudo,) Tj
+(6. Motors. For consistency with the spare parts of the other lines, the client asks for) Tj
 0 -14 Td
-(il referente del committente è l'ing. Venturi, responsabile manutenzione dello stabilimento,) Tj
+(motors from its preferred supplier, Motori Canavese S.r.l. Other brands are allowed only) Tj
 0 -14 Td
-(che approva anche il verbale di collaudo.) Tj
+(with the written approval of the client's purchasing office.) Tj
 0 -14 Td
 0 -10 Td
 /F1 10.5 Tf
-(8. Documentazione. Il manuale d'uso per gli operatori, in italiano e in inglese, va) Tj
+(7. Client contact. For technical matters during the revamping and the acceptance test, the) Tj
 0 -14 Td
-(consegnato al committente almeno una settimana prima del collaudo.) Tj
+(client's contact is Mr Venturi, the plant's maintenance manager, who also approves the) Tj
+0 -14 Td
+(acceptance test report.) Tj
+0 -14 Td
+0 -10 Td
+/F1 10.5 Tf
+(8. Documentation. The operating manual for the operators, in Italian and English, must be) Tj
+0 -14 Td
+(delivered to the client at least one week before the acceptance test.) Tj
 0 -14 Td
 0 -10 Td
 ET
@@ -114,10 +112,10 @@ xref
 0000000218 00000 n 
 0000000320 00000 n 
 0000000456 00000 n 
-0000001971 00000 n 
-0000002107 00000 n 
+0000001851 00000 n 
+0000001987 00000 n 
 trailer
 << /Size 9 /Root 1 0 R >>
 startxref
-3256
+3083
 %%EOF

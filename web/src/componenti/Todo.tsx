@@ -23,14 +23,14 @@ export function RigaTask({ t, conAssegnatario = true, compatta = false }: { t: T
       <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[13px] text-testo-2">
         {conAssegnatario && (assegnatario
           ? <span className="inline-flex items-center gap-1.5 text-testo"><Avatar persona={assegnatario} size={20} />{assegnatario.nome}</span>
-          : <Badge tono="giallo">Nessun responsabile</Badge>)}
-        <span>entro {dataBreve(t.scadenza)}</span>
+          : <Badge tono="giallo">No owner</Badge>)}
+        <span>by {dataBreve(t.scadenza)}</span>
         <Scadenza iso={t.scadenza} stato={t.stato} />
         {!compatta && t.aree.map((a) => <ChipArea key={a} area={a} />)}
       </div>
       {bloccanti.length > 0 && (
         <p className="mt-1.5 flex items-start gap-1.5 text-[13px] text-rosso-testo">
-          <Lock size={13} strokeWidth={2.4} className="mt-0.5 shrink-0" /> Aspetta: {bloccanti.map((b) => `${b.titolo} (${persone[b.assegnatario_id ?? '']?.nome ?? '?'})`).join(', ')}
+          <Lock size={13} strokeWidth={2.4} className="mt-0.5 shrink-0" /> Waiting for: {bloccanti.map((b) => `${b.titolo} (${persone[b.assegnatario_id ?? '']?.nome ?? '?'})`).join(', ')}
         </p>
       )}
       {!compatta && <Citazioni citazioni={t.citazioni} className="mt-2" />}
@@ -63,7 +63,7 @@ export function useTodoOggi(personaId: string) {
           setTodo({ persona_id: personaId, data: new Date().toISOString().slice(0, 10), accettata: false, task: todoStimata(task, personaId) })
           setStimata(true)
         } else {
-          toast.error('Non riesco a caricare la to-do', { description: (e as Error).message })
+          toast.error('Couldn’t load the to-do list', { description: (e as Error).message })
         }
       })
     return () => { vivo = false }
@@ -81,9 +81,9 @@ export function TodoOggi() {
     if (!todo) return
     try {
       setTodo(await api.accettaTodo(todo.task.filter((t) => !tolti.has(t.id)).map((t) => t.id)))
-      toast.success('Giornata accettata', { description: 'Buon lavoro! Puoi modificarla durante il giorno.' })
+      toast.success('Day accepted', { description: 'Have a good day! You can change it during the day.' })
     } catch (e) {
-      toast.error('Non riesco ad accettare la giornata', { description: (e as Error).message })
+      toast.error('Couldn’t accept the day', { description: (e as Error).message })
     }
   }
   const alterna = (id: string) => setTolti((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n })
@@ -92,12 +92,12 @@ export function TodoOggi() {
     <Card>
       <IntestazioneCard
         icona={Sun}
-        titolo="La tua giornata"
-        sottotitolo={todo?.accettata ? 'Accettata: è il tuo piano di oggi.' : 'Agentonic l\'ha preparata dai task approvati. Togli ciò che non fai oggi e accettala.'}
-        azioni={todo && (todo.accettata ? <Badge tono="verde" icona={Check}>Accettata</Badge> : <Badge tono="giallo">Da accettare</Badge>)}
+        titolo="Your day"
+        sottotitolo={todo?.accettata ? 'Accepted: this is your plan for today.' : 'Agentonic prepared it from the approved tasks. Remove what you won’t do today and accept it.'}
+        azioni={todo && (todo.accettata ? <Badge tono="verde" icona={Check}>Accepted</Badge> : <Badge tono="giallo">To accept</Badge>)}
       />
       {!todo ? <Scheletro righe={2} /> : todo.task.length === 0 ? (
-        <Vuoto icona={CalendarCheck} titolo="Nessun task per oggi" testo="Quando il manager approva nuovi task assegnati a te, compaiono qui." />
+        <Vuoto icona={CalendarCheck} titolo="No tasks for today" testo="When the manager approves new tasks assigned to you, they appear here." />
       ) : (
         <div className="pb-5">
           <ul className="divide-y divide-separatore">
@@ -105,13 +105,13 @@ export function TodoOggi() {
               <li key={t.id} className={clsx('flex gap-3.5 px-5 py-3.5 transition-opacity', tolti.has(t.id) && 'opacity-40')}>
                 {!todo.accettata && (
                   <input type="checkbox" checked={!tolti.has(t.id)} onChange={() => alterna(t.id)}
-                    className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--accento)]" aria-label={`Includi oggi: ${t.titolo}`} />
+                    className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--accento)]" aria-label={`Include today: ${t.titolo}`} />
                 )}
                 <RigaTask t={t} conAssegnatario={false} />
               </li>
             ))}
           </ul>
-          {!todo.accettata && <div className="px-5 pt-2"><Bottone variante="primario" icona={Check} className="w-full sm:w-auto" onClick={accetta}>Accetta la giornata</Bottone></div>}
+          {!todo.accettata && <div className="px-5 pt-2"><Bottone variante="primario" icona={Check} className="w-full sm:w-auto" onClick={accetta}>Accept the day</Bottone></div>}
         </div>
       )}
     </Card>

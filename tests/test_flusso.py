@@ -6,8 +6,8 @@ from backend.modelli import Citazione, Proposta, RisultatoAnalisi, Risposta
 import finti
 from conftest import GIULIA, MARCO_B, PAOLA, SARA, approva, carica, chiedi, proposte, trova
 
-BUDGET = "Quanto budget resta?"
-NEUTRO = "Non ho informazioni che puoi vedere su questo. Puoi chiedere a Giulia Ferraris."
+BUDGET = "How much budget is left?"
+NEUTRO = "I don't have any information you can see about this. You can ask Giulia Ferraris."
 
 
 def test_db_da_zero(client):
@@ -49,7 +49,7 @@ def test_memoria_curata(client):
     assert client.post(f"/proposte/{rifiutata['id']}/rifiuta", headers=GIULIA, json={}).json()["stato"] == "rifiutata"
     assert approva(client, rifiutata).status_code == 409   # una decisione non si ripete
     assert chiedi(client, GIULIA, BUDGET)["esito"] == "risposta"
-    assert chiedi(client, GIULIA, "Quanto costano gli inverter?")["esito"] == "non_lo_so"
+    assert chiedi(client, GIULIA, "How much do the inverters cost?")["esito"] == "non_lo_so"
 
 
 def test_sa_chi_chiede_e_cita(client):
@@ -57,13 +57,13 @@ def test_sa_chi_chiede_e_cita(client):
     carica(client)
     approva(client, trova(client, attributo="budget"))
     marco = chiedi(client, MARCO_B, BUDGET)
-    assert marco["esito"] == "risposta" and "48.000" in marco["testo"]
+    assert marco["esito"] == "risposta" and "48,000" in marco["testo"]
     assert [c["segmento_id"] for c in marco["citazioni"]] == ["riu-001#s003"]
-    assert "48.000 euro" in marco["citazioni"][0]["frase"]            # la frase vera del segmento
+    assert "48,000 euro" in marco["citazioni"][0]["frase"]            # la frase vera del segmento
     sara = chiedi(client, SARA, BUDGET)
     assert sara == {"esito": "non_lo_so", "testo": NEUTRO, "citazioni": []}
     # Controllo 5: per un dato che non esiste la risposta è identica, il motivo vero sta nel registro.
-    assert chiedi(client, SARA, "Che PLC usa il cliente nella linea 2 dello stabilimento?") == sara
+    assert chiedi(client, SARA, "Which PLC does the client use on line 2 of the plant?") == sara
     motivi = [p["motivo"] for p in client.get("/registro?progetto_id=prj-01", headers=GIULIA).json()
               if p["tipo"] == "domanda"]
     assert motivi[0].startswith("non_lo_so") and motivi[1].startswith("non_autorizzato") and motivi[2] is None
@@ -113,7 +113,7 @@ def test_citazioni_inventate_scartate(client, monkeypatch):
         esito="risposta", testo="Il SAL è di Luca.", citazioni=[
             Citazione(segmento_id="riu-001#s003", documento_id="riu-001", titolo="x", data="x", speaker="x", frase="x")]),
         vera(d, p, voci, m)[1]))
-    assert chiedi(client, GIULIA, "Chi prepara il SAL?")["esito"] == "non_lo_so"
+    assert chiedi(client, GIULIA, "Who is preparing the progress report?")["esito"] == "non_lo_so"
 
 
 def test_avvisi_solo_al_manager(client):
@@ -138,7 +138,7 @@ def test_avvisi_solo_al_manager(client):
 def test_todo_e_task_bloccato(client):
     """Controllo 7: la HMI di Sara è bloccata dalla lista dei tag finché non è fatta."""
     carica(client)
-    tag = trova(client, titolo="Preparare la lista dei tag del PLC")
+    tag = trova(client, titolo="Prepare the PLC tag list")
     assert tag["contenuto"]["assegnatario_id"] is None and tag["sicurezza"] == "bassa"   # punto oscuro
     assert approva(client, tag, assegnatario_id="p-08").status_code == 422               # non è nel progetto
     assert approva(client, tag, assegnatario_id="p-02").json()["contenuto"]["assegnatario_id"] == "p-02"
@@ -151,4 +151,4 @@ def test_todo_e_task_bloccato(client):
     assert client.get("/persone/p-04/todo-oggi", headers=MARCO_B).status_code == 403
     accettata = client.post("/todo-oggi/accetta", headers=SARA, json={"task_ids": ["task-002", "task-001"]}).json()
     assert accettata["accettata"] is True and [t["id"] for t in accettata["task"]] == ["task-002"]
-    assert chiedi(client, SARA, "Chi prepara la lista dei tag?")["esito"] == "risposta"
+    assert chiedi(client, SARA, "Who is preparing the tag list?")["esito"] == "risposta"

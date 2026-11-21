@@ -18,7 +18,7 @@ class _CasellaEsterna:
     nome = "esterna"
 
     def _errore(self) -> CasellaNonConfigurata:
-        return CasellaNonConfigurata(f"La casella {self.nome} non è ancora collegata: serve l'autorizzazione dell'utente.")
+        return CasellaNonConfigurata(f"The {self.nome} mailbox isn’t connected yet: it needs the user’s authorisation.")
 
     def cartelle(self, persona_id: str) -> list[Cartella]:
         raise self._errore()

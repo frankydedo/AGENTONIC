@@ -4,12 +4,12 @@ Codice deterministico: nessun modello e nessuna rete. Legge una risposta già ot
 (`scripts/finta_trascrizione.py`). Il file caricato è un JSON con tre parti:
 - `meta`: id, progetto, titolo, data, ora_inizio, partecipanti (come l'intestazione di una minuta);
 - `parlanti`: chi è chi, es. {"speaker_0": "Giulia Ferraris"}. ElevenLabs riconosce le voci ma non i
-  nomi; uno speaker che manca resta «speaker_N» e il Brain lo tratta come una persona sconosciuta;
+  nomi; uno speaker che manca resta «speaker_N» e Agentonic lo tratta come una persona sconosciuta;
 - `stt`: la risposta di ElevenLabs così com'è (chiamata con `diarize=true`): `words` con `text`,
   `type` (word / spacing / audio_event), `start` e `end` in secondi, `speaker_id`.
 
 Un segmento è un turno di parola: le parole consecutive dello stesso speaker. Gli eventi audio
-(«(risate)») e gli spazi si saltano: le parole si uniscono con uno spazio. Tutto il testo, speaker compresi, è un dato:
+(«(laughter)») e gli spazi si saltano: le parole si uniscono con uno spazio. Tutto il testo, speaker compresi, è un dato:
 passa da `neutralizza` come nelle minute.
 """
 
@@ -58,31 +58,31 @@ def da_elevenlabs(dati: bytes | str) -> Documento:
     try:
         radice = json.loads(dati)
     except (ValueError, UnicodeDecodeError):
-        raise DocumentoNonValido("Il file non è un JSON valido.") from None
+        raise DocumentoNonValido("The file is not valid JSON.") from None
     if not isinstance(radice, dict):
-        raise DocumentoNonValido("La trascrizione deve essere un oggetto JSON con «meta», «parlanti» e «stt».")
+        raise DocumentoNonValido("The transcript must be a JSON object with “meta”, “parlanti” and “stt”.")
     meta, parlanti, stt = (radice.get(k) for k in ("meta", "parlanti", "stt"))
     parlanti = parlanti if isinstance(parlanti, dict) else {}
     if not isinstance(meta, dict):
-        raise DocumentoNonValido("Manca «meta» con id, titolo e data della riunione.")
+        raise DocumentoNonValido("“meta” with the meeting id, title and date is missing.")
     if not isinstance(stt, dict) or not isinstance(stt.get("words"), list):
-        raise DocumentoNonValido("Manca «stt» con l'elenco «words» della risposta di ElevenLabs.")
+        raise DocumentoNonValido("“stt” with the “words” list of the ElevenLabs response is missing.")
     for campo in ("id", "titolo", "data"):
         if not meta.get(campo):
-            raise DocumentoNonValido(f"Manca il campo «{campo}» in «meta».")
+            raise DocumentoNonValido(f"The field “{campo}” is missing from “meta”.")
     doc_id = meta["id"]
     valida_id_e_data(doc_id, meta["data"])
     titolo = titolo_pulito(meta["titolo"])
 
     turni = _turni(stt["words"], parlanti)
     if not turni:
-        raise DocumentoNonValido("Nessuna parola trovata nella trascrizione.")
+        raise DocumentoNonValido("No words found in the transcript.")
     segmenti = [
         Segmento(id=f"{doc_id}#s{n:03d}", documento_id=doc_id, speaker=chi, testo=testo, inizio=inizio, fine=fine)
         for n, (chi, testo, inizio, fine) in enumerate(turni, 1)
     ]
     if sum(len(s.testo) for s in segmenti) > MAX_CARATTERI:
-        raise DocumentoNonValido(f"Trascrizione troppo grande (massimo {MAX_CARATTERI} caratteri di testo).")
+        raise DocumentoNonValido(f"Transcript too large ({MAX_CARATTERI} characters of text maximum).")
     partecipanti = meta.get("partecipanti")
     if not isinstance(partecipanti, list):
         partecipanti = list(parlanti.values())

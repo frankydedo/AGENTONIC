@@ -2,14 +2,14 @@
  "meta": {
   "id": "riu-006",
   "progetto": "prj-01",
-  "titolo": "Call rapida - correzione PLC pronta",
+  "titolo": "Quick call - PLC fix ready",
   "data": "2026-12-02",
   "ora_inizio": "17:30",
   "partecipanti": [
    "Giulia Ferraris",
    "Marco Bianchi",
    "Davide Conti",
-   "Tecnico del cliente"
+   "Client technician"
   ]
  },
  "parlanti": {
@@ -18,1589 +18,1637 @@
   "speaker_2": "Davide Conti"
  },
  "stt": {
-  "language_code": "ita",
+  "language_code": "eng",
   "language_probability": 0.99,
-  "text": "Ciao a tutti, call veloce. Marco, a che punto è la correzione dell'arresto d'emergenza? È pronta. Ho aggiunto l'interblocco che mancava e ho ricontrollato gli altri: erano a posto. Stasera passo il programma corretto a Davide. Perfetto, allora la prova al banco la ripeto domani, giovedì 3, come deciso. Il banco è prenotato dalle nove. Se per voi va bene, domani vorremmo assistere alla prova anche noi. [risate] Dopo l'ultima volta preferiamo vederlo con i nostri occhi. Va bene. Davide, mandi tu l'invito per la prova di domani al cliente entro stasera? Sì, lo mando io entro stasera. Bene. Se la prova va a buon fine, confermiamo al cliente le date del collaudo. Grazie a tutti.",
+  "text": "Hi everyone, quick call. Marco, where are we with the emergency stop fix? It's ready. I added the missing interlock and double-checked the others: they were fine. Tonight I'll hand the fixed program over to Davide. Great, then I'll repeat the bench test tomorrow, Thursday the 3rd, as agreed. The bench is booked from nine. If that's fine with you, we'd like to attend tomorrow's test too. [laughter] After last time we'd rather see it with our own eyes. All right. Davide, will you send the client the invitation to tomorrow's test by tonight? Yes, I'll send it by tonight. Good. If the test goes well, we'll confirm the acceptance test dates with the client. Thanks, everyone.",
   "words": [
    {
-    "text": "Ciao",
+    "text": "Hi",
     "start": 0.4,
-    "end": 0.76,
+    "end": 0.64,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 0.76,
-    "end": 0.84,
+    "start": 0.64,
+    "end": 0.72,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "a",
-    "start": 0.84,
-    "end": 1.02,
+    "text": "everyone,",
+    "start": 0.72,
+    "end": 1.38,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 1.02,
-    "end": 1.1,
+    "start": 1.38,
+    "end": 1.46,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "tutti,",
-    "start": 1.1,
-    "end": 1.58,
+    "text": "quick",
+    "start": 1.46,
+    "end": 1.88,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 1.58,
-    "end": 1.66,
+    "start": 1.88,
+    "end": 1.96,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "call",
-    "start": 1.66,
-    "end": 2.02,
+    "text": "call.",
+    "start": 1.96,
+    "end": 2.38,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 2.02,
-    "end": 2.1,
-    "type": "spacing",
-    "speaker_id": "speaker_0",
-    "logprob": 0.0
-   },
-   {
-    "text": "veloce.",
-    "start": 2.1,
-    "end": 2.64,
-    "type": "word",
-    "speaker_id": "speaker_0",
-    "logprob": 0.0
-   },
-   {
-    "text": " ",
-    "start": 2.64,
-    "end": 2.72,
+    "start": 2.38,
+    "end": 2.46,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": "Marco,",
-    "start": 2.72,
-    "end": 3.2,
+    "start": 2.46,
+    "end": 2.94,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 3.2,
-    "end": 3.28,
+    "start": 2.94,
+    "end": 3.02,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "a",
-    "start": 3.28,
-    "end": 3.46,
+    "text": "where",
+    "start": 3.02,
+    "end": 3.44,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 3.46,
-    "end": 3.54,
+    "start": 3.44,
+    "end": 3.52,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "che",
-    "start": 3.54,
-    "end": 3.84,
+    "text": "are",
+    "start": 3.52,
+    "end": 3.82,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 3.84,
-    "end": 3.92,
+    "start": 3.82,
+    "end": 3.9,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "punto",
-    "start": 3.92,
-    "end": 4.34,
+    "text": "we",
+    "start": 3.9,
+    "end": 4.14,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 4.34,
-    "end": 4.42,
+    "start": 4.14,
+    "end": 4.22,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "è",
-    "start": 4.42,
-    "end": 4.6,
+    "text": "with",
+    "start": 4.22,
+    "end": 4.58,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 4.6,
-    "end": 4.68,
+    "start": 4.58,
+    "end": 4.66,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "la",
-    "start": 4.68,
-    "end": 4.92,
+    "text": "the",
+    "start": 4.66,
+    "end": 4.96,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 4.92,
-    "end": 5.0,
+    "start": 4.96,
+    "end": 5.04,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "correzione",
-    "start": 5.0,
-    "end": 5.72,
+    "text": "emergency",
+    "start": 5.04,
+    "end": 5.7,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 5.72,
-    "end": 5.8,
+    "start": 5.7,
+    "end": 5.78,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "dell'arresto",
-    "start": 5.8,
-    "end": 6.64,
+    "text": "stop",
+    "start": 5.78,
+    "end": 6.14,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 6.64,
-    "end": 6.72,
+    "start": 6.14,
+    "end": 6.22,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "d'emergenza?",
-    "start": 6.72,
-    "end": 7.56,
+    "text": "fix?",
+    "start": 6.22,
+    "end": 6.58,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "È",
-    "start": 8.34,
-    "end": 8.52,
+    "text": "It's",
+    "start": 7.36,
+    "end": 7.72,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 8.52,
-    "end": 8.6,
+    "start": 7.72,
+    "end": 7.8,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "pronta.",
-    "start": 8.6,
-    "end": 9.14,
+    "text": "ready.",
+    "start": 7.8,
+    "end": 8.28,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 9.14,
-    "end": 9.22,
+    "start": 8.28,
+    "end": 8.36,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "Ho",
-    "start": 9.22,
-    "end": 9.46,
+    "text": "I",
+    "start": 8.36,
+    "end": 8.54,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 9.46,
-    "end": 9.54,
+    "start": 8.54,
+    "end": 8.62,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "aggiunto",
-    "start": 9.54,
-    "end": 10.14,
+    "text": "added",
+    "start": 8.62,
+    "end": 9.04,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 10.14,
-    "end": 10.22,
+    "start": 9.04,
+    "end": 9.12,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "l'interblocco",
-    "start": 10.22,
-    "end": 11.12,
+    "text": "the",
+    "start": 9.12,
+    "end": 9.42,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 11.12,
-    "end": 11.2,
+    "start": 9.42,
+    "end": 9.5,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "che",
-    "start": 11.2,
-    "end": 11.5,
+    "text": "missing",
+    "start": 9.5,
+    "end": 10.04,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 11.5,
-    "end": 11.58,
+    "start": 10.04,
+    "end": 10.12,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "mancava",
-    "start": 11.58,
-    "end": 12.12,
+    "text": "interlock",
+    "start": 10.12,
+    "end": 10.78,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 12.12,
+    "start": 10.78,
+    "end": 10.86,
+    "type": "spacing",
+    "speaker_id": "speaker_1",
+    "logprob": 0.0
+   },
+   {
+    "text": "and",
+    "start": 10.86,
+    "end": 11.16,
+    "type": "word",
+    "speaker_id": "speaker_1",
+    "logprob": 0.0
+   },
+   {
+    "text": " ",
+    "start": 11.16,
+    "end": 11.24,
+    "type": "spacing",
+    "speaker_id": "speaker_1",
+    "logprob": 0.0
+   },
+   {
+    "text": "double-checked",
+    "start": 11.24,
     "end": 12.2,
-    "type": "spacing",
+    "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "e",
+    "text": " ",
     "start": 12.2,
-    "end": 12.38,
-    "type": "word",
-    "speaker_id": "speaker_1",
-    "logprob": 0.0
-   },
-   {
-    "text": " ",
-    "start": 12.38,
-    "end": 12.46,
+    "end": 12.28,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "ho",
-    "start": 12.46,
-    "end": 12.7,
+    "text": "the",
+    "start": 12.28,
+    "end": 12.58,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 12.7,
-    "end": 12.78,
+    "start": 12.58,
+    "end": 12.66,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "ricontrollato",
-    "start": 12.78,
-    "end": 13.68,
+    "text": "others:",
+    "start": 12.66,
+    "end": 13.2,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 13.68,
-    "end": 13.76,
+    "start": 13.2,
+    "end": 13.28,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "gli",
-    "start": 13.76,
-    "end": 14.06,
+    "text": "they",
+    "start": 13.28,
+    "end": 13.64,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 14.06,
-    "end": 14.14,
+    "start": 13.64,
+    "end": 13.72,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "altri:",
-    "start": 14.14,
-    "end": 14.62,
+    "text": "were",
+    "start": 13.72,
+    "end": 14.08,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 14.62,
-    "end": 14.7,
+    "start": 14.08,
+    "end": 14.16,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "erano",
-    "start": 14.7,
-    "end": 15.12,
+    "text": "fine.",
+    "start": 14.16,
+    "end": 14.58,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 15.12,
+    "start": 14.58,
+    "end": 14.66,
+    "type": "spacing",
+    "speaker_id": "speaker_1",
+    "logprob": 0.0
+   },
+   {
+    "text": "Tonight",
+    "start": 14.66,
     "end": 15.2,
-    "type": "spacing",
+    "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "a",
+    "text": " ",
     "start": 15.2,
-    "end": 15.38,
-    "type": "word",
-    "speaker_id": "speaker_1",
-    "logprob": 0.0
-   },
-   {
-    "text": " ",
-    "start": 15.38,
-    "end": 15.46,
+    "end": 15.28,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "posto.",
-    "start": 15.46,
-    "end": 15.94,
+    "text": "I'll",
+    "start": 15.28,
+    "end": 15.64,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 15.94,
-    "end": 16.02,
+    "start": 15.64,
+    "end": 15.72,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "Stasera",
-    "start": 16.02,
-    "end": 16.56,
+    "text": "hand",
+    "start": 15.72,
+    "end": 16.08,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 16.56,
-    "end": 16.64,
+    "start": 16.08,
+    "end": 16.16,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "passo",
-    "start": 16.64,
-    "end": 17.06,
+    "text": "the",
+    "start": 16.16,
+    "end": 16.46,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 17.06,
-    "end": 17.14,
+    "start": 16.46,
+    "end": 16.54,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "il",
-    "start": 17.14,
-    "end": 17.38,
+    "text": "fixed",
+    "start": 16.54,
+    "end": 16.96,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 17.38,
-    "end": 17.46,
+    "start": 16.96,
+    "end": 17.04,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "programma",
-    "start": 17.46,
-    "end": 18.12,
+    "text": "program",
+    "start": 17.04,
+    "end": 17.58,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 18.12,
-    "end": 18.2,
+    "start": 17.58,
+    "end": 17.66,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "corretto",
-    "start": 18.2,
-    "end": 18.8,
+    "text": "over",
+    "start": 17.66,
+    "end": 18.02,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 18.8,
-    "end": 18.88,
+    "start": 18.02,
+    "end": 18.1,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "a",
-    "start": 18.88,
-    "end": 19.06,
+    "text": "to",
+    "start": 18.1,
+    "end": 18.34,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 19.06,
-    "end": 19.14,
+    "start": 18.34,
+    "end": 18.42,
     "type": "spacing",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
     "text": "Davide.",
-    "start": 19.14,
-    "end": 19.68,
+    "start": 18.42,
+    "end": 18.96,
     "type": "word",
     "speaker_id": "speaker_1",
     "logprob": 0.0
    },
    {
-    "text": "Perfetto,",
-    "start": 20.46,
-    "end": 21.12,
+    "text": "Great,",
+    "start": 19.74,
+    "end": 20.22,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 21.12,
-    "end": 21.2,
+    "start": 20.22,
+    "end": 20.3,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "allora",
-    "start": 21.2,
-    "end": 21.68,
+    "text": "then",
+    "start": 20.3,
+    "end": 20.66,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 21.68,
-    "end": 21.76,
+    "start": 20.66,
+    "end": 20.74,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "la",
-    "start": 21.76,
-    "end": 22.0,
+    "text": "I'll",
+    "start": 20.74,
+    "end": 21.1,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 22.0,
-    "end": 22.08,
+    "start": 21.1,
+    "end": 21.18,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "prova",
-    "start": 22.08,
-    "end": 22.5,
+    "text": "repeat",
+    "start": 21.18,
+    "end": 21.66,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 22.5,
-    "end": 22.58,
+    "start": 21.66,
+    "end": 21.74,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "al",
-    "start": 22.58,
-    "end": 22.82,
+    "text": "the",
+    "start": 21.74,
+    "end": 22.04,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 22.82,
-    "end": 22.9,
+    "start": 22.04,
+    "end": 22.12,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "banco",
-    "start": 22.9,
-    "end": 23.32,
+    "text": "bench",
+    "start": 22.12,
+    "end": 22.54,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 23.32,
-    "end": 23.4,
+    "start": 22.54,
+    "end": 22.62,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "la",
-    "start": 23.4,
-    "end": 23.64,
+    "text": "test",
+    "start": 22.62,
+    "end": 22.98,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 23.64,
+    "start": 22.98,
+    "end": 23.06,
+    "type": "spacing",
+    "speaker_id": "speaker_2",
+    "logprob": 0.0
+   },
+   {
+    "text": "tomorrow,",
+    "start": 23.06,
     "end": 23.72,
-    "type": "spacing",
+    "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "ripeto",
+    "text": " ",
     "start": 23.72,
-    "end": 24.2,
+    "end": 23.8,
+    "type": "spacing",
+    "speaker_id": "speaker_2",
+    "logprob": 0.0
+   },
+   {
+    "text": "Thursday",
+    "start": 23.8,
+    "end": 24.4,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 24.2,
-    "end": 24.28,
+    "start": 24.4,
+    "end": 24.48,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "domani,",
-    "start": 24.28,
-    "end": 24.82,
-    "type": "word",
-    "speaker_id": "speaker_2",
-    "logprob": 0.0
-   },
-   {
-    "text": " ",
-    "start": 24.82,
-    "end": 24.9,
-    "type": "spacing",
-    "speaker_id": "speaker_2",
-    "logprob": 0.0
-   },
-   {
-    "text": "giovedì",
-    "start": 24.9,
-    "end": 25.44,
+    "text": "the",
+    "start": 24.48,
+    "end": 24.78,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 25.44,
-    "end": 25.52,
+    "start": 24.78,
+    "end": 24.86,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "3,",
-    "start": 25.52,
-    "end": 25.76,
-    "type": "word",
-    "speaker_id": "speaker_2",
-    "logprob": 0.0
-   },
-   {
-    "text": " ",
-    "start": 25.76,
-    "end": 25.84,
-    "type": "spacing",
-    "speaker_id": "speaker_2",
-    "logprob": 0.0
-   },
-   {
-    "text": "come",
-    "start": 25.84,
-    "end": 26.2,
+    "text": "3rd,",
+    "start": 24.86,
+    "end": 25.22,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 26.2,
-    "end": 26.28,
+    "start": 25.22,
+    "end": 25.3,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "deciso.",
-    "start": 26.28,
-    "end": 26.82,
-    "type": "word",
-    "speaker_id": "speaker_2",
-    "logprob": 0.0
-   },
-   {
-    "text": " ",
-    "start": 26.82,
-    "end": 26.9,
-    "type": "spacing",
-    "speaker_id": "speaker_2",
-    "logprob": 0.0
-   },
-   {
-    "text": "Il",
-    "start": 26.9,
-    "end": 27.14,
+    "text": "as",
+    "start": 25.3,
+    "end": 25.54,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 27.14,
-    "end": 27.22,
+    "start": 25.54,
+    "end": 25.62,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "banco",
-    "start": 27.22,
-    "end": 27.64,
-    "type": "word",
-    "speaker_id": "speaker_2",
-    "logprob": 0.0
-   },
-   {
-    "text": " ",
-    "start": 27.64,
-    "end": 27.72,
-    "type": "spacing",
-    "speaker_id": "speaker_2",
-    "logprob": 0.0
-   },
-   {
-    "text": "è",
-    "start": 27.72,
-    "end": 27.9,
+    "text": "agreed.",
+    "start": 25.62,
+    "end": 26.16,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 27.9,
-    "end": 27.98,
+    "start": 26.16,
+    "end": 26.24,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "prenotato",
-    "start": 27.98,
-    "end": 28.64,
-    "type": "word",
-    "speaker_id": "speaker_2",
-    "logprob": 0.0
-   },
-   {
-    "text": " ",
-    "start": 28.64,
-    "end": 28.72,
-    "type": "spacing",
-    "speaker_id": "speaker_2",
-    "logprob": 0.0
-   },
-   {
-    "text": "dalle",
-    "start": 28.72,
-    "end": 29.14,
+    "text": "The",
+    "start": 26.24,
+    "end": 26.54,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 29.14,
-    "end": 29.22,
+    "start": 26.54,
+    "end": 26.62,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "nove.",
-    "start": 29.22,
-    "end": 29.64,
+    "text": "bench",
+    "start": 26.62,
+    "end": 27.04,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "Se",
-    "start": 30.42,
-    "end": 30.66,
+    "text": " ",
+    "start": 27.04,
+    "end": 27.12,
+    "type": "spacing",
+    "speaker_id": "speaker_2",
+    "logprob": 0.0
+   },
+   {
+    "text": "is",
+    "start": 27.12,
+    "end": 27.36,
+    "type": "word",
+    "speaker_id": "speaker_2",
+    "logprob": 0.0
+   },
+   {
+    "text": " ",
+    "start": 27.36,
+    "end": 27.44,
+    "type": "spacing",
+    "speaker_id": "speaker_2",
+    "logprob": 0.0
+   },
+   {
+    "text": "booked",
+    "start": 27.44,
+    "end": 27.92,
+    "type": "word",
+    "speaker_id": "speaker_2",
+    "logprob": 0.0
+   },
+   {
+    "text": " ",
+    "start": 27.92,
+    "end": 28.0,
+    "type": "spacing",
+    "speaker_id": "speaker_2",
+    "logprob": 0.0
+   },
+   {
+    "text": "from",
+    "start": 28.0,
+    "end": 28.36,
+    "type": "word",
+    "speaker_id": "speaker_2",
+    "logprob": 0.0
+   },
+   {
+    "text": " ",
+    "start": 28.36,
+    "end": 28.44,
+    "type": "spacing",
+    "speaker_id": "speaker_2",
+    "logprob": 0.0
+   },
+   {
+    "text": "nine.",
+    "start": 28.44,
+    "end": 28.86,
+    "type": "word",
+    "speaker_id": "speaker_2",
+    "logprob": 0.0
+   },
+   {
+    "text": "If",
+    "start": 29.64,
+    "end": 29.88,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 30.66,
-    "end": 30.74,
+    "start": 29.88,
+    "end": 29.96,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "per",
-    "start": 30.74,
-    "end": 31.04,
+    "text": "that's",
+    "start": 29.96,
+    "end": 30.44,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 31.04,
-    "end": 31.12,
+    "start": 30.44,
+    "end": 30.52,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "voi",
-    "start": 31.12,
-    "end": 31.42,
+    "text": "fine",
+    "start": 30.52,
+    "end": 30.88,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 31.42,
-    "end": 31.5,
+    "start": 30.88,
+    "end": 30.96,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "va",
-    "start": 31.5,
-    "end": 31.74,
+    "text": "with",
+    "start": 30.96,
+    "end": 31.32,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 31.74,
-    "end": 31.82,
+    "start": 31.32,
+    "end": 31.4,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "bene,",
-    "start": 31.82,
-    "end": 32.24,
+    "text": "you,",
+    "start": 31.4,
+    "end": 31.76,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 32.24,
-    "end": 32.32,
+    "start": 31.76,
+    "end": 31.84,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "domani",
-    "start": 32.32,
-    "end": 32.8,
+    "text": "we'd",
+    "start": 31.84,
+    "end": 32.2,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 32.8,
-    "end": 32.88,
+    "start": 32.2,
+    "end": 32.28,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "vorremmo",
-    "start": 32.88,
-    "end": 33.48,
+    "text": "like",
+    "start": 32.28,
+    "end": 32.64,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 33.48,
-    "end": 33.56,
+    "start": 32.64,
+    "end": 32.72,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "assistere",
-    "start": 33.56,
-    "end": 34.22,
+    "text": "to",
+    "start": 32.72,
+    "end": 32.96,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 34.22,
-    "end": 34.3,
+    "start": 32.96,
+    "end": 33.04,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "alla",
-    "start": 34.3,
-    "end": 34.66,
+    "text": "attend",
+    "start": 33.04,
+    "end": 33.52,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 34.66,
-    "end": 34.74,
+    "start": 33.52,
+    "end": 33.6,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "prova",
-    "start": 34.74,
-    "end": 35.16,
+    "text": "tomorrow's",
+    "start": 33.6,
+    "end": 34.32,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 35.16,
-    "end": 35.24,
+    "start": 34.32,
+    "end": 34.4,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "anche",
-    "start": 35.24,
-    "end": 35.66,
+    "text": "test",
+    "start": 34.4,
+    "end": 34.76,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 35.66,
-    "end": 35.74,
+    "start": 34.76,
+    "end": 34.84,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "noi.",
-    "start": 35.74,
-    "end": 36.1,
+    "text": "too.",
+    "start": 34.84,
+    "end": 35.2,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 36.1,
-    "end": 36.18,
+    "start": 35.2,
+    "end": 35.28,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "(risate)",
-    "start": 36.18,
-    "end": 37.38,
+    "text": "(laughter)",
+    "start": 35.28,
+    "end": 36.48,
     "type": "audio_event",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "Dopo",
-    "start": 37.38,
-    "end": 37.74,
+    "text": "After",
+    "start": 36.48,
+    "end": 36.9,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 37.74,
-    "end": 37.82,
+    "start": 36.9,
+    "end": 36.98,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "l'ultima",
-    "start": 37.82,
-    "end": 38.42,
+    "text": "last",
+    "start": 36.98,
+    "end": 37.34,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 38.42,
-    "end": 38.5,
+    "start": 37.34,
+    "end": 37.42,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "volta",
-    "start": 38.5,
-    "end": 38.92,
+    "text": "time",
+    "start": 37.42,
+    "end": 37.78,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 38.92,
-    "end": 39.0,
+    "start": 37.78,
+    "end": 37.86,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "preferiamo",
-    "start": 39.0,
-    "end": 39.72,
+    "text": "we'd",
+    "start": 37.86,
+    "end": 38.22,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 39.72,
-    "end": 39.8,
+    "start": 38.22,
+    "end": 38.3,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "vederlo",
-    "start": 39.8,
-    "end": 40.34,
+    "text": "rather",
+    "start": 38.3,
+    "end": 38.78,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 40.34,
-    "end": 40.42,
+    "start": 38.78,
+    "end": 38.86,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "con",
-    "start": 40.42,
-    "end": 40.72,
+    "text": "see",
+    "start": 38.86,
+    "end": 39.16,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 40.72,
-    "end": 40.8,
+    "start": 39.16,
+    "end": 39.24,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "i",
-    "start": 40.8,
-    "end": 40.98,
+    "text": "it",
+    "start": 39.24,
+    "end": 39.48,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 40.98,
-    "end": 41.06,
+    "start": 39.48,
+    "end": 39.56,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "nostri",
-    "start": 41.06,
-    "end": 41.54,
+    "text": "with",
+    "start": 39.56,
+    "end": 39.92,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 41.54,
-    "end": 41.62,
+    "start": 39.92,
+    "end": 40.0,
     "type": "spacing",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "occhi.",
-    "start": 41.62,
-    "end": 42.1,
+    "text": "our",
+    "start": 40.0,
+    "end": 40.3,
     "type": "word",
     "speaker_id": "speaker_3",
     "logprob": 0.0
    },
    {
-    "text": "Va",
-    "start": 42.88,
-    "end": 43.12,
+    "text": " ",
+    "start": 40.3,
+    "end": 40.38,
+    "type": "spacing",
+    "speaker_id": "speaker_3",
+    "logprob": 0.0
+   },
+   {
+    "text": "own",
+    "start": 40.38,
+    "end": 40.68,
+    "type": "word",
+    "speaker_id": "speaker_3",
+    "logprob": 0.0
+   },
+   {
+    "text": " ",
+    "start": 40.68,
+    "end": 40.76,
+    "type": "spacing",
+    "speaker_id": "speaker_3",
+    "logprob": 0.0
+   },
+   {
+    "text": "eyes.",
+    "start": 40.76,
+    "end": 41.18,
+    "type": "word",
+    "speaker_id": "speaker_3",
+    "logprob": 0.0
+   },
+   {
+    "text": "All",
+    "start": 41.96,
+    "end": 42.26,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 43.12,
-    "end": 43.2,
+    "start": 42.26,
+    "end": 42.34,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "bene.",
-    "start": 43.2,
-    "end": 43.62,
+    "text": "right.",
+    "start": 42.34,
+    "end": 42.82,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 43.62,
-    "end": 43.7,
+    "start": 42.82,
+    "end": 42.9,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": "Davide,",
-    "start": 43.7,
-    "end": 44.24,
+    "start": 42.9,
+    "end": 43.44,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 44.24,
-    "end": 44.32,
+    "start": 43.44,
+    "end": 43.52,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "mandi",
-    "start": 44.32,
-    "end": 44.74,
+    "text": "will",
+    "start": 43.52,
+    "end": 43.88,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 44.74,
-    "end": 44.82,
+    "start": 43.88,
+    "end": 43.96,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "tu",
-    "start": 44.82,
-    "end": 45.06,
+    "text": "you",
+    "start": 43.96,
+    "end": 44.26,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 45.06,
-    "end": 45.14,
+    "start": 44.26,
+    "end": 44.34,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "l'invito",
-    "start": 45.14,
-    "end": 45.74,
+    "text": "send",
+    "start": 44.34,
+    "end": 44.7,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 45.74,
-    "end": 45.82,
+    "start": 44.7,
+    "end": 44.78,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "per",
-    "start": 45.82,
-    "end": 46.12,
+    "text": "the",
+    "start": 44.78,
+    "end": 45.08,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 46.12,
-    "end": 46.2,
+    "start": 45.08,
+    "end": 45.16,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "la",
-    "start": 46.2,
-    "end": 46.44,
+    "text": "client",
+    "start": 45.16,
+    "end": 45.64,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 46.44,
-    "end": 46.52,
+    "start": 45.64,
+    "end": 45.72,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "prova",
-    "start": 46.52,
-    "end": 46.94,
+    "text": "the",
+    "start": 45.72,
+    "end": 46.02,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 46.94,
-    "end": 47.02,
+    "start": 46.02,
+    "end": 46.1,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "di",
-    "start": 47.02,
-    "end": 47.26,
+    "text": "invitation",
+    "start": 46.1,
+    "end": 46.82,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 47.26,
-    "end": 47.34,
+    "start": 46.82,
+    "end": 46.9,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "domani",
-    "start": 47.34,
-    "end": 47.82,
+    "text": "to",
+    "start": 46.9,
+    "end": 47.14,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 47.82,
-    "end": 47.9,
+    "start": 47.14,
+    "end": 47.22,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "al",
-    "start": 47.9,
-    "end": 48.14,
+    "text": "tomorrow's",
+    "start": 47.22,
+    "end": 47.94,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 48.14,
-    "end": 48.22,
+    "start": 47.94,
+    "end": 48.02,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "cliente",
-    "start": 48.22,
-    "end": 48.76,
+    "text": "test",
+    "start": 48.02,
+    "end": 48.38,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 48.76,
-    "end": 48.84,
+    "start": 48.38,
+    "end": 48.46,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "entro",
-    "start": 48.84,
-    "end": 49.26,
+    "text": "by",
+    "start": 48.46,
+    "end": 48.7,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 49.26,
-    "end": 49.34,
+    "start": 48.7,
+    "end": 48.78,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "stasera?",
-    "start": 49.34,
-    "end": 49.94,
+    "text": "tonight?",
+    "start": 48.78,
+    "end": 49.38,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "Sì,",
-    "start": 50.72,
-    "end": 51.02,
+    "text": "Yes,",
+    "start": 50.16,
+    "end": 50.52,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 51.02,
-    "end": 51.1,
+    "start": 50.52,
+    "end": 50.6,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "lo",
-    "start": 51.1,
-    "end": 51.34,
+    "text": "I'll",
+    "start": 50.6,
+    "end": 50.96,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 51.34,
-    "end": 51.42,
+    "start": 50.96,
+    "end": 51.04,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "mando",
-    "start": 51.42,
-    "end": 51.84,
+    "text": "send",
+    "start": 51.04,
+    "end": 51.4,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 51.84,
-    "end": 51.92,
+    "start": 51.4,
+    "end": 51.48,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "io",
-    "start": 51.92,
-    "end": 52.16,
+    "text": "it",
+    "start": 51.48,
+    "end": 51.72,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 52.16,
-    "end": 52.24,
+    "start": 51.72,
+    "end": 51.8,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "entro",
-    "start": 52.24,
-    "end": 52.66,
+    "text": "by",
+    "start": 51.8,
+    "end": 52.04,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 52.66,
-    "end": 52.74,
+    "start": 52.04,
+    "end": 52.12,
     "type": "spacing",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "stasera.",
-    "start": 52.74,
-    "end": 53.34,
+    "text": "tonight.",
+    "start": 52.12,
+    "end": 52.72,
     "type": "word",
     "speaker_id": "speaker_2",
     "logprob": 0.0
    },
    {
-    "text": "Bene.",
-    "start": 54.12,
-    "end": 54.54,
+    "text": "Good.",
+    "start": 53.5,
+    "end": 53.92,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 54.54,
+    "start": 53.92,
+    "end": 54.0,
+    "type": "spacing",
+    "speaker_id": "speaker_0",
+    "logprob": 0.0
+   },
+   {
+    "text": "If",
+    "start": 54.0,
+    "end": 54.24,
+    "type": "word",
+    "speaker_id": "speaker_0",
+    "logprob": 0.0
+   },
+   {
+    "text": " ",
+    "start": 54.24,
+    "end": 54.32,
+    "type": "spacing",
+    "speaker_id": "speaker_0",
+    "logprob": 0.0
+   },
+   {
+    "text": "the",
+    "start": 54.32,
     "end": 54.62,
-    "type": "spacing",
+    "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "Se",
+    "text": " ",
     "start": 54.62,
-    "end": 54.86,
+    "end": 54.7,
+    "type": "spacing",
+    "speaker_id": "speaker_0",
+    "logprob": 0.0
+   },
+   {
+    "text": "test",
+    "start": 54.7,
+    "end": 55.06,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 54.86,
-    "end": 54.94,
+    "start": 55.06,
+    "end": 55.14,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "la",
-    "start": 54.94,
-    "end": 55.18,
+    "text": "goes",
+    "start": 55.14,
+    "end": 55.5,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 55.18,
-    "end": 55.26,
+    "start": 55.5,
+    "end": 55.58,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "prova",
-    "start": 55.26,
-    "end": 55.68,
-    "type": "word",
-    "speaker_id": "speaker_0",
-    "logprob": 0.0
-   },
-   {
-    "text": " ",
-    "start": 55.68,
-    "end": 55.76,
-    "type": "spacing",
-    "speaker_id": "speaker_0",
-    "logprob": 0.0
-   },
-   {
-    "text": "va",
-    "start": 55.76,
+    "text": "well,",
+    "start": 55.58,
     "end": 56.0,
     "type": "word",
     "speaker_id": "speaker_0",
@@ -1615,201 +1663,169 @@
     "logprob": 0.0
    },
    {
-    "text": "a",
+    "text": "we'll",
     "start": 56.08,
-    "end": 56.26,
+    "end": 56.5,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 56.26,
-    "end": 56.34,
+    "start": 56.5,
+    "end": 56.58,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "buon",
-    "start": 56.34,
-    "end": 56.7,
+    "text": "confirm",
+    "start": 56.58,
+    "end": 57.12,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 56.7,
-    "end": 56.78,
-    "type": "spacing",
-    "speaker_id": "speaker_0",
-    "logprob": 0.0
-   },
-   {
-    "text": "fine,",
-    "start": 56.78,
+    "start": 57.12,
     "end": 57.2,
-    "type": "word",
+    "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": " ",
+    "text": "the",
     "start": 57.2,
-    "end": 57.28,
-    "type": "spacing",
-    "speaker_id": "speaker_0",
-    "logprob": 0.0
-   },
-   {
-    "text": "confermiamo",
-    "start": 57.28,
-    "end": 58.06,
+    "end": 57.5,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 58.06,
-    "end": 58.14,
+    "start": 57.5,
+    "end": 57.58,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "al",
-    "start": 58.14,
+    "text": "acceptance",
+    "start": 57.58,
+    "end": 58.3,
+    "type": "word",
+    "speaker_id": "speaker_0",
+    "logprob": 0.0
+   },
+   {
+    "text": " ",
+    "start": 58.3,
     "end": 58.38,
-    "type": "word",
+    "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": " ",
+    "text": "test",
     "start": 58.38,
-    "end": 58.46,
-    "type": "spacing",
-    "speaker_id": "speaker_0",
-    "logprob": 0.0
-   },
-   {
-    "text": "cliente",
-    "start": 58.46,
-    "end": 59.0,
+    "end": 58.74,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 59.0,
-    "end": 59.08,
+    "start": 58.74,
+    "end": 58.82,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "le",
-    "start": 59.08,
+    "text": "dates",
+    "start": 58.82,
+    "end": 59.24,
+    "type": "word",
+    "speaker_id": "speaker_0",
+    "logprob": 0.0
+   },
+   {
+    "text": " ",
+    "start": 59.24,
     "end": 59.32,
-    "type": "word",
+    "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": " ",
+    "text": "with",
     "start": 59.32,
-    "end": 59.4,
-    "type": "spacing",
+    "end": 59.68,
+    "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "date",
-    "start": 59.4,
+    "text": " ",
+    "start": 59.68,
     "end": 59.76,
-    "type": "word",
+    "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": " ",
+    "text": "the",
     "start": 59.76,
-    "end": 59.84,
-    "type": "spacing",
+    "end": 60.06,
+    "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "del",
-    "start": 59.84,
+    "text": " ",
+    "start": 60.06,
     "end": 60.14,
-    "type": "word",
+    "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": " ",
+    "text": "client.",
     "start": 60.14,
-    "end": 60.22,
-    "type": "spacing",
-    "speaker_id": "speaker_0",
-    "logprob": 0.0
-   },
-   {
-    "text": "collaudo.",
-    "start": 60.22,
-    "end": 60.88,
+    "end": 60.68,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 60.88,
-    "end": 60.96,
+    "start": 60.68,
+    "end": 60.76,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "Grazie",
-    "start": 60.96,
-    "end": 61.44,
+    "text": "Thanks,",
+    "start": 60.76,
+    "end": 61.3,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
     "text": " ",
-    "start": 61.44,
-    "end": 61.52,
+    "start": 61.3,
+    "end": 61.38,
     "type": "spacing",
     "speaker_id": "speaker_0",
     "logprob": 0.0
    },
    {
-    "text": "a",
-    "start": 61.52,
-    "end": 61.7,
-    "type": "word",
-    "speaker_id": "speaker_0",
-    "logprob": 0.0
-   },
-   {
-    "text": " ",
-    "start": 61.7,
-    "end": 61.78,
-    "type": "spacing",
-    "speaker_id": "speaker_0",
-    "logprob": 0.0
-   },
-   {
-    "text": "tutti.",
-    "start": 61.78,
-    "end": 62.26,
+    "text": "everyone.",
+    "start": 61.38,
+    "end": 62.04,
     "type": "word",
     "speaker_id": "speaker_0",
     "logprob": 0.0
