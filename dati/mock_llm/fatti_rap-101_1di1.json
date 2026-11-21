@@ -1,0 +1,4 @@
+{"fatti": [
+ {"soggetto": "progetto", "attributo": "scadenza", "valore": "collaudo presso il cliente il 2027-01-20", "aree": ["generale"], "segmenti": ["rap-101#s001"], "sicurezza": "alta"},
+ {"soggetto": "progetto", "attributo": "budget", "valore": "48.000 € approvati, 12.500 € già impegnati per la progettazione", "aree": ["budget"], "segmenti": ["rap-101#s002"], "sicurezza": "alta"},
+ {"soggetto": "inverter", "attributo": "costo", "valore": "6.200 € (preventivo di Elettrotecnica Piemonte)", "aree": ["fornitori", "budget"], "segmenti": ["rap-101#s003"], "sicurezza": "alta"}]}

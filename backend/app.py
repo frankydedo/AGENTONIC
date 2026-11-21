@@ -365,6 +365,46 @@ def dettaglio_documento(documento_id: str, chi: Persona = Depends(persona_corren
     return db.documento(r, [db.segmento(s) for s in righe if visibili is None or s["id"] in visibili])
 
 
+class EsitoAnnullamento(BaseModel):
+    documento_id: str
+    segmenti: int
+    proposte: int
+    avvisi: int
+
+
+@app.delete("/documenti/{documento_id}")
+def annulla_caricamento(documento_id: str, chi: Persona = Depends(persona_corrente),
+                        conn: sqlite3.Connection = Depends(get_db)) -> EsitoAnnullamento:
+    """Annulla il caricamento di un documento sbagliato. Solo il manager, e solo se NESSUNA proposta
+    del documento è stata approvata: niente di suo è entrato nella memoria, quindi togliere documento,
+    segmenti, proposte (in attesa o rifiutate) e avvisi non lascia buchi. Se qualcosa è già approvato
+    -> 409. Il registro non si cancella: l'annullamento resta tracciato."""
+    r = conn.execute("SELECT progetto_id FROM documenti WHERE id = ?", (documento_id,)).fetchone()
+    prj = db.progetto(conn, r["progetto_id"]) if r else None
+    if prj is None or chi.id not in prj.membri:
+        raise HTTPException(404, "Documento non trovato.")
+    manager(conn, prj.id, chi)
+    approvate = [x[0] for x in conn.execute(
+        "SELECT id FROM proposte WHERE documento_id = ? AND stato = 'approvata' ORDER BY id", (documento_id,))]
+    if approvate:
+        raise HTTPException(409, f"Non si può annullare il caricamento: {len(approvate)} proposte di questo documento "
+                                 f"sono già state approvate ({', '.join(approvate)}) e sono entrate nella memoria "
+                                 "del progetto. Il documento resta com'è.")
+    tolte = [x[0] for x in conn.execute("SELECT id FROM proposte WHERE documento_id = ?", (documento_id,))]
+    avvisi = conn.execute("DELETE FROM avvisi WHERE documento_id = ?", (documento_id,)).rowcount
+    for a in conn.execute("SELECT id, basato_su_proposte FROM avvisi WHERE progetto_id = ?", (prj.id,)).fetchall():
+        if set(json.loads(a["basato_su_proposte"] or "[]")) & set(tolte):   # avvisi nati da quelle proposte
+            conn.execute("DELETE FROM avvisi WHERE id = ?", (a["id"],))
+            avvisi += 1
+    conn.execute("DELETE FROM proposte WHERE documento_id = ?", (documento_id,))
+    segmenti = conn.execute("DELETE FROM segmenti WHERE documento_id = ?", (documento_id,)).rowcount
+    conn.execute("DELETE FROM documenti WHERE id = ?", (documento_id,))
+    db.registra(conn, "decisione", chi.id, "annulla_caricamento", progetto_id=prj.id, documento_id=documento_id,
+                output={"segmenti": segmenti, "proposte": len(tolte), "avvisi": avvisi})
+    conn.commit()
+    return EsitoAnnullamento(documento_id=documento_id, segmenti=segmenti, proposte=len(tolte), avvisi=avvisi)
+
+
 @app.get("/segmenti/{segmento_id}")
 def dettaglio_segmento(segmento_id: str, chi: Persona = Depends(persona_corrente),
                        conn: sqlite3.Connection = Depends(get_db)) -> Citazione:

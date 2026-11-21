@@ -41,6 +41,7 @@ LLM_PROVIDER=mock .venv/bin/uvicorn backend.app:app     # risposte registrate, n
 | `POST /documenti?progetto_id=prj-01` | manager | multipart `file`: PDF o `.md` integrativo; per i PDF anche `id`, `titolo`, `data` (opzionali) | `EsitoCaricamento` |
 | `GET /documenti?progetto_id=prj-01` | membri | - | `Documento[]` senza segmenti |
 | `GET /documenti/{id}` | membri | - | `Documento` con i segmenti che la persona può leggere; `404` se non è del suo progetto |
+| `DELETE /documenti/{id}` | manager | - | `{documento_id, segmenti, proposte, avvisi}` tolti. Solo se nessuna proposta del documento è approvata, altrimenti `409`; il registro resta |
 | `GET /segmenti/{id}` | vedi sotto | id tipo `riu-001%23s003` (`#` codificato) | `Citazione`, oppure `404` |
 | `GET /proposte?progetto_id=prj-01&stato=in_attesa` | manager | `stato`: `in_attesa` (default), `approvata`, `rifiutata`, `tutte` | `Proposta[]` |
 | `POST /proposte/{id}/approva` | manager | `{"aree": [...] \| null, "modifiche": {...} \| null, "nota": null}` | `Proposta` approvata; `409` se già decisa; `422` se la correzione non è valida |

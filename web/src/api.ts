@@ -115,6 +115,10 @@ export const api = {
     fd.append('file', file)
     return chiama<EsitoCaricamento>(`/riunioni?progetto_id=${progettoId}`, { method: 'POST', body: fd })
   },
+  /** Annulla il caricamento (solo manager, solo se nessuna proposta del documento è approvata; altrimenti 409). */
+  annullaDocumento: (id: string) =>
+    chiama<{ documento_id: string; segmenti: number; proposte: number; avvisi: number }>(
+      `/documenti/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   segmento: (id: string) => chiama<Citazione>(`/segmenti/${encodeURIComponent(id)}`),
 
   proposte: (progettoId: string, stato: Proposta['stato']) =>

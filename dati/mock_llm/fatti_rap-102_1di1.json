@@ -1,0 +1,3 @@
+{"fatti": [
+ {"soggetto": "inverter", "attributo": "costo", "valore": "7.400 € (preventivo aggiornato di Elettrotecnica Piemonte)", "aree": ["fornitori", "budget"], "segmenti": ["rap-102#s003"], "sicurezza": "alta"},
+ {"soggetto": "Davide Conti", "attributo": "altro", "valore": "in ferie la settimana prossima", "aree": ["personale"], "segmenti": ["rap-102#s005"], "sicurezza": "alta"}]}

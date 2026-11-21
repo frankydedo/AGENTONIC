@@ -1,0 +1,6 @@
+{"task": [
+ {"rif": "t1", "titolo": "Preparare il quadro elettrico per il collaudo in officina", "assegnatario_detto": "Rinaldi", "scadenza": "2026-12-10", "aree": ["sviluppo"], "segmenti": ["rap-101#s004", "rap-101#s005"], "sicurezza": "alta", "dipende_da": []},
+ {"rif": "t2", "titolo": "Preparare la lista dei tag del PLC", "assegnatario_detto": "Marco", "scadenza": "2026-11-25", "aree": ["sviluppo"], "segmenti": ["rap-101#s006"], "sicurezza": "media", "dipende_da": []},
+ {"rif": "t3", "titolo": "Realizzare le schermate della HMI", "assegnatario_detto": "Sara Colombo", "scadenza": "2026-12-04", "aree": ["sviluppo"], "segmenti": ["rap-101#s007"], "sicurezza": "alta", "dipende_da": ["t2"]},
+ {"rif": "t4", "titolo": "Aggiornare il manuale d'uso per gli operatori", "assegnatario_detto": null, "scadenza": "2027-01-20", "aree": ["generale"], "segmenti": ["rap-101#s008"], "sicurezza": "media", "dipende_da": []}],
+ "aggiornamenti": []}

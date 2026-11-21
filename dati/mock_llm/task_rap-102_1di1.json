@@ -1,0 +1,3 @@
+{"task": [], "aggiornamenti": [
+ {"task_id": "task-002", "campo": "assegnatario", "valore": "Marco Bianchi", "segmenti": ["rap-102#s001"], "sicurezza": "alta"},
+ {"task_id": "task-001", "campo": "scadenza", "valore": "2026-12-18", "segmenti": ["rap-102#s002"], "sicurezza": "alta"}]}
