@@ -11,7 +11,7 @@ export class Protezione extends Component<{ nome: string; children: ReactNode },
   render() {
     if (this.state.errore) {
       return (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="rounded-[5px] border border-allarme/30 bg-allarme-chiaro p-4 text-sm text-allarme">
           <p className="font-medium">Il pannello «{this.props.nome}» ha avuto un problema.</p>
           <p className="mt-1 font-mono text-xs">{this.state.errore}</p>
           <button onClick={() => this.setState({ errore: null })} className="mt-2 text-xs font-medium underline">

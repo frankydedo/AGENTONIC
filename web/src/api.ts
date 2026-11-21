@@ -37,6 +37,8 @@ const json = (body: unknown): RequestInit => ({ method: 'POST', body: JSON.strin
 // nascondere un errore vero. La UI mostra un'etichetta finché almeno uno è in uso.
 
 const DOC_FINTI: Documento[] = [docRiu001 as Documento]
+// Progetti da provare finché non c'è `GET /progetti` (dati/azienda.json + proposta prj-02, prj-03).
+const PROGETTI_NOTI = ['prj-01', 'prj-02', 'prj-03']
 const fintiInUso = new Set<string>()
 const ascoltatori = new Set<() => void>()
 
@@ -68,6 +70,19 @@ export const api = {
   },
   persone: () => chiama<Persona[]>('/persone'),
   progetto: (id: string) => chiama<Progetto>(`/progetti/${id}`),
+  /**
+   * I progetti di cui la persona attiva è membro. Se `GET /progetti` non esiste ancora (PROPOSTA),
+   * chiede al backend i progetti noti uno per uno: i permessi li decide comunque il backend (403).
+   */
+  async progetti(): Promise<Progetto[]> {
+    try {
+      return await chiama<Progetto[]>('/progetti')
+    } catch (e) {
+      if (!rottaMancante(e)) throw e
+      const esiti = await Promise.allSettled(PROGETTI_NOTI.map((id) => chiama<Progetto>(`/progetti/${id}`)))
+      return esiti.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
+    }
+  },
 
   documenti: (progettoId: string) =>
     conRiserva('documenti', () => chiama<Documento[]>(`/documenti?progetto_id=${progettoId}`),
@@ -96,6 +111,8 @@ export const api = {
   /** URL per EventSource (usa il cookie impostato da apriSessione). */
   urlAvvisi: (progettoId: string) => `${BASE}/avvisi?progetto_id=${progettoId}`,
   risolviAvviso: (id: string) => chiama<Avviso>(`/avvisi/${id}/risolvi`, { method: 'POST' }),
+  inoltraAvviso: (id: string, personaIds: string[], aree: Area[]) =>
+    chiama<Avviso>(`/avvisi/${id}/inoltra`, json({ persona_ids: personaIds, aree })),
 
   todoProgetto: (progettoId: string) => chiama<Task[]>(`/progetti/${progettoId}/todo`),
   todoOggi: (personaId: string) => chiama<TodoOggi>(`/persone/${personaId}/todo-oggi`),

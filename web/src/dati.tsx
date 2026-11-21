@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { api } from './api'
 import { useApp } from './contesto'
 import { titoloProposta } from './lib'
-import type { Area, Avviso, Documento, Modifiche, Proposta, Task } from './tipi'
+import type { Area, Avviso, Documento, Modifiche, PassoRegistro, Proposta, Task } from './tipi'
 
 export interface Dati {
   pronto: boolean
@@ -17,6 +17,9 @@ export interface Dati {
   ricarica: () => Promise<void>
   decidi: (p: Proposta, esito: 'approva' | 'rifiuta', opz?: { aree?: Area[]; modifiche?: Modifiche }) => Promise<void>
   risolvi: (id: string) => Promise<void>
+  inoltra: (id: string, personaIds: string[], aree: Area[]) => Promise<boolean>
+  /** Passi del workflow arrivati in diretta (evento SSE `passo`, PROPOSTA di contratto). */
+  passiLive: PassoRegistro[]
   propostaDiAvviso: (a: Avviso) => Proposta | undefined
   avvisoDiProposta: (p: Proposta) => Avviso | undefined
 }
@@ -38,6 +41,7 @@ export function DatiProvider({ children }: { children: ReactNode }) {
   const [proposteServer, setProposteServer] = useState<Proposta[]>([])
   const [decise, setDecise] = useState<Record<string, Proposta>>({})
   const [avvisiServer, setAvvisiServer] = useState<Avviso[]>([])
+  const [passiLive, setPassiLive] = useState<PassoRegistro[]>([])
   const [risolti, setRisolti] = useState<Set<string>>(new Set())
   const [task, setTask] = useState<Task[]>([])
   const [connesso, setConnesso] = useState(false)
@@ -72,6 +76,10 @@ export function DatiProvider({ children }: { children: ReactNode }) {
       es.addEventListener('avviso', (ev) => {
         const a: Avviso = JSON.parse((ev as MessageEvent).data)
         setAvvisiServer((xs) => [a, ...xs.filter((x) => x.id !== a.id)])
+      })
+      es.addEventListener('passo', (ev) => {
+        const p: PassoRegistro = JSON.parse((ev as MessageEvent).data)
+        setPassiLive((xs) => [...xs, p])
       })
     }
     const chiudi = () => { es?.close(); es = null; setConnesso(false) }
@@ -109,6 +117,18 @@ export function DatiProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  const inoltra = useCallback<Dati['inoltra']>(async (id, personaIds, aree) => {
+    try {
+      const a = await api.inoltraAvviso(id, personaIds, aree)
+      setAvvisiServer((xs) => xs.map((x) => (x.id === id ? { ...x, ...a } : x)))
+      toast.success('Avviso inoltrato', { description: 'Ora lo vede chi hai scelto.' })
+      return true
+    } catch (e) {
+      toast.error('Non riesco a inoltrare l\'avviso', { description: (e as Error).message })
+      return false
+    }
+  }, [])
+
   const decidi = useCallback<Dati['decidi']>(async (p, esito, opz = {}) => {
     try {
       const r = esito === 'approva'
@@ -128,7 +148,8 @@ export function DatiProvider({ children }: { children: ReactNode }) {
   }, [avvisoDiProposta, risolvi, caricaTask])
 
   const valore: Dati = {
-    pronto, documenti, proposte, avvisi, task, connesso, ricarica, decidi, risolvi, propostaDiAvviso, avvisoDiProposta,
+    pronto, documenti, proposte, avvisi, task, connesso, ricarica, decidi, risolvi, inoltra, passiLive,
+    propostaDiAvviso, avvisoDiProposta,
   }
   return <Ctx.Provider value={valore}>{children}</Ctx.Provider>
 }

@@ -57,3 +57,36 @@ leggere **anche il manager del progetto**. Finché è 403, la UI la stima dai ta
 Nessuna modifica obbligatoria: la UI fa partire la barra dalla data della riunione citata e la fa finire
 alla scadenza. Un task che dipende da un altro parte quando scade quello. Se servisse una data di inizio
 esplicita, basta un campo opzionale `Task.inizio: str | None`.
+
+## 6. Progetti multipli e aree aziendali (aggiunto 21/11, 14:45)
+
+L'azienda è divisa in aree (reparti) e più aree lavorano sullo stesso progetto. La UI ha già il selettore
+del progetto; servono dal backend:
+
+- `GET /progetti` → `Progetto[]` di cui la persona attiva è membro (il manager di un progetto è membro).
+  Finché manca, la UI prova `GET /progetti/{id}` per `prj-01`, `prj-02`, `prj-03` e tiene quelli che non
+  danno 403/404: **i permessi restano del backend**.
+- Campo opzionale `Persona.reparto: str | None` (area aziendale, diversa dalle *competenze*).
+- In `dati/azienda.json` due progetti in più, usati dai file d'esempio (`~/Desktop/File esempio`).
+  Il manager cambia da progetto a progetto:
+
+```json
+{ "id": "prj-02", "nome": "Retrofit sicurezza pressa 2", "cliente": "Officine Meccaniche Canavese S.r.l.",
+  "manager_id": "p-02", "membri": ["p-02", "p-03", "p-05", "p-06", "p-07"], "scadenza": "2026-12-21",
+  "descrizione": "Barriere fotoelettriche, circuito di sicurezza e arresto di emergenza sulla pressa piegatrice 2." },
+{ "id": "prj-03", "nome": "Certificazione ISO 9001", "cliente": "interno",
+  "manager_id": "p-08", "membri": ["p-08", "p-01", "p-04", "p-06"], "scadenza": "2027-03-03",
+  "descrizione": "Procedure, qualifica fornitori e audit dell'ente certificatore." }
+```
+
+Reparti proposti: p-01 Direzione progetti · p-02, p-04 Ufficio tecnico software · p-03 Ufficio tecnico
+elettrico · p-05 Commerciale · p-06 Acquisti · p-07 Service e messa in servizio · p-08 Amministrazione.
+
+## 7. Il Brain che lavora, in diretta
+
+La UI mostra il Brain al lavoro quando si carica una riunione (pulsante «Carica riunione»):
+- mentre aspetta, elenca i passi fissi del workflow, senza inventare avanzamenti;
+- alla fine mostra i passi veri da `GET /registro`, filtrati per `documento_id`, con output, modello e durata.
+
+Per l'avanzamento **in diretta**: durante l'analisi, `GET /avvisi` (SSE, solo al manager) emette un
+evento `passo` con un `PassoRegistro` JSON per ogni passo completato. La UI lo ascolta già.

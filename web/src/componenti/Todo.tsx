@@ -17,19 +17,19 @@ export function RigaTask({ t, conAssegnatario = true, compatta = false }: { t: T
   return (
     <div className="min-w-0 flex-1">
       <div className="flex flex-wrap items-center gap-2">
-        <span className={clsx('font-medium text-slate-900', t.stato === 'fatto' && 'text-slate-400 line-through')}>{t.titolo}</span>
+        <span className={clsx('font-semibold', t.stato === 'fatto' && 'text-traccia line-through')}>{t.titolo}</span>
         <StatoBadge stato={t.stato} />
       </div>
-      <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+      <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-grafite">
         {conAssegnatario && (assegnatario
           ? <span className="inline-flex items-center gap-1.5"><Avatar persona={assegnatario} size={20} />{assegnatario.nome}</span>
           : <Badge tono="giallo">Nessun responsabile</Badge>)}
-        <span className="text-slate-500">entro {dataBreve(t.scadenza)}</span>
+        <span className="condensato">entro {dataBreve(t.scadenza)}</span>
         <Scadenza iso={t.scadenza} stato={t.stato} />
         {!compatta && t.aree.map((a) => <ChipArea key={a} area={a} />)}
       </div>
       {bloccanti.length > 0 && (
-        <p className="mt-1.5 inline-flex items-center gap-1.5 text-sm text-red-600">
+        <p className="mt-1.5 inline-flex items-center gap-1.5 text-sm font-medium text-allarme">
           <Lock size={13} /> Aspetta: {bloccanti.map((b) => `${b.titolo} (${persone[b.assegnatario_id ?? '']?.nome ?? '?'})`).join(', ')}
         </p>
       )}
@@ -102,10 +102,10 @@ export function TodoOggi() {
         <div className="p-5">
           <ul className="space-y-2">
             {todo.task.map((t) => (
-              <li key={t.id} className={clsx('flex gap-3 rounded-xl border border-slate-200 p-3 transition', tolti.has(t.id) && 'opacity-40')}>
+              <li key={t.id} className={clsx('flex gap-3 rounded-[5px] border border-linea bg-foglio p-3 transition-opacity', tolti.has(t.id) && 'border-dashed opacity-45')}>
                 {!todo.accettata && (
                   <input type="checkbox" checked={!tolti.has(t.id)} onChange={() => alterna(t.id)}
-                    className="mt-1 h-4 w-4 accent-indigo-600" aria-label={`Includi oggi: ${t.titolo}`} />
+                    className="mt-1 h-4 w-4 accent-[var(--color-inchiostro)]" aria-label={`Includi oggi: ${t.titolo}`} />
                 )}
                 <RigaTask t={t} conAssegnatario={false} />
               </li>

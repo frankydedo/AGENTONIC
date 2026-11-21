@@ -15,11 +15,11 @@ const GRUPPO = 40      // altezza dell'intestazione di una persona
 const SINISTRA = 260   // colonna dei nomi
 
 const COLORI: Record<StatoTask, string> = {
-  da_fare: 'bg-slate-400/90 hover:bg-slate-500',
-  in_corso: 'bg-indigo-500 hover:bg-indigo-600',
-  bloccato: 'bg-red-500 hover:bg-red-600',
-  fatto: 'bg-emerald-500 hover:bg-emerald-600',
-  annullato: 'bg-slate-300',
+  da_fare: 'bg-grafite hover:bg-inchiostro text-foglio',
+  in_corso: 'bg-cavo hover:brightness-110 text-foglio',
+  bloccato: 'bg-allarme hover:brightness-110 text-foglio',
+  fatto: 'bg-timbro hover:brightness-110 text-foglio',
+  annullato: 'bg-linea-forte text-foglio',
 }
 
 type Riga = { tipo: 'gruppo'; persona: Persona | null; n: number } | { tipo: 'task'; t: Task; da: Date; a: Date; aperto: boolean }
@@ -91,22 +91,22 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
   }
   const larghezza = giorni * GIORNO
 
-  if (!righe.length) return <p className="p-8 text-center text-sm text-slate-500">Nessun task da mostrare.</p>
+  if (!righe.length) return <p className="p-8 text-center text-sm text-grafite">Nessun task da mostrare.</p>
 
   return (
     <>
       <div ref={scorri} className="relative overflow-x-auto">
         <div style={{ width: SINISTRA + larghezza }}>
           {/* intestazione: mesi e giorni */}
-          <div className="sticky top-0 z-30 flex border-b border-slate-200 bg-white/95 backdrop-blur">
-            <div style={{ width: SINISTRA }} className="sticky left-0 z-10 flex shrink-0 items-end border-r border-slate-200 bg-white px-4 pb-2 text-xs font-medium text-slate-500">
+          <div className="sticky top-0 z-30 flex border-b-[1.5px] border-inchiostro bg-foglio/95 backdrop-blur">
+            <div style={{ width: SINISTRA }} className="sticky left-0 z-10 flex shrink-0 items-end border-r border-linea bg-foglio px-4 pb-2 text-xs font-semibold text-grafite">
               Persona e task
             </div>
             <div style={{ width: larghezza }}>
               <div className="relative h-6">
                 {mesi.map((m) => (
                   <span key={m.etichetta} style={{ left: m.da * GIORNO, width: m.n * GIORNO }}
-                    className="absolute top-1 truncate border-l border-slate-200 pl-2 text-xs font-semibold text-slate-700 capitalize first:border-l-0">
+                    className="absolute top-1 truncate border-l border-linea pl-2 text-xs font-bold first-letter:uppercase first:border-l-0">
                     {m.etichetta}
                   </span>
                 ))}
@@ -114,8 +114,7 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
               <div className="flex">
                 {giorniArr.map((d) => (
                   <span key={+d} style={{ width: GIORNO }}
-                    className={clsx('shrink-0 py-1 text-center text-[10px]', isWeekend(d) ? 'text-slate-300' : 'text-slate-500',
-                      +d === +oggi() && 'rounded-t-md bg-indigo-600 font-semibold text-white')}>
+                    className={clsx('condensato shrink-0 py-1 text-center text-[11px] leading-tight', +d === +oggi() ? 'rounded-t-[3px] bg-segnale font-bold text-inchiostro' : isWeekend(d) ? 'text-traccia/70' : 'text-grafite')}>
                     {format(d, 'EEEEE', { locale: it })}<br />{format(d, 'd')}
                   </span>
                 ))}
@@ -127,10 +126,10 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
           <div className="relative">
             {/* sfondo: weekend, oggi, collaudo */}
             <div className="pointer-events-none absolute top-0 bottom-0" style={{ left: SINISTRA, width: larghezza }}>
-              {giorniArr.map((d, i) => isWeekend(d) && <div key={i} className="absolute top-0 bottom-0 bg-slate-50" style={{ left: i * GIORNO, width: GIORNO }} />)}
-              <div className="absolute top-0 bottom-0 w-0.5 bg-indigo-500/70" style={{ left: xOggi + GIORNO / 2 }} />
-              <div className="absolute top-0 bottom-0 border-l-2 border-dashed border-rose-400" style={{ left: xCollaudo + GIORNO / 2 }}>
-                <span className="absolute top-1 left-1 inline-flex items-center gap-1 rounded bg-rose-50 px-1.5 py-0.5 text-[10px] font-semibold whitespace-nowrap text-rose-600">
+              {giorniArr.map((d, i) => isWeekend(d) && <div key={i} className="absolute top-0 bottom-0 bg-[repeating-linear-gradient(135deg,transparent_0_5px,var(--color-velina)_5px_6px)]" style={{ left: i * GIORNO, width: GIORNO }} />)}
+              <div className="absolute top-0 bottom-0 w-[2px] bg-segnale" style={{ left: xOggi + GIORNO / 2 }} />
+              <div className="absolute top-0 bottom-0 border-l-2 border-inchiostro" style={{ left: xCollaudo + GIORNO / 2 }}>
+                <span className="absolute top-1 left-0 inline-flex items-center gap-1 rounded-r-[3px] bg-inchiostro px-1.5 py-0.5 text-[11px] font-bold whitespace-nowrap text-foglio">
                   <Flag size={10} /> Collaudo
                 </span>
               </div>
@@ -140,7 +139,7 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
             <svg className="pointer-events-none absolute top-0 z-[3]" style={{ left: SINISTRA }} width={larghezza} height={altezza}>
               <defs>
                 <marker id="freccia" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
-                  <path d="M0,0 L8,4 L0,8 z" className="fill-red-400" />
+                  <path d="M0,0 L8,4 L0,8 z" className="fill-allarme" />
                 </marker>
               </defs>
               {righe.flatMap((r) => r.tipo !== 'task' ? [] : r.t.dipende_da.filter((d) => y[d] != null).map((d) => {
@@ -151,23 +150,23 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
                   ? `M${x1},${y1} H${x1 + 8} V${y2} H${x2}`
                   : `M${x1},${y1} H${x1 + 8} V${y2 - RIGA / 2 + 9}`
                 return <path key={`${d}-${r.t.id}`} d={traccia} fill="none"
-                  className="stroke-red-400" strokeWidth={1.5} strokeDasharray="4 3" markerEnd="url(#freccia)" />
+                  className="stroke-allarme" strokeWidth={1.5} strokeDasharray="4 3" markerEnd="url(#freccia)" />
               }))}
             </svg>
 
             {righe.map((r, i) => r.tipo === 'gruppo' ? (
-              <div key={`g${i}`} className="flex border-b border-slate-100 bg-slate-50/80" style={{ height: GRUPPO }}>
-                <div style={{ width: SINISTRA }} className="sticky left-0 z-20 flex shrink-0 items-center gap-2 border-r border-slate-200 bg-slate-50 px-4">
+              <div key={`g${i}`} className="flex border-b border-linea bg-velina/70" style={{ height: GRUPPO }}>
+                <div style={{ width: SINISTRA }} className="sticky left-0 z-20 flex shrink-0 items-center gap-2 border-r border-linea bg-velina px-4">
                   <Avatar persona={r.persona} size={24} />
-                  <span className="truncate text-sm font-semibold text-slate-800">{r.persona?.nome ?? 'Senza responsabile'}</span>
-                  <span className="ml-auto text-xs text-slate-400">{r.n}</span>
+                  <span className="truncate text-sm font-bold">{r.persona?.nome ?? 'Senza responsabile'}</span>
+                  <span className="condensato ml-auto text-xs text-grafite">{r.n}</span>
                 </div>
               </div>
             ) : (
-              <div key={r.t.id} className="group flex border-b border-slate-100" style={{ height: RIGA }}>
+              <div key={r.t.id} className="group flex border-b border-linea/70" style={{ height: RIGA }}>
                 <button onClick={() => setScelto(r.t)} style={{ width: SINISTRA }}
-                  className="sticky left-0 z-20 flex shrink-0 items-center gap-2 border-r border-slate-200 bg-white px-4 pl-12 text-left text-sm text-slate-700 group-hover:bg-slate-50">
-                  {r.t.dipende_da.length > 0 && <Lock size={12} className="shrink-0 text-red-500" />}
+                  className="sticky left-0 z-20 flex shrink-0 items-center gap-2 border-r border-linea bg-foglio px-4 pl-12 text-left text-sm group-hover:bg-velina">
+                  {r.t.dipende_da.length > 0 && <Lock size={12} className="shrink-0 text-allarme" />}
                   <span className="truncate">{r.t.titolo}</span>
                 </button>
                 <div className="relative" style={{ width: larghezza }}>
@@ -175,8 +174,8 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
                     onClick={() => setScelto(r.t)}
                     title={`${r.t.titolo} · ${etichettaStato(r.t.stato)}`}
                     style={{ left: x(r.da) + 2, width: Math.max(GIORNO - 4, x(r.a) - x(r.da) + GIORNO - 4), top: 9, height: RIGA - 18 }}
-                    className={clsx('absolute z-[2] flex items-center overflow-hidden rounded-md px-2 text-xs font-medium whitespace-nowrap text-white shadow-sm transition', COLORI[r.t.stato],
-                      r.aperto && 'opacity-60 ring-1 ring-white ring-inset')}
+                    className={clsx('condensato absolute z-[2] flex items-center overflow-hidden rounded-[3px] px-2 text-[12.5px] font-semibold whitespace-nowrap transition', COLORI[r.t.stato],
+                      r.aperto && 'opacity-60 [mask-image:linear-gradient(90deg,#000_70%,transparent)]')}
                   >
                     {r.t.titolo}
                   </button>
@@ -187,13 +186,13 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 border-t border-slate-100 px-5 py-3 text-xs text-slate-500">
+      <div className="flex flex-wrap items-center gap-4 border-t border-linea px-5 py-3 text-xs text-grafite">
         {(['da_fare', 'in_corso', 'bloccato', 'fatto'] as StatoTask[]).map((s) => (
-          <span key={s} className="inline-flex items-center gap-1.5"><span className={clsx('h-2.5 w-2.5 rounded-sm', COLORI[s])} />{etichettaStato(s)}</span>
+          <span key={s} className="inline-flex items-center gap-1.5"><span className={clsx('h-2.5 w-2.5 rounded-[2px]', COLORI[s])} />{etichettaStato(s)}</span>
         ))}
-        <span className="inline-flex items-center gap-1.5"><span className="h-3 w-0.5 bg-indigo-500" />Oggi</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-3 border-l-2 border-dashed border-rose-400" />Collaudo</span>
-        <span className="inline-flex items-center gap-1.5"><span className="w-4 border-t-2 border-dashed border-red-400" />Dipendenza</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-3 w-[2px] bg-segnale" />Oggi</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-3 border-l-2 border-inchiostro" />Collaudo</span>
+        <span className="inline-flex items-center gap-1.5"><span className="w-4 border-t-2 border-dashed border-allarme" />Dipendenza</span>
         <span className="ml-auto">La barra va dalla riunione in cui nasce il task alla sua scadenza.</span>
       </div>
 

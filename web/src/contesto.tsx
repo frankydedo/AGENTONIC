@@ -4,6 +4,8 @@ import type { Persona, Progetto } from './tipi'
 export interface Contesto {
   io: Persona
   progetto: Progetto
+  progetti: Progetto[] // quelli di cui la persona è membro
+  scegliProgetto: (id: string) => void
   persone: Record<string, Persona>
   membri: Persona[]
   sonoManager: boolean

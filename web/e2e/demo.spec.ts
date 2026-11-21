@@ -100,9 +100,9 @@ test('un membro non vede proposte, avvisi riservati e registro', async ({ page }
   await expect(page.getByText('Solo per il manager')).toBeVisible()
 })
 
-test('chi è fuori dal progetto non vede nulla', async ({ page }) => {
+test('chi è fuori dai progetti non vede nulla', async ({ page }) => {
   await entraCome(page, 'p-08')
-  await expect(page.getByText('non fai parte di questo progetto')).toBeVisible()
+  await expect(page.getByText('non fai parte di nessun progetto')).toBeVisible()
   await expect(page.getByText('Revamping linea')).toHaveCount(0)
 })
 
@@ -123,4 +123,32 @@ test('regressione: dopo molti ricaricamenti il backend risponde ancora', async (
   await page.getByRole('link', { name: 'Chiedi al Brain' }).first().click()
   await chiedi(page, 'Quanto budget resta?')
   await expect(page.getByText('Restano 35.500 € di budget')).toBeVisible()
+})
+
+test('il manager carica una riunione e vede il Brain lavorare passo per passo', async ({ page }) => {
+  await entraCome(page, 'p-01')
+  await page.getByRole('button', { name: 'Carica riunione' }).click()
+  const finestra = page.getByRole('dialog', { name: 'Carica una riunione' })
+  await finestra.locator('input[type=file]').setInputFiles('../dati/riunioni/riu-001.md')
+  await expect(finestra.getByText('Analisi completata')).toBeVisible()
+  await expect(finestra.getByText('proposte da decidere')).toBeVisible()
+  await expect(finestra.getByText(/Il Brain ha letto «Kick-off revamping linea 3»/)).toBeVisible()
+  await finestra.getByRole('button', { name: 'Rivedi le proposte' }).click()
+  await expect(page).toHaveURL(/\/documenti\/riu-001$/)
+})
+
+test('il registro si legge in italiano, i dati grezzi solo nei dettagli tecnici', async ({ page }) => {
+  await entraCome(page, 'p-01', '/registro')
+  await expect(page.getByText(/Il Brain ha letto «Kick-off revamping linea 3»/)).toBeVisible()
+  await expect(page.getByText('Giulia Ferraris ha approvato la proposta prop-001')).toBeVisible()
+  await expect(page.getByText('16 segmenti')).toBeVisible()
+  await expect(page.getByText('"segmenti": 16')).toBeHidden()
+  await page.getByText('Dettagli tecnici').first().click()
+  await expect(page.locator('pre').first()).toBeVisible()
+})
+
+test('si sceglie il progetto tra quelli di cui si è membri', async ({ page }) => {
+  await entraCome(page, 'p-01')
+  await page.getByRole('button', { name: /Revamping linea di confezionamento 3/ }).first().click()
+  await expect(page.getByText(/I tuoi progetti \(\d+\)/)).toBeVisible()
 })
