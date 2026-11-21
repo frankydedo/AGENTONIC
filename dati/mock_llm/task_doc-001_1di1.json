@@ -1,0 +1,25 @@
+{
+  "task": [
+    {
+      "rif": "t1",
+      "titolo": "Rendere bilingue la HMI (italiano e inglese), con cambio lingua dalla schermata principale e allarmi tradotti",
+      "assegnatario_detto": null,
+      "scadenza": null,
+      "aree": ["sviluppo"],
+      "segmenti": ["doc-001#p01s04"],
+      "sicurezza": "media",
+      "dipende_da": []
+    },
+    {
+      "rif": "t2",
+      "titolo": "Preparare le prove di collaudo con tre formati di pasta (penne rigate, fusilli, spaghetti), due ore per formato",
+      "assegnatario_detto": null,
+      "scadenza": null,
+      "aree": ["sviluppo"],
+      "segmenti": ["doc-001#p01s05"],
+      "sicurezza": "media",
+      "dipende_da": []
+    }
+  ],
+  "aggiornamenti": []
+}

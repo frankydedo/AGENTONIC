@@ -36,6 +36,7 @@ class Persona(BaseModel):
     id: str
     nome: str
     ruolo: str
+    reparto: str | None = None   # area aziendale (reparto); diversa dalle competenze
     alias: list[str] = []
     competenze: list[Area] = []
 
@@ -53,13 +54,14 @@ class Progetto(BaseModel):
 # --- Documenti in ingresso ----------------------------------------------------------------------
 
 class Segmento(BaseModel):
-    """Un turno di parola: l'unità che si cita."""
-    id: str                      # "riu-001#s001"
+    """Un turno di parola (riunione) o un paragrafo (PDF): l'unità che si cita."""
+    id: str                      # "riu-001#s001"; PDF: "doc-001#p02s03" (pagina 2, paragrafo 3)
     documento_id: str
     speaker: str                 # nome grezzo detto o scritto nel documento
     persona_id: str | None = None  # abbinato dal codice, mai dal modello
     inizio: float | None = None  # secondi dall'inizio (solo da audio)
     fine: float | None = None
+    pagina: int | None = None    # solo PDF, da 1
     testo: str
 
 
@@ -67,7 +69,7 @@ class Documento(BaseModel):
     id: str                      # "riu-001"
     progetto_id: str
     tipo: Literal["riunione", "integrativo"]
-    formato: Literal["minuta", "trascrizione", "audio", "pdf"]
+    formato: Literal["minuta", "trascrizione", "audio", "video", "pdf"]
     titolo: str
     data: str                    # AAAA-MM-GG
     ora_inizio: str | None = None
@@ -84,6 +86,7 @@ class Citazione(BaseModel):
     orario: str | None = None    # "09:30" o offset del segmento, se noto
     speaker: str
     frase: str
+    pagina: int | None = None    # solo PDF: la UI mostra «pag. N»
 
 
 # --- Output del modello (step di estrazione, Franky) -------------------------------------------
@@ -210,6 +213,7 @@ class Avviso(BaseModel):
     basato_su_proposte: list[str] = []
     solo_manager: bool = True               # finché il manager non lo inoltra, lo vede solo lui
     inoltrato_a: list[str] = []             # id di persone a cui il manager l'ha inoltrato
+    proposta_id: str | None = None          # la proposta da correggere (punto oscuro): la collega il backend
     risolto: bool = False
     creato_il: datetime | None = None       # assegnato dal backend al salvataggio
 
@@ -275,7 +279,8 @@ def puo_vedere(persona: Persona, progetto: Progetto, aree: list[str]) -> bool:
 
     - deve essere membro del progetto;
     - il manager del progetto vede tutto;
-    - `generale` è visibile a tutti i membri;
+    - `generale` è visibile a tutti i membri, ma SOLO se è l'unica area: `[budget, generale]`
+      vale come `[budget]` (altrimenti un dato riservato diventerebbe visibile a tutti);
     - altrimenti basta un'area in comune con le competenze della persona.
     Un elemento senza aree non è visibile (default restrittivo), salvo al manager.
     """
@@ -283,9 +288,9 @@ def puo_vedere(persona: Persona, progetto: Progetto, aree: list[str]) -> bool:
         return False
     if persona.id == progetto.manager_id:
         return True
-    if "generale" in aree:
+    if list(dict.fromkeys(aree)) == ["generale"]:
         return True
-    return bool(set(aree) & set(persona.competenze))
+    return bool((set(aree) - {"generale"}) & set(persona.competenze))
 
 
 def puo_vedere_avviso(persona: Persona, progetto: Progetto, avviso: Avviso) -> bool:

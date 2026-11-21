@@ -1,0 +1,48 @@
+{
+  "task": [
+    {
+      "rif": "t1",
+      "titolo": "Correggere l'interblocco dell'arresto d'emergenza nel programma PLC",
+      "assegnatario_detto": "Marco Bianchi",
+      "scadenza": "2026-12-02",
+      "aree": [
+        "sviluppo"
+      ],
+      "segmenti": [
+        "riu-005#s004",
+        "riu-005#s005"
+      ],
+      "sicurezza": "alta",
+      "dipende_da": []
+    },
+    {
+      "rif": "t2",
+      "titolo": "Ripetere la prova al banco del programma PLC corretto",
+      "assegnatario_detto": "Davide",
+      "scadenza": "2026-12-03",
+      "aree": [
+        "sviluppo"
+      ],
+      "segmenti": [
+        "riu-005#s006",
+        "riu-005#s007"
+      ],
+      "sicurezza": "alta",
+      "dipende_da": [
+        "t1"
+      ]
+    }
+  ],
+  "aggiornamenti": [
+    {
+      "task_id": "task-005",
+      "campo": "scadenza",
+      "valore": "2026-12-09",
+      "segmenti": [
+        "riu-005#s008",
+        "riu-005#s009"
+      ],
+      "sicurezza": "alta"
+    }
+  ]
+}

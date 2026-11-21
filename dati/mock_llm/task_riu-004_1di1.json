@@ -1,0 +1,51 @@
+{
+  "task": [],
+  "aggiornamenti": [
+    {
+      "task_id": "task-004",
+      "campo": "stato",
+      "valore": "fatto",
+      "segmenti": [
+        "riu-004#s002"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "task_id": "task-005",
+      "campo": "stato",
+      "valore": "in_corso",
+      "segmenti": [
+        "riu-004#s003",
+        "riu-004#s004"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "task_id": "task-003",
+      "campo": "stato",
+      "valore": "fatto",
+      "segmenti": [
+        "riu-004#s006"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "task_id": "task-002",
+      "campo": "stato",
+      "valore": "in_corso",
+      "segmenti": [
+        "riu-004#s007"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "task_id": "task-009",
+      "campo": "stato",
+      "valore": "in_corso",
+      "segmenti": [
+        "riu-004#s010"
+      ],
+      "sicurezza": "alta"
+    }
+  ]
+}

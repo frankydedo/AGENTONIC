@@ -1,5 +1,5 @@
 {
-  "_nota": "BOZZA di Franky del 21/11, da rivedere con Pietro (proprietario del file). Dati sintetici. Aree ammesse: sviluppo, budget, commerciale, fornitori, personale, generale.",
+  "_nota": "Dati sintetici di una PMI inventata. Aree ammesse (competenze): sviluppo, budget, commerciale, fornitori, personale, generale. Il reparto è l'area aziendale della persona; le competenze decidono cosa può vedere.",
   "azienda": {
     "nome": "Automazioni Dora S.r.l.",
     "settore": "automazione industriale (quadri elettrici, PLC, HMI, revamping di linee)",
@@ -10,6 +10,7 @@
       "id": "p-01",
       "nome": "Giulia Ferraris",
       "ruolo": "project manager",
+      "reparto": "Direzione progetti",
       "alias": ["Giulia", "Ferraris"],
       "competenze": ["sviluppo", "budget", "commerciale", "fornitori", "personale", "generale"]
     },
@@ -17,6 +18,7 @@
       "id": "p-02",
       "nome": "Marco Bianchi",
       "ruolo": "senior software engineer PLC",
+      "reparto": "Ufficio tecnico software",
       "alias": ["Marco B.", "Bianchi"],
       "competenze": ["sviluppo", "budget", "generale"],
       "_nota": "sviluppo dal ruolo, budget aggiunto personalmente (senior)"
@@ -25,6 +27,7 @@
       "id": "p-03",
       "nome": "Marco Rinaldi",
       "ruolo": "tecnico quadri elettrici",
+      "reparto": "Ufficio tecnico elettrico",
       "alias": ["Marco R.", "Rinaldi"],
       "competenze": ["sviluppo", "generale"]
     },
@@ -32,6 +35,7 @@
       "id": "p-04",
       "nome": "Sara Colombo",
       "ruolo": "sviluppatrice HMI/SCADA",
+      "reparto": "Ufficio tecnico software",
       "alias": ["Sara", "Colombo"],
       "competenze": ["sviluppo", "generale"]
     },
@@ -39,6 +43,7 @@
       "id": "p-05",
       "nome": "Luca Gallo",
       "ruolo": "account commerciale",
+      "reparto": "Commerciale",
       "alias": ["Luca", "Gallo"],
       "competenze": ["commerciale", "generale"]
     },
@@ -46,6 +51,7 @@
       "id": "p-06",
       "nome": "Elena Russo",
       "ruolo": "responsabile acquisti",
+      "reparto": "Acquisti",
       "alias": ["Elena", "Russo"],
       "competenze": ["fornitori", "budget", "generale"]
     },
@@ -53,6 +59,7 @@
       "id": "p-07",
       "nome": "Davide Conti",
       "ruolo": "tecnico di messa in servizio",
+      "reparto": "Service e messa in servizio",
       "alias": ["Davide", "Conti"],
       "competenze": ["sviluppo", "generale"]
     },
@@ -60,6 +67,7 @@
       "id": "p-08",
       "nome": "Paola Greco",
       "ruolo": "amministrazione e personale",
+      "reparto": "Amministrazione",
       "alias": ["Paola", "Greco"],
       "competenze": ["personale", "budget", "generale"],
       "_nota": "non è membro del progetto prj-01"
@@ -74,6 +82,24 @@
       "membri": ["p-01", "p-02", "p-03", "p-04", "p-05", "p-06", "p-07"],
       "scadenza": "2027-01-20",
       "descrizione": "Sostituzione del PLC e del quadro elettrico della linea 3, nuova HMI, collaudo presso il cliente."
+    },
+    {
+      "id": "prj-02",
+      "nome": "Retrofit sicurezza pressa 2",
+      "cliente": "Officine Meccaniche Canavese S.r.l.",
+      "manager_id": "p-02",
+      "membri": ["p-02", "p-03", "p-05", "p-06", "p-07"],
+      "scadenza": "2026-12-21",
+      "descrizione": "Barriere fotoelettriche, circuito di sicurezza e arresto di emergenza sulla pressa piegatrice 2."
+    },
+    {
+      "id": "prj-03",
+      "nome": "Certificazione ISO 9001",
+      "cliente": "interno",
+      "manager_id": "p-08",
+      "membri": ["p-08", "p-01", "p-04", "p-06"],
+      "scadenza": "2027-03-03",
+      "descrizione": "Procedure, qualifica fornitori e audit dell'ente certificatore."
     }
   ]
 }

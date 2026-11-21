@@ -1,6 +1,7 @@
 """F1: provider del modello. Nessuna chiamata di rete: il provider vero usa un trasporto finto."""
 
 import json
+import traceback
 
 import httpx
 import pytest
@@ -96,3 +97,74 @@ def test_alias_openai_compat(monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "boh")
     with pytest.raises(ValueError):
         Config.da_ambiente()
+
+
+# --- REVISIONE 7 e 10: strict spento, ogni guasto diventa LLMNonDisponibile, mai segreti ----------
+
+def risponde(risposta: httpx.Response) -> httpx.Client:
+    return httpx.Client(transport=httpx.MockTransport(lambda req: risposta))
+
+
+def test_strict_spento_nello_json_schema():
+    ricevuti: list[dict] = []
+    client = finto_server(['{"risposta": "ok", "sicurezza": "alta"}'], ricevuti)
+    chat(MSG, Esempio, chiave="prova", config=cfg_locale(), client=client)
+    assert ricevuti[0]["corpo"]["response_format"]["json_schema"]["strict"] is False
+
+
+@pytest.mark.parametrize("risposta", [
+    httpx.Response(200, json={"choices": [{"message": None}]}),                     # message null
+    httpx.Response(200, json={"choices": []}),
+    httpx.Response(200, json={"errore": "forma inattesa"}),
+    httpx.Response(200, json={"choices": [{"message": {"content": ["non", "testo"]}}]}),
+    httpx.Response(200, text="<html>non è JSON</html>"),
+    httpx.Response(401, json={"error": "chiave SEGRETO rifiutata"}),
+    httpx.Response(500, text="errore interno"),
+])
+def test_risposta_inattesa_llm_non_disponibile_senza_segreti(risposta):
+    with pytest.raises(LLMNonDisponibile) as e:
+        chat(MSG, Esempio, chiave="prova", config=cfg_locale(), client=risponde(risposta))
+    traccia = "".join(traceback.format_exception(e.value))
+    assert "SEGRETO" not in str(e.value) and "SEGRETO" not in repr(e.value) and "SEGRETO" not in traccia
+
+
+def test_content_null_e_un_output_non_valido():
+    risposta = httpx.Response(200, json={"choices": [{"message": {"content": None}}]})
+    with pytest.raises(OutputNonValido):
+        chat(MSG, Esempio, chiave="prova", config=cfg_locale(), client=risponde(risposta))
+
+
+@pytest.mark.parametrize("url", ["http://[::1", "air.local:1234/v1", "ftp://air.local/v1"])
+def test_url_non_valido_llm_non_disponibile(url):
+    cfg = Config(provider="locale", base_url=url, modello="qwen", api_key="SEGRETO", timeout_s=1)
+    with pytest.raises(LLMNonDisponibile) as e:        # fallisce prima di aprire una connessione
+        chat(MSG, chiave="prova", config=cfg)
+    assert "SEGRETO" not in str(e.value)
+
+
+def test_client_che_non_si_crea_llm_non_disponibile(monkeypatch):
+    def rotto(**_):
+        raise ImportError("proxy SOCKS senza socksio")
+    monkeypatch.setattr(httpx, "Client", rotto)
+    with pytest.raises(LLMNonDisponibile):
+        chat(MSG, chiave="prova", config=cfg_locale())
+
+
+@pytest.mark.parametrize("variabile", ["LLM_TEMPERATURE", "LLM_TIMEOUT"])
+def test_numero_non_valido_nel_env(monkeypatch, variabile):
+    monkeypatch.setenv("LLM_PROVIDER", "mock")
+    monkeypatch.setenv("LLM_API_KEY", "SEGRETO")
+    monkeypatch.setenv(variabile, "SEGRETO-nel-posto-sbagliato")
+    with pytest.raises(ValueError) as e:
+        Config.da_ambiente()
+    assert variabile in str(e.value) and "SEGRETO" not in str(e.value)
+    with pytest.raises(LLMNonDisponibile) as e:        # da `chat` esce come modello non disponibile
+        chat(MSG, chiave="prova")
+    assert variabile in str(e.value) and "SEGRETO" not in str(e.value)
+
+
+def test_chiave_api_mai_in_repr(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "cloud")
+    monkeypatch.setenv("LLM_API_KEY", "SEGRETO")
+    cfg = Config.da_ambiente()
+    assert cfg.api_key == "SEGRETO" and "SEGRETO" not in repr(cfg) and "SEGRETO" not in str(cfg)

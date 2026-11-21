@@ -1,0 +1,12 @@
+{
+  "punti_oscuri": [
+    {
+      "descrizione": "Il secondo pannello HMI è solo accennato dal cliente: non è deciso se rientra nel progetto finché non arriva una conferma scritta.",
+      "segmenti": [
+        "riu-003#s008",
+        "riu-003#s009"
+      ]
+    }
+  ],
+  "sconosciuti": []
+}

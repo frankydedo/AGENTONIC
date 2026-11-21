@@ -99,6 +99,28 @@
 - Le citazioni aprono `/documenti/{id}?seg=sNNN` con il segmento evidenziato; il manager corregge una proposta (assegnatario, scadenza, titolo, aree) prima di approvarla, anche dal punto oscuro.
 - Servono aggiunte al contratto, **da concordare con Pietro**: `docs/proposte-contratto-ui.md` (`GET /documenti`, `GET /documenti/{id}`, `Documento.url_file`, `Decisione.modifiche`, `Avviso.proposta_id`, to-do del giorno leggibile dal manager). Finché mancano, la UI usa dati d'esempio dichiarati a schermo.
 - Corretto: lo stream SSE si chiude su `pagehide`; prima ogni ricaricamento lasciava una connessione aperta e dopo 6 Chrome bloccava le chiamate al backend.
+## [2026-11-21 13:40] decisione | Backend: ricerca, ambiente, identità
+- La ricerca tra le voci approvate è di Pietro (P6): FTS5 nel db, filtro `puo_vedere()` prima di
+  `rispondi()`, che riceve voci già filtrate. Chiude il punto aperto della WBS.
+- Ambiente Python: `venv` + `requirements.txt` (non `uv`).
+- Identità (I5): header `X-Persona` oppure cookie `persona` da `POST /sessione`, perché `EventSource`
+  non manda header.
+- L'API non restituisce mai `non_autorizzato`: all'esterno è sempre `non_lo_so` con il testo neutro,
+  il motivo vero resta nel registro. I segmenti si aprono solo se citati da una voce visibile.
+- Il manager può indicare l'assegnatario quando approva un task (scioglie il punto oscuro).
+- Contratto in `backend/modelli.py` e `docs/api.md`. Aperto con Franky: formato di `dipende_da`,
+  quando un avviso smette di essere solo per il manager.
+
+## [2026-11-21 14:15] decisione | Backend vero allineato al contratto di Franky
+- Il backend di Pietro (db SQLite, proposte, domande, avvisi, to-do, registro) chiama ora i moduli di
+  Franky: `segmenta` (F2), `analizza_documento` (I2), `rispondi` (I3, con `manager_nome`).
+- Implementati: registro I6 (`PassoRegistro`, con i passi del workflow salvati così come arrivano),
+  `POST /avvisi/{id}/inoltra` con `puo_vedere_avviso()`, `persone_azienda` e `proposte_in_attesa` nel contesto.
+- Il cervello finto dei test del backend sta in `tests/finti.py`; `backend/esempi.py` resta finché lo usa
+  lo stub di Franky.
+- Aperto: come i `rif` temporanei arrivano in `Proposta.contenuto.dipende_da`; le richieste di Mauro
+  in `docs/proposte-contratto-ui.md` (documenti, `modifiche`, `Avviso.proposta_id`, to-do letta dal manager).
+
 
 ## [2026-11-21 14:45] decisione | Progetti multipli, Brain al lavoro e file d'esempio (Mauro)
 - Il team ha deciso: l'azienda è divisa in aree (reparti) che lavorano sugli stessi progetti; la UI deve far scegliere il progetto.
