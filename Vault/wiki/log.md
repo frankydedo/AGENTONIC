@@ -73,3 +73,18 @@
 - Creata `analyses/wbs.md` (proposta): interfacce I1-I5 da fissare entro le 13:30, pacchetti di
   Franky (F1-F11), Pietro (P1-P11) e Mauro (M1.1-M1.10), percorso critico verso M1 e M2.
 - Aperto: chi possiede la ricerca tra le voci approvate (Pietro in P6 o Franky in F6).
+
+## [2026-11-21 13:40] decisione | Security by design e tracciabilità
+- Principi concordati con Franky, in `concepts/security-by-design.md`: località, HITL dopo
+  l'ingestion (gli agenti propongono, il manager approva), minimo privilegio per il modello,
+  documenti come dati, validazione che fallisce chiusa, tracciabilità, limiti, testo semplice in UI,
+  invarianti testate.
+- WBS aggiornata: interfaccia I6 (`PassoRegistro`) e pacchetto F12 (traccia del workflow); P8 ampliato.
+- Da discutere con Pietro: `GET /segmenti/{id}`, `generale` combinata con altre aree, `Citazione.frase`, modello del registro.
+
+## [2026-11-21 13:55] decisione | Sei modifiche al contratto (Franky, da rivedere con Pietro)
+- `segmenta()` è di Franky (F2). `TaskEstratto.rif` + `dipende_da` con rif temporanei o id approvati.
+- `id` e data di creazione opzionali in `Proposta` e `Avviso` (li assegna il backend).
+- `ContestoProgetto.proposte_in_attesa` per le incongruenze, con l'avviso marcato `basato_su_proposte`.
+- Sconosciuto = non membro del progetto; `persone_azienda` nel contesto e `Sconosciuto.persona_id`.
+- Inoltro degli avvisi: `POST /avvisi/{id}/inoltra`, regola `puo_vedere_avviso()`. Dettagli in `docs/api.md`.

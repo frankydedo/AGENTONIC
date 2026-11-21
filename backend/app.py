@@ -13,7 +13,9 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from backend import esempi
-from backend.modelli import Area, Avviso, Citazione, Persona, Progetto, Proposta, Risposta, Task, puo_vedere
+from backend.modelli import (
+    Area, Avviso, Citazione, Persona, Progetto, Proposta, Risposta, Task, puo_vedere, puo_vedere_avviso,
+)
 
 DATI = Path(__file__).resolve().parent.parent / "dati"
 _azienda = json.loads((DATI / "azienda.json").read_text(encoding="utf-8"))
@@ -145,7 +147,7 @@ def rifiuta(proposta_id: str, body: Decisione, chi: Persona = Depends(persona_co
 async def flusso_avvisi(progetto_id: str, chi: Persona = Depends(persona_corrente)) -> StreamingResponse:
     """Server-Sent Events: un evento `avviso` per ogni avviso visibile a chi è connesso."""
     prj = progetto_del_membro(progetto_id, chi)
-    visibili = [a for a in esempi.AVVISI if not a.solo_manager or chi.id == prj.manager_id]
+    visibili = [a for a in esempi.AVVISI if puo_vedere_avviso(chi, prj, a)]
 
     async def eventi():
         for a in visibili:
@@ -155,6 +157,24 @@ async def flusso_avvisi(progetto_id: str, chi: Persona = Depends(persona_corrent
             yield ": ping\n\n"
 
     return StreamingResponse(eventi(), media_type="text/event-stream")
+
+
+class Inoltro(BaseModel):
+    persona_ids: list[str] = []   # a chi, per nome
+    aree: list[Area] = []         # oppure a chi ha una di queste aree
+
+
+@app.post("/avvisi/{avviso_id}/inoltra")
+def inoltra_avviso(avviso_id: str, body: Inoltro, chi: Persona = Depends(persona_corrente)) -> Avviso:
+    for a in esempi.AVVISI:
+        if a.id == avviso_id:
+            prj = solo_manager(a.progetto_id, chi)
+            ignoti = [pid for pid in body.persona_ids if pid not in prj.membri]
+            if ignoti:
+                raise HTTPException(422, f"Non sono membri del progetto: {', '.join(ignoti)}")
+            return a.model_copy(update={"solo_manager": False, "inoltrato_a": body.persona_ids,
+                                        "aree": body.aree or a.aree})
+    raise HTTPException(404, "Avviso non trovato.")
 
 
 @app.post("/avvisi/{avviso_id}/risolvi")

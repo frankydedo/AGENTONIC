@@ -10,6 +10,7 @@
 ## Concetti
 - [Brief del track](concepts/brief-del-track.md): "Build an AI your team would trust", challenge A Company Brain (scelta) e i sette controlli sì/no.
 - [Consegna e valutazione](concepts/consegna-e-valutazione.md): cosa consegnare, consegna alle 17:00, finale, pesi dei criteri, pitch di 3 minuti.
+- [Security by design](concepts/security-by-design.md): località, HITL dopo l'ingestion, minimo privilegio, validazione fail closed, tracciabilità, buchi del contratto da discutere.
 - [Soluzione Company Brain](concepts/soluzione-company-brain.md): la nostra soluzione: flusso, come passiamo i sette controlli, regola d'oro codice/modello, permessi per competenza.
 
 ## Analisi
