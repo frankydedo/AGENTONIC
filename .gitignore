@@ -11,3 +11,6 @@ __pycache__/
 
 # risultati delle prove con il modello vero (scripts/prova_offline.py)
 prove/
+
+# cache di Vite
+web/.vite/
