@@ -11,6 +11,7 @@ import { Documenti } from './pagine/Documenti'
 import { Documento } from './pagine/Documento'
 import { Panoramica } from './pagine/Panoramica'
 import { Impostazioni } from './pagine/Impostazioni'
+import { Posta } from './pagine/Posta'
 import { ModuloProgetto, Progetti } from './pagine/Progetti'
 import { puoCreareProgetti } from './lib'
 import { Registro } from './pagine/Registro'
@@ -154,6 +155,7 @@ export default function App() {
             <Route path="documenti/:id" element={<Documento />} />
             <Route path="team" element={<Team />} />
             <Route path="chiedi" element={<Chiedi />} />
+            <Route path="posta" element={<Posta />} />
             <Route path="registro" element={<Registro />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

@@ -797,3 +797,8 @@ def registro(progetto_id: str, chi: Persona = Depends(persona_corrente),
     manager(conn, progetto_id, chi)
     righe = conn.execute("SELECT * FROM registro WHERE progetto_id = ? ORDER BY id DESC LIMIT 500", (progetto_id,))
     return [db.passo(r) for r in righe]
+
+
+# --- Posta (Mauro): rotte /posta/... dietro un'interfaccia unica per Gmail, Outlook o la casella finta ---
+from backend.posta.api import crea_router as _router_posta  # noqa: E402  (dopo le dipendenze che usa)
+app.include_router(_router_posta(get_db, persona_corrente, membro))

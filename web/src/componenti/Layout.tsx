@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import {
-  ChartGantt, Check, ChevronDown, ChevronRight, ChevronsUpDown, FileText, FlaskConical, Folder, FolderKanban, LayoutGrid, LogOut, MessageCircle, History, Upload, Settings, type LucideIcon,
+  ChartGantt, Check, Mail, ChevronDown, ChevronRight, ChevronsUpDown, FileText, FlaskConical, Folder, FolderKanban, LayoutGrid, LogOut, MessageCircle, History, Upload, Settings, type LucideIcon,
 } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useRef, useState, useSyncExternalStore, type RefObject } from 'react'
@@ -8,6 +8,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { finti } from '../api'
 import { useApp } from '../contesto'
 import { useDati } from '../dati'
+import { useNonLette } from '../posta'
 import { dataMedia, giorniA, progettiRecenti, segnaAperto, ultimiAperti } from '../lib'
 import { PannelloAnalisi } from './Analisi'
 import { Protezione } from './Protezione'
@@ -18,7 +19,8 @@ import { Avatar, Bottone, ChipArea, MarchioBrain, Modale } from './ui'
 interface Voce { a: string; etichetta: string; breve: string; icona: LucideIcon; conteggio?: number; attenzione?: boolean; soloManager?: boolean }
 
 export function Layout() {
-  const { sonoManager, progetti } = useApp()
+  const { sonoManager, progetti, io } = useApp()
+  const nonLette = useNonLette(io.id)
   const { proposte, avvisi } = useDati()
   const inAttesa = proposte.filter((p) => p.stato === 'in_attesa').length
   const segnalazioni = avvisi.filter((a) => !a.risolto).length
@@ -27,13 +29,15 @@ export function Layout() {
   const voci: Voce[] = [
     { a: '/progetti', etichetta: 'Progetti', breve: 'Progetti', icona: FolderKanban, conteggio: progetti.length > 1 ? progetti.length : undefined },
     { a: '/', etichetta: 'Panoramica', breve: 'Oggi', icona: LayoutGrid, conteggio: sonoManager ? segnalazioni : undefined },
+    { a: '/posta', etichetta: 'Posta', breve: 'Posta', icona: Mail, conteggio: nonLette || undefined },
     { a: '/documenti', etichetta: 'Documenti', breve: 'Documenti', icona: FileText, conteggio: sonoManager ? inAttesa : undefined, attenzione: true },
     { a: '/team', etichetta: 'Team e scadenze', breve: 'Team', icona: ChartGantt },
     { a: '/chiedi', etichetta: 'Chiedi al Brain', breve: 'Chiedi', icona: MessageCircle },
     { a: '/registro', etichetta: 'Registro', breve: 'Registro', icona: History, soloManager: true },
     { a: '/impostazioni', etichetta: 'Impostazioni', breve: 'Impostazioni', icona: Settings },
   ].filter((v) => !v.soloManager || sonoManager)
-  const schede = voci.filter((v) => v.a !== '/progetti')
+  // su telefono la barra resta corta: i progetti si cambiano dal selettore in alto, il registro dal computer
+  const schede = voci.filter((v) => v.a !== '/progetti' && v.a !== '/registro')
 
   return (
     <div className="flex min-h-screen">
