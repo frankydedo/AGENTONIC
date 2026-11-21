@@ -149,3 +149,25 @@ describe('progetti: chi crea, chi modifica, cosa serve', () => {
     expect(validaProgetto({ ...ok, membri: ['p-04'] }, '2026-11-21')).toEqual(['Il manager deve essere tra i membri.'])
   })
 })
+
+import { corrisponde } from './componenti/Selettori'
+describe('ricerca negli elenchi', () => {
+  it('ignora maiuscole e accenti', () => {
+    expect(corrisponde('Niccolò Rossi', 'niccolo')).toBe(true)
+    expect(corrisponde('Sara Colombo', ' SARA ')).toBe(true)
+    expect(corrisponde('Sara Colombo', 'marco')).toBe(false)
+    expect(corrisponde('qualunque', '')).toBe(true)
+  })
+})
+
+import { ultimiAperti } from './lib'
+describe('progetti aperti di recente', () => {
+  const prj = ['prj-01', 'prj-02', 'prj-03', 'prj-04'].map((id) => ({ id }))
+  it('mostra i 3 più recenti, dal più recente', () => {
+    expect(ultimiAperti(prj, ['prj-04', 'prj-02', 'prj-01', 'prj-03']).map((p) => p.id)).toEqual(['prj-04', 'prj-02', 'prj-01'])
+  })
+  it('ignora i progetti che non esistono più e completa con gli altri', () => {
+    expect(ultimiAperti(prj, ['prj-99', 'prj-03']).map((p) => p.id)).toEqual(['prj-03', 'prj-01', 'prj-02'])
+    expect(ultimiAperti([{ id: 'prj-01' }], [])).toEqual([{ id: 'prj-01' }])
+  })
+})

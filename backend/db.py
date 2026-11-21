@@ -216,3 +216,26 @@ def passo(r: sqlite3.Row) -> PassoRegistro:
         documento_id=r["documento_id"], provider=r["provider"], modello=r["modello"],
         versione_prompt=r["versione_prompt"], input=json.loads(r["input"]), output=json.loads(r["output"]),
         esito=r["esito"], motivo=r["motivo"], tentativi=r["tentativi"], durata_ms=r["durata_ms"])
+
+
+# --- Progetti: eliminazione e pulizia ------------------------------------------------------------
+
+# Tabelle con i dati di lavoro di un progetto (i segmenti passano dai documenti).
+_DATI_DI_PROGETTO = ("proposte", "task", "fatti", "avvisi", "registro", "voci_fts", "documenti", "membri")
+
+
+def elimina_progetto(conn: sqlite3.Connection, progetto_id: str) -> None:
+    """Toglie il progetto e tutti i suoi dati (documenti, segmenti, proposte, memoria, avvisi, registro)."""
+    conn.execute("DELETE FROM segmenti WHERE documento_id IN (SELECT id FROM documenti WHERE progetto_id = ?)", (progetto_id,))
+    for tabella in _DATI_DI_PROGETTO:
+        conn.execute(f"DELETE FROM {tabella} WHERE progetto_id = ?", (progetto_id,))
+    conn.execute("DELETE FROM progetti WHERE id = ?", (progetto_id,))
+
+
+def svuota(conn: sqlite3.Connection, anche_progetti: bool = True) -> None:
+    """Cancella tutti i dati dell'app; le persone restano (servono per entrare)."""
+    for tabella in ("segmenti", "proposte", "task", "fatti", "avvisi", "registro", "voci_fts", "documenti", "todo_oggi"):
+        conn.execute(f"DELETE FROM {tabella}")
+    if anche_progetti:
+        conn.execute("DELETE FROM membri")
+        conn.execute("DELETE FROM progetti")

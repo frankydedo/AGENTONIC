@@ -65,23 +65,38 @@ test('controllo 1: il Brain parla per primo, senza che nessuno chieda', async ({
 test('controlli 2 e 6: il manager corregge una proposta e la approva', async ({ page }) => {
   await entraCome(page, 'p-01', '/documenti/riu-002')
   // la scheda si trova dalla sua fonte (s006): in correzione il titolo sta in un campo di testo
-  const carta = page.locator('li').filter({ has: page.getByText('Nuovo task') }).filter({ has: page.getByRole('link', { name: /s006/ }) })
+  const conFonte = (p: Page) => p.locator('li').filter({ has: p.getByText('Nuovo task') }).filter({ has: p.getByRole('link', { name: /s006/ }) })
+  const carta = conFonte(page)
   await carta.getByRole('button', { name: 'Correggi' }).click()
   await carta.getByLabel('Chi se ne occupa').selectOption('p-05')
+  // aree: menu a tendina con ricerca
+  await carta.getByRole('button', { name: 'Visibile a' }).click()
+  // il menu sta in un portale sopra tutta la pagina, non dentro la scheda
+  await page.getByPlaceholder("Cerca un'area…").fill('comm')
+  await page.getByRole('menuitemcheckbox', { name: /commerciale/ }).click()
+  await page.keyboard.press('Escape')
   await carta.getByRole('button', { name: 'Approva con le correzioni' }).click()
-
   await expect(page.getByText('Corretta e approvata')).toBeVisible()
-  await expect(carta.getByText('Approvata', { exact: true })).toBeVisible()
-  await expect(carta.getByText('Luca Gallo')).toBeVisible()
-  await expect(carta.getByText('Approvata da Giulia Ferraris')).toBeVisible()
+
+  // la proposta decisa passa nel cassetto «Approvate»
+  await page.getByRole('button', { name: /^Approvate/ }).click()
+  const approvata = conFonte(page)
+  await expect(approvata.getByText('Approvata', { exact: true })).toBeVisible()
+  await expect(approvata.getByText('Luca Gallo')).toBeVisible()
+  await expect(approvata.getByText('commerciale')).toBeVisible()
+  await expect(approvata.getByText('Approvata da Giulia Ferraris')).toBeVisible()
 })
 
-test('controllo 6: una proposta rifiutata resta fuori dalla memoria', async ({ page }) => {
+test('controllo 6: una proposta rifiutata resta fuori dalla memoria, e si può recuperare', async ({ page }) => {
   await entraCome(page, 'p-01', '/documenti/riu-002')
-  const carta = page.locator('li').filter({ has: page.getByText('Nuovo fatto') }).filter({ hasText: 'riutilizzabili' })
-  await carta.getByRole('button', { name: 'Rifiuta' }).click()
-  await expect(carta.getByText('Rifiutata', { exact: true })).toBeVisible()
-  await expect(carta.getByRole('button', { name: 'Approva' })).toHaveCount(0)
+  const carta = () => page.locator('li').filter({ has: page.getByText('Nuovo fatto') }).filter({ hasText: 'riutilizzabili' })
+  await carta().getByRole('button', { name: 'Rifiuta' }).click()
+  await page.getByRole('button', { name: /^Rifiutate/ }).click()
+  await expect(carta().getByText('Rifiutata', { exact: true })).toBeVisible()
+  await expect(carta().getByRole('button', { name: 'Approva' })).toHaveCount(0)
+  // recuperarla: finché il backend non ha POST /proposte/{id}/riapri, errore chiaro
+  await carta().getByRole('button', { name: 'Recupera' }).click()
+  await expect(page.getByText(/non permette ancora di recuperare le proposte rifiutate/)).toBeVisible()
 })
 
 test('controllo 4: la citazione apre la fonte con la frase evidenziata', async ({ page }) => {
@@ -168,7 +183,13 @@ test('il registro si legge in italiano, i dati grezzi solo nei dettagli tecnici'
 test('si sceglie il progetto tra quelli di cui si è membri', async ({ page }) => {
   await entraCome(page, 'p-01')
   await page.getByRole('button', { name: /Revamping linea di confezionamento 3/ }).first().click()
-  await expect(page.getByText(/I tuoi progetti \(\d+\)/)).toBeVisible()
+  await expect(page.getByText('Aperti di recente')).toBeVisible()
+  // al massimo 3 progetti, più il link a tutti; il menu sta in un portale sopra la pagina
+  const menu = page.locator('body > div').filter({ hasText: 'Aperti di recente' }).last()
+  expect(await menu.getByRole('button').count()).toBeLessThanOrEqual(3)
+  await expect(menu.getByRole('link', { name: /Tutti i progetti \(\d+\)/ })).toBeVisible()
+  await menu.getByRole('link', { name: /Tutti i progetti/ }).click()
+  await expect(page).toHaveURL(/\/progetti$/)
 })
 
 test('aspetto: si passa al tema scuro e la scelta resta dopo il ricaricamento', async ({ page }) => {
@@ -195,8 +216,17 @@ test('il project manager vede i suoi progetti e il modulo per crearne uno', asyn
   await modulo.getByPlaceholder('Es. Pastificio Valsangone S.p.A.').fill('Pastificio Valsangone S.p.A.')
   await modulo.locator('input[type=date]').fill('2027-03-31')
   await modulo.getByRole('button', { name: 'Crea il progetto' }).click()
-  // finché il backend non ha POST /progetti: errore chiaro, nessun progetto finto
-  await expect(modulo.getByText(/non permette ancora di creare progetti/)).toBeVisible()
+  await expect(page.getByText('Progetto creato')).toBeVisible()
+
+  // il nuovo progetto si apre; poi il suo manager lo elimina, con conferma
+  await page.goto('/progetti')
+  const nuova = page.locator('li', { hasText: 'Revamping linea 4' }).first()
+  await expect(nuova.getByText('Sei il manager')).toBeVisible()
+  await nuova.getByRole('button', { name: /Modifica/ }).click()
+  await page.getByRole('button', { name: 'Elimina progetto' }).click()
+  await page.getByRole('button', { name: 'Elimina davvero, con tutti i dati' }).click()
+  await expect(page.getByText('Progetto eliminato')).toBeVisible()
+  await expect(page.getByText('Revamping linea 4')).toHaveCount(0)
 })
 
 test('un membro vede solo i suoi progetti, senza crearne né modificarli', async ({ page }) => {
@@ -206,4 +236,36 @@ test('un membro vede solo i suoi progetti, senza crearne né modificarli', async
   await expect(scheda.getByText('Qui vedi:')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Nuovo progetto' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: /Modifica/ })).toHaveCount(0)
+})
+
+test('impostazioni: si passa dal tema chiaro allo scuro', async ({ page }) => {
+  await entraCome(page, 'p-04')
+  await page.getByRole('link', { name: 'Impostazioni' }).first().click()
+  await page.getByRole('group', { name: 'Aspetto' }).getByRole('button', { name: 'Scuro' }).click()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  await page.getByRole('group', { name: 'Aspetto' }).getByRole('button', { name: 'Chiaro' }).click()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+})
+
+test('i cassetti delle proposte si aprono e si chiudono', async ({ page }) => {
+  await entraCome(page, 'p-01', '/documenti/riu-002')
+  const daDecidere = page.getByRole('button', { name: /^Da decidere/ })
+  await expect(daDecidere).toHaveAttribute('aria-expanded', 'true')
+  const unaProposta = page.locator('li').filter({ has: page.getByText('Aggiorna task') }).first()
+  await expect(unaProposta).toBeVisible()
+  await daDecidere.click()
+  await expect(daDecidere).toHaveAttribute('aria-expanded', 'false')
+  await expect(unaProposta).toBeHidden()
+  await daDecidere.click()
+  await expect(unaProposta).toBeVisible()
+})
+
+test('le persone si cercano: inoltro di un avviso', async ({ page }) => {
+  await entraCome(page, 'p-01')
+  await page.getByRole('button', { name: 'Inoltra' }).first().click()
+  const finestra = page.getByRole('dialog', { name: "Inoltra l'avviso" })
+  await finestra.getByPlaceholder(/Cerca tra \d+ persone/).fill('sara')
+  await expect(finestra.getByRole('menuitemcheckbox')).toHaveCount(1)
+  await finestra.getByRole('menuitemcheckbox', { name: /Sara Colombo/ }).click()
+  await expect(finestra.getByRole('menuitemcheckbox', { name: /Sara Colombo/ })).toHaveAttribute('aria-checked', 'true')
 })

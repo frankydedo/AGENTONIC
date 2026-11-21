@@ -1,7 +1,6 @@
 import clsx from 'clsx'
 import {
-  ChartGantt, Check, ChevronDown, ChevronRight, ChevronsUpDown, FileText, FlaskConical, Folder, FolderKanban, LayoutGrid, LogOut, MessageCircle,
-  History, Upload, type LucideIcon,
+  ChartGantt, Check, ChevronDown, ChevronRight, ChevronsUpDown, FileText, FlaskConical, Folder, FolderKanban, LayoutGrid, LogOut, MessageCircle, History, Upload, Settings, type LucideIcon,
 } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useRef, useState, useSyncExternalStore, type RefObject } from 'react'
@@ -9,9 +8,10 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { finti } from '../api'
 import { useApp } from '../contesto'
 import { useDati } from '../dati'
-import { dataMedia, giorniA } from '../lib'
+import { dataMedia, giorniA, progettiRecenti, segnaAperto, ultimiAperti } from '../lib'
 import { PannelloAnalisi } from './Analisi'
 import { Protezione } from './Protezione'
+import { corrisponde, Sovrapposto } from './Selettori'
 import { SceltaTema } from './Tema'
 import { Avatar, Bottone, ChipArea, MarchioBrain, Modale } from './ui'
 
@@ -31,6 +31,7 @@ export function Layout() {
     { a: '/team', etichetta: 'Team e scadenze', breve: 'Team', icona: ChartGantt },
     { a: '/chiedi', etichetta: 'Chiedi al Brain', breve: 'Chiedi', icona: MessageCircle },
     { a: '/registro', etichetta: 'Registro', breve: 'Registro', icona: History, soloManager: true },
+    { a: '/impostazioni', etichetta: 'Impostazioni', breve: 'Impostazioni', icona: Settings },
   ].filter((v) => !v.soloManager || sonoManager)
   const schede = voci.filter((v) => v.a !== '/progetti')
 
@@ -94,17 +95,19 @@ function useChiudiFuori(aperto: boolean, chiudi: () => void, rif: RefObject<HTML
   }, [aperto, chiudi, rif])
 }
 
-const POPOVER = 'absolute z-50 overflow-hidden rounded-2xl bg-superficie p-1.5 shadow-alta'
+const POPOVER = 'absolute z-[1000] max-h-[min(70vh,32rem)] overflow-y-auto overscroll-contain rounded-2xl bg-superficie p-1.5 shadow-alta'
 
 /** Il progetto in cui stai lavorando: ognuno vede solo quelli di cui è membro (lo decide il backend). */
 function SelettoreProgetto({ compatto }: { compatto?: boolean }) {
   const { progetto, progetti, scegliProgetto, io } = useApp()
   const [aperto, setAperto] = useState(false)
-  const rif = useRef<HTMLDivElement>(null)
-  useChiudiFuori(aperto, () => setAperto(false), rif)
+  const ancora = useRef<HTMLDivElement>(null)
+  // il progetto aperto diventa il più recente
+  useEffect(() => { segnaAperto(io.id, progetto.id) }, [io.id, progetto.id])
+  const recenti = aperto ? ultimiAperti(progetti, progettiRecenti(io.id), 3) : []
 
   return (
-    <div ref={rif} className="relative min-w-0">
+    <div ref={ancora} className="relative min-w-0">
       {compatto ? (
         <button onClick={() => setAperto((a) => !a)} aria-expanded={aperto}
           className="flex max-w-[12rem] items-center gap-1 text-left text-[15px] font-semibold text-accento-testo sm:max-w-xs">
@@ -122,12 +125,10 @@ function SelettoreProgetto({ compatto }: { compatto?: boolean }) {
           <ChevronsUpDown size={14} className="shrink-0 text-testo-3" />
         </button>
       )}
-      <AnimatePresence>
-        {aperto && (
-          <motion.ul initial={{ opacity: 0, y: -4, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }}
-            transition={{ duration: 0.16 }} className={clsx(POPOVER, 'top-full left-0 mt-2 w-80')}>
-            <li className="px-2.5 pt-1.5 pb-1 text-xs font-semibold text-testo-2">I tuoi progetti ({progetti.length})</li>
-            {progetti.map((p) => {
+      <Sovrapposto ancora={ancora} aperto={aperto} onChiudi={() => setAperto(false)} larghezza={320}>
+          <ul>
+            <li className="px-2.5 pt-1.5 pb-1 text-xs font-semibold text-testo-2">Aperti di recente</li>
+            {recenti.map((p) => {
               const attuale = p.id === progetto.id
               return (
                 <li key={p.id}>
@@ -146,12 +147,11 @@ function SelettoreProgetto({ compatto }: { compatto?: boolean }) {
             <li className="mt-1 border-t border-separatore pt-1">
               <Link to="/progetti" onClick={() => setAperto(false)}
                 className="flex items-center justify-between rounded-[10px] px-2.5 py-2 text-sm text-accento-testo hover:bg-riempimento">
-                Tutti i progetti <ChevronRight size={15} />
+                Tutti i progetti ({progetti.length}) <ChevronRight size={15} />
               </Link>
             </li>
-          </motion.ul>
-        )}
-      </AnimatePresence>
+          </ul>
+      </Sovrapposto>
     </div>
   )
 }
@@ -236,7 +236,9 @@ function MenuPersona() {
   const rif = useRef<HTMLDivElement>(null)
   useChiudiFuori(aperto, () => setAperto(false), rif)
 
+  const [cerca, setCerca] = useState('')
   const altri = Object.values(persone).filter((p) => !membri.some((m) => m.id === p.id))
+  const elenco = [...membri, ...altri].filter((p) => corrisponde(`${p.nome} ${p.ruolo}`, cerca))
   return (
     <div ref={rif} className="relative">
       <button onClick={() => setAperto((a) => !a)} aria-expanded={aperto}
@@ -260,8 +262,11 @@ function MenuPersona() {
             </div>
             <div className="border-t border-separatore">
               <p className="px-4 pt-3 text-xs font-semibold text-testo-2">Entra come un'altra persona (demo)</p>
+              <input value={cerca} onChange={(e) => setCerca(e.target.value)} placeholder={`Cerca tra ${membri.length + altri.length} persone…`}
+                aria-label="Cerca una persona" className="mx-4 mt-2 w-[calc(100%-2rem)] rounded-lg bg-riempimento px-3 py-1.5 text-sm focus:outline-none" />
               <ul className="max-h-72 overflow-y-auto p-1.5">
-                {[...membri, ...altri].map((p) => {
+                {elenco.length === 0 && <li className="px-2.5 py-2 text-sm text-testo-2">Nessuno trovato.</li>}
+                {elenco.map((p) => {
                   const fuori = !membri.some((m) => m.id === p.id)
                   return (
                     <li key={p.id}>

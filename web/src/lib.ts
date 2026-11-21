@@ -109,3 +109,24 @@ export function validaProgetto(d: DatiProgetto, oggiIso: string): string[] {
   else if (!d.membri.includes(d.manager_id)) errori.push('Il manager deve essere tra i membri.')
   return errori
 }
+
+// --- Progetti aperti di recente (per persona, solo in questo browser) -------------------------------
+
+const chiaveRecenti = (personaId: string) => `company-brain-recenti:${personaId}`
+
+export function progettiRecenti(personaId: string): string[] {
+  try { return JSON.parse(localStorage.getItem(chiaveRecenti(personaId)) ?? '[]') } catch { return [] }
+}
+
+export function segnaAperto(personaId: string, progettoId: string) {
+  const lista = [progettoId, ...progettiRecenti(personaId).filter((id) => id !== progettoId)].slice(0, 10)
+  try { localStorage.setItem(chiaveRecenti(personaId), JSON.stringify(lista)) } catch { /* storage non disponibile */ }
+}
+
+/** I `n` progetti aperti più di recente; se sono meno di `n`, si completa con gli altri. */
+export function ultimiAperti<T extends { id: string }>(progetti: T[], recenti: string[], n = 3): T[] {
+  const perId = new Map(progetti.map((p) => [p.id, p]))
+  const scelti = recenti.map((id) => perId.get(id)).filter((p): p is T => !!p)
+  for (const p of progetti) if (!scelti.includes(p)) scelti.push(p)
+  return scelti.slice(0, n)
+}

@@ -3,7 +3,7 @@ import { ArrowUp, CalendarDays, Check, Gavel, Inbox, Lock, type LucideIcon } fro
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { ListaAvvisi } from '../componenti/Avvisi'
-import { CartaProposta } from '../componenti/Proposte'
+import { ProposteACassetti } from '../componenti/Proposte'
 import { TodoOggi } from '../componenti/Todo'
 import { Card, FoglioCalendario, IntestazioneCard, LinkSobrio, MarchioBrain, Scheletro, Vuoto } from '../componenti/ui'
 import { useApp } from '../contesto'
@@ -77,9 +77,9 @@ export function Panoramica() {
               <IntestazioneCard icona={Gavel} titolo="Da decidere"
                 sottotitolo="Il Brain propone, tu decidi. Niente entra nella memoria senza la tua approvazione."
                 azioni={<LinkSobrio a="/documenti">Per documento</LinkSobrio>} />
-              {!pronto ? <Scheletro /> : inAttesa.length === 0
-                ? <Vuoto icona={Inbox} titolo="Nessuna proposta in attesa" testo="Carica una riunione: il Brain la legge e ti propone task e fatti." />
-                : <ul className="divide-y divide-separatore">{inAttesa.map((p) => <CartaProposta key={p.id} p={p} mostraDocumento />)}</ul>}
+              {!pronto ? <Scheletro /> : proposte.length === 0
+                ? <Vuoto icona={Inbox} titolo="Nessuna proposta" testo="Carica una riunione: il Brain la legge e ti propone task e fatti." />
+                : <ProposteACassetti proposte={proposte} mostraDocumento />}
             </Card>
           ) : (
             <TodoOggi />

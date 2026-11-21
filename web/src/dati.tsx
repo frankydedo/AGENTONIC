@@ -17,6 +17,7 @@ export interface Dati {
   ricarica: () => Promise<void>
   decidi: (p: Proposta, esito: 'approva' | 'rifiuta', opz?: { aree?: Area[]; modifiche?: Modifiche }) => Promise<void>
   risolvi: (id: string) => Promise<void>
+  riapri: (p: Proposta) => Promise<void>
   inoltra: (id: string, personaIds: string[], aree: Area[]) => Promise<boolean>
   /** Passi del workflow arrivati in diretta (evento SSE `passo`, PROPOSTA di contratto). */
   passiLive: PassoRegistro[]
@@ -129,6 +130,17 @@ export function DatiProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  const riapri = useCallback(async (p: Proposta) => {
+    try {
+      const r = await api.riapriProposta(p.id)
+      setDecise((d) => ({ ...d, [p.id]: r }))
+      toast.success('Proposta recuperata', { description: 'È di nuovo tra quelle da decidere.' })
+    } catch (e) {
+      toast.error('Non riesco a recuperarla', { description: (e as Error).message })
+      throw e
+    }
+  }, [])
+
   const decidi = useCallback<Dati['decidi']>(async (p, esito, opz = {}) => {
     try {
       const r = esito === 'approva'
@@ -148,7 +160,7 @@ export function DatiProvider({ children }: { children: ReactNode }) {
   }, [avvisoDiProposta, risolvi, caricaTask])
 
   const valore: Dati = {
-    pronto, documenti, proposte, avvisi, task, connesso, ricarica, decidi, risolvi, inoltra, passiLive,
+    pronto, documenti, proposte, avvisi, task, connesso, ricarica, decidi, riapri, risolvi, inoltra, passiLive,
     propostaDiAvviso, avvisoDiProposta,
   }
   return <Ctx.Provider value={valore}>{children}</Ctx.Provider>

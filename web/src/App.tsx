@@ -10,7 +10,9 @@ import { Chiedi } from './pagine/Chiedi'
 import { Documenti } from './pagine/Documenti'
 import { Documento } from './pagine/Documento'
 import { Panoramica } from './pagine/Panoramica'
-import { Progetti } from './pagine/Progetti'
+import { Impostazioni } from './pagine/Impostazioni'
+import { ModuloProgetto, Progetti } from './pagine/Progetti'
+import { puoCreareProgetti } from './lib'
 import { Registro } from './pagine/Registro'
 import { SceltaPersona } from './pagine/SceltaPersona'
 import { Team } from './pagine/Team'
@@ -54,12 +56,19 @@ export default function App() {
   const ricaricaProgetti = useCallback(async () => {
     const suoi = await api.progetti()
     setProgetti(suoi)
+    // se il progetto aperto non c'è più (eliminato o non più membro) si passa a un altro, o alla schermata vuota
+    setProgettoId((attuale) => {
+      if (suoi.some((p) => p.id === attuale)) return attuale
+      if (suoi.length === 0) { setFase('non_membro'); return null }
+      return suoi[0].id
+    })
     return suoi
   }, [])
 
   const scegliProgetto = useCallback((id: string) => {
     salva(CHIAVE_PROGETTO, id)
     setProgettoId(id)
+    setFase('pronto')
     vai('/')
   }, [vai])
 
@@ -110,6 +119,20 @@ export default function App() {
     )
   }
   if (fase === 'scelta' || !io) return <SceltaPersona persone={persone} onScegli={scegli} />
+  if ((fase === 'non_membro' || !ctx) && puoCreareProgetti(io)) {
+    // app vuota: chi può creare progetti parte da qui
+    return (
+      <div className="mx-auto max-w-xl px-4 py-16">
+        <h1 className="text-2xl font-semibold tracking-tight">Ciao {io.nome.split(' ')[0]}, non ci sono ancora progetti</h1>
+        <p className="mt-2 text-testo-2">Crea il primo: scegli chi ci lavora e chi lo guida. Poi carica la minuta di una riunione e il Brain inizia a lavorare.</p>
+        <div className="mt-8 rounded-2xl bg-superficie p-6 shadow-alta">
+          <ModuloProgetto progetto={null} io={io} tutte={persone} ricaricaProgetti={ricaricaProgetti}
+            scegliProgetto={scegliProgetto} onFatto={() => {}} />
+        </div>
+        <Bottone variante="secondario" className="mt-6" onClick={esci}>Cambia persona</Bottone>
+      </div>
+    )
+  }
   if (fase === 'non_membro' || !ctx) {
     return (
       <Schermo icona={<UserRoundX size={26} />} titolo={`${io.nome.split(' ')[0]}, non fai parte di nessun progetto`}
@@ -126,6 +149,7 @@ export default function App() {
           <Route element={<Layout />}>
             <Route index element={<Panoramica />} />
             <Route path="progetti" element={<Progetti />} />
+            <Route path="impostazioni" element={<Impostazioni />} />
             <Route path="documenti" element={<Documenti />} />
             <Route path="documenti/:id" element={<Documento />} />
             <Route path="team" element={<Team />} />

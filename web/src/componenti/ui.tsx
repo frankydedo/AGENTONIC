@@ -3,7 +3,7 @@ import { format, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
 import { Check, X, type LucideIcon } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
-import { useEffect, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { useEffect, useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Link } from 'react-router'
 import { coloreDi, iniziali, scadenzaRelativa, type Tono } from '../lib'
@@ -233,13 +233,14 @@ export function TagCitazione({ c }: { c: Citazione }) {
     <span className="group relative inline-flex">
       <Link
         to={linkCitazione(c)}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-riempimento px-2 py-1 text-xs font-medium text-testo-2 transition-colors hover:bg-riempimento-2 hover:text-testo"
+        aria-label={`Fonte: ${c.titolo}, ${seg}`}
+        className="inline-flex items-center gap-1 rounded-md bg-riempimento px-1.5 py-0.5 text-[11px] font-medium text-testo-2 transition-colors hover:bg-riempimento-2 hover:text-testo"
       >
-        <span className="max-w-[15rem] truncate">{c.titolo}</span>
-        <span className="cifre font-semibold text-testo">{seg}{c.orario ? `, ${c.orario}` : ''}</span>
+        <span aria-hidden className="text-testo-3">❝</span>
+        <span className="cifre">{c.documento_id} · {seg}</span>
       </Link>
       <span className="pointer-events-none absolute bottom-full left-0 z-30 mb-2 hidden w-72 rounded-2xl bg-superficie p-3.5 text-[13px] leading-relaxed text-testo shadow-alta group-hover:block group-focus-within:block">
-        <span className="block text-xs font-semibold text-testo-2">{c.speaker}</span>
+        <span className="block text-xs font-semibold text-testo-2">{c.titolo}{c.orario ? `, ${c.orario}` : ''} · {c.speaker}</span>
         «{c.frase}»
         <span className="mt-1.5 block text-xs text-accento-testo">Apri il documento a questo punto</span>
       </span>
@@ -247,9 +248,22 @@ export function TagCitazione({ c }: { c: Citazione }) {
   )
 }
 
-export function Citazioni({ citazioni, className }: { citazioni: Citazione[]; className?: string }) {
+/** Le fonti occupano poco: le prime due sempre, le altre dietro «+N». */
+export function Citazioni({ citazioni, className, max = 2 }: { citazioni: Citazione[]; className?: string; max?: number }) {
+  const [tutte, setTutte] = useState(false)
   if (!citazioni.length) return null
-  return <div className={clsx('flex flex-wrap gap-1.5', className)}>{citazioni.map((c) => <TagCitazione key={c.segmento_id} c={c} />)}</div>
+  const visibili = tutte ? citazioni : citazioni.slice(0, max)
+  return (
+    <div className={clsx('flex flex-wrap items-center gap-1', className)}>
+      {visibili.map((c) => <TagCitazione key={c.segmento_id} c={c} />)}
+      {citazioni.length > max && (
+        <button type="button" onClick={() => setTutte((t) => !t)}
+          className="rounded-md px-1.5 py-0.5 text-[11px] font-medium text-testo-2 hover:bg-riempimento hover:text-testo">
+          {tutte ? 'meno' : `+${citazioni.length - max} fonti`}
+        </button>
+      )}
+    </div>
+  )
 }
 
 // --- Azioni -------------------------------------------------------------------------------------

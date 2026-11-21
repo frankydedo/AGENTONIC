@@ -5,9 +5,10 @@ import { useState } from 'react'
 import { useApp } from '../contesto'
 import { useDati } from '../dati'
 import type { Tono } from '../lib'
-import { AREE, type Area, type Avviso, type TipoAvviso } from '../tipi'
+import { type Area, type Avviso, type TipoAvviso } from '../tipi'
 import { CartaProposta } from './Proposte'
-import { Avatar, Badge, Bottone, ChipArea, Citazioni, Modale, Vuoto } from './ui'
+import { SelettoreAree, SelettorePersone } from './Selettori'
+import { Avatar, Badge, Bottone, Citazioni, Modale, Vuoto } from './ui'
 
 // fondo tenue e icona piena dello stesso tono dell'etichetta, come una notifica
 const FONDO: Record<Tono, string> = {
@@ -112,27 +113,15 @@ function Inoltro({ a, onFatto }: { a: Avviso; onFatto: () => void }) {
   const [scelti, setScelti] = useState<Set<string>>(new Set(a.inoltrato_a ?? []))
   const [aree, setAree] = useState<Area[]>(a.aree ?? [])
   const [occupato, setOccupato] = useState(false)
-  const alterna = (id: string) => setScelti((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n })
 
   return (
     <div>
       <p className="rounded-2xl bg-riempimento p-3.5 text-[15px] text-testo-2">{a.testo}</p>
       <p className="mt-5 mb-2 text-[13px] font-semibold text-testo-2">A chi</p>
-      <ul className="grid gap-1 sm:grid-cols-2">
-        {membri.filter((m) => m.id !== progetto.manager_id).map((m) => (
-          <li key={m.id}>
-            <label className="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-riempimento">
-              <input type="checkbox" checked={scelti.has(m.id)} onChange={() => alterna(m.id)} className="h-[18px] w-[18px] accent-[var(--accento)]" />
-              <Avatar persona={m} size={22} />
-              <span className="min-w-0 truncate text-sm">{m.nome}</span>
-            </label>
-          </li>
-        ))}
-      </ul>
+      <SelettorePersone inline etichetta="Inoltra a" persone={membri.filter((m) => m.id !== progetto.manager_id)}
+        valore={[...scelti]} onCambia={(ids) => setScelti(new Set(ids))} />
       <p className="mt-5 mb-2 text-[13px] font-semibold text-testo-2">Oppure a chi ha queste competenze</p>
-      <div className="flex flex-wrap gap-1.5">
-        {AREE.map((ar) => <ChipArea key={ar} area={ar} attiva={aree.includes(ar)} onClick={() => setAree((xs) => (xs.includes(ar) ? xs.filter((x) => x !== ar) : [...xs, ar]))} />)}
-      </div>
+      <SelettoreAree etichetta="Competenze" valore={aree} onCambia={setAree} />
       <Bottone variante="primario" icona={Forward} className="mt-5" disabled={occupato || (!scelti.size && !aree.length)}
         onClick={async () => { setOccupato(true); if (await inoltra(a.id, [...scelti], aree)) onFatto(); setOccupato(false) }}>
         Inoltra

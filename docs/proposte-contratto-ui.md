@@ -110,3 +110,14 @@ Regole da far rispettare **nel backend** (la UI le controlla solo per comodità)
 - togliere un membro non cancella la memoria del progetto: smette solo di vederla;
 - cambiare manager passa approvazioni e avvisi al nuovo manager;
 - ogni creazione e modifica va nel registro (`tipo: "decisione"`, `step: "crea_progetto" | "modifica_progetto"`).
+
+## 9. Recuperare una proposta rifiutata (aggiunto 21/11, 16:00)
+
+`POST /proposte/{id}/riapri` (solo il manager, solo se `stato == "rifiutata"`, altrimenti `409`): riporta la
+proposta `in_attesa`, azzera `decisa_da`/`decisa_il` e registra il passo (`tipo: "decisione"`, `step: "riapri"`).
+La UI ha già il pulsante «Recupera» nel cassetto «Rifiutate»; finché manca l'endpoint mostra un errore chiaro.
+
+> **Aggiornamento 21/11, 16:05:** il §8 è implementato nel backend (Mauro, con l'ok del team):
+> `POST /progetti`, `PATCH /progetti/{id}`, `DELETE /progetti/{id}` in `backend/app.py`, con
+> `db.elimina_progetto()` e `db.svuota()` in `backend/db.py`, test in `tests/test_progetti_crud.py`.
+> Nuovo script `scripts/svuota_db.py` per svuotare il db tenendo le persone.

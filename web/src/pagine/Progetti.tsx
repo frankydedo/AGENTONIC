@@ -5,17 +5,18 @@ import { motion } from 'motion/react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { toast } from 'sonner'
 import { api } from '../api'
+import { SelettorePersone } from '../componenti/Selettori'
 import { Avatar, Badge, Bottone, Card, ChipArea, Modale, TitoloPagina } from '../componenti/ui'
 import { useApp } from '../contesto'
 import { giorniA, oggi, puoCreareProgetti, puoModificare, scadenzaRelativa, validaProgetto } from '../lib'
-import type { DatiProgetto, Progetto } from '../tipi'
+import type { DatiProgetto, Persona, Progetto } from '../tipi'
 
 /**
  * Tutti i progetti di cui la persona è membro (lo decide il backend). Chi ne ha più di uno li
  * naviga da qui; chi ha ruolo «project manager» ne crea di nuovi; il manager di un progetto lo modifica.
  */
 export function Progetti() {
-  const { io, progetti } = useApp()
+  const { io, progetti, persone, ricaricaProgetti, scegliProgetto } = useApp()
   const [modulo, setModulo] = useState<{ aperto: boolean; progetto: Progetto | null }>({ aperto: false, progetto: null })
   const creatore = puoCreareProgetti(io)
   const ordinati = [...progetti].sort((a, b) => Number(b.manager_id === io.id) - Number(a.manager_id === io.id) || a.scadenza.localeCompare(b.scadenza))
@@ -38,7 +39,8 @@ export function Progetti() {
       </ul>
       <Modale aperto={modulo.aperto} onChiudi={() => setModulo({ aperto: false, progetto: null })}
         titolo={modulo.progetto ? `Modifica «${modulo.progetto.nome}»` : 'Nuovo progetto'}>
-        <ModuloProgetto key={modulo.progetto?.id ?? 'nuovo'} progetto={modulo.progetto} onFatto={() => setModulo({ aperto: false, progetto: null })} />
+        <ModuloProgetto key={modulo.progetto?.id ?? 'nuovo'} progetto={modulo.progetto} onFatto={() => setModulo({ aperto: false, progetto: null })}
+          io={io} tutte={Object.values(persone)} ricaricaProgetti={ricaricaProgetti} scegliProgetto={scegliProgetto} />
       </Modale>
     </>
   )
@@ -121,9 +123,11 @@ function SchedaProgetto({ p, onModifica }: { p: Progetto; onModifica: () => void
 const INPUT = 'w-full rounded-xl bg-riempimento px-3.5 py-2.5 text-[15px] text-testo transition placeholder:text-testo-3 focus:bg-superficie focus:ring-3 focus:ring-accento/35 focus:outline-none'
 
 /** Crea (progetto = null) o modifica un progetto. Nessun dato finto: se il backend non può, lo dice. */
-function ModuloProgetto({ progetto, onFatto }: { progetto: Progetto | null; onFatto: () => void }) {
-  const { io, persone, ricaricaProgetti, scegliProgetto } = useApp()
-  const tutte = Object.values(persone)
+export function ModuloProgetto({ progetto, onFatto, io, tutte, ricaricaProgetti, scegliProgetto }: {
+  progetto: Progetto | null; onFatto: () => void
+  io: Persona; tutte: Persona[]; ricaricaProgetti: () => Promise<Progetto[]>; scegliProgetto: (id: string) => void
+}) {
+  const [conferma, setConferma] = useState(false)
   const [d, setD] = useState<DatiProgetto>(progetto
     ? { nome: progetto.nome, cliente: progetto.cliente, manager_id: progetto.manager_id, membri: progetto.membri, scadenza: progetto.scadenza, descrizione: progetto.descrizione }
     : { nome: '', cliente: '', manager_id: io.id, membri: [io.id], scadenza: '', descrizione: '' })
@@ -132,9 +136,6 @@ function ModuloProgetto({ progetto, onFatto }: { progetto: Progetto | null; onFa
   const [occupato, setOccupato] = useState(false)
   const errori = validaProgetto(d, format(oggi(), 'yyyy-MM-dd'))
 
-  const alternaMembro = (id: string) => setD((x) => ({
-    ...x, membri: x.membri.includes(id) ? x.membri.filter((m) => m !== id || m === x.manager_id) : [...x.membri, id],
-  }))
   const scegliManager = (id: string) => setD((x) => ({ ...x, manager_id: id, membri: x.membri.includes(id) ? x.membri : [...x.membri, id] }))
 
   const salva = async () => {
@@ -148,6 +149,21 @@ function ModuloProgetto({ progetto, onFatto }: { progetto: Progetto | null; onFa
       toast.success(progetto ? 'Progetto aggiornato' : 'Progetto creato', { description: salvato.nome })
       onFatto()
       if (!progetto) scegliProgetto(salvato.id)
+    } catch (e) {
+      setErroreBackend((e as Error).message)
+    } finally {
+      setOccupato(false)
+    }
+  }
+
+  const elimina = async () => {
+    if (!progetto) return
+    setOccupato(true)
+    try {
+      await api.eliminaProgetto(progetto.id)
+      toast.success('Progetto eliminato', { description: progetto.nome })
+      onFatto()
+      await ricaricaProgetti()
     } catch (e) {
       setErroreBackend((e as Error).message)
     } finally {
@@ -179,23 +195,8 @@ function ModuloProgetto({ progetto, onFatto }: { progetto: Progetto | null; onFa
 
       <fieldset>
         <legend className="mb-1.5 text-xs font-semibold text-testo-2">Chi ci lavora ({d.membri.length})</legend>
-        <ul className="grid max-h-56 gap-1 overflow-y-auto rounded-2xl bg-riempimento/60 p-1.5 sm:grid-cols-2">
-          {tutte.map((p) => {
-            const manager = p.id === d.manager_id
-            return (
-              <li key={p.id}>
-                <label className={clsx('flex items-center gap-2.5 rounded-xl px-2 py-1.5', manager ? 'opacity-80' : 'cursor-pointer hover:bg-superficie')}>
-                  <input type="checkbox" checked={d.membri.includes(p.id)} disabled={manager} onChange={() => alternaMembro(p.id)} className="h-[18px] w-[18px] accent-[var(--accento)]" />
-                  <Avatar persona={p} size={22} />
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm">{p.nome}</span>
-                    <span className="block truncate text-[11px] text-testo-2">{manager ? 'manager' : (p.reparto ?? p.ruolo)}</span>
-                  </span>
-                </label>
-              </li>
-            )
-          })}
-        </ul>
+        <SelettorePersone inline etichetta="Membri del progetto" persone={tutte} valore={d.membri} bloccate={[d.manager_id]}
+          onCambia={(ids) => setD((x) => ({ ...x, membri: ids.includes(x.manager_id) ? ids : [...ids, x.manager_id] }))} />
         <p className="mt-1.5 text-xs text-testo-2">Ogni membro vedrà del progetto solo ciò che rientra nelle sue competenze.</p>
       </fieldset>
 
@@ -209,6 +210,9 @@ function ModuloProgetto({ progetto, onFatto }: { progetto: Progetto | null; onFa
       <div className="flex gap-2">
         <Bottone type="submit" variante="primario" icona={Check} disabled={occupato}>{progetto ? 'Salva le modifiche' : 'Crea il progetto'}</Bottone>
         <Bottone type="button" variante="secondario" onClick={onFatto}>Annulla</Bottone>
+        {progetto && (conferma
+          ? <Bottone type="button" variante="pericolo" className="ml-auto" disabled={occupato} onClick={elimina}>Elimina davvero, con tutti i dati</Bottone>
+          : <Bottone type="button" variante="fantasma" className="ml-auto" onClick={() => setConferma(true)}>Elimina progetto</Bottone>)}
       </div>
     </form>
   )

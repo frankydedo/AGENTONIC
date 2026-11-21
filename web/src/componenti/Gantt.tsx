@@ -95,7 +95,7 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
 
   return (
     <>
-      <div ref={scorri} className="relative overflow-x-auto">
+      <div ref={scorri} className="relative max-h-[70vh] overflow-auto">
         <div style={{ width: SINISTRA + larghezza }}>
           {/* intestazione: mesi e giorni */}
           <div className="sticky top-0 z-30 flex border-b border-separatore bg-superficie/90 backdrop-blur-xl">

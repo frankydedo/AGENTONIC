@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { api } from '../api'
 import { ListaAvvisi } from '../componenti/Avvisi'
-import { CartaProposta } from '../componenti/Proposte'
+import { ProposteACassetti } from '../componenti/Proposte'
 import { RigaTask } from '../componenti/Todo'
 import { Avatar, Card, IntestazioneCard, LinkSobrio, Scheletro, Vuoto } from '../componenti/ui'
 import { useApp } from '../contesto'
@@ -81,7 +81,12 @@ export function Documento() {
           </p>
         </div>
         <div className="flex -space-x-1.5">
-          {doc.partecipanti.map((n) => <Avatar key={n} persona={Object.values(persone).find((p) => p.nome === n)} nome={n} size={30} />)}
+          {doc.partecipanti.slice(0, 6).map((n) => <Avatar key={n} persona={Object.values(persone).find((p) => p.nome === n)} nome={n} size={30} />)}
+          {doc.partecipanti.length > 6 && (
+            <span title={doc.partecipanti.slice(6).join(', ')} className="grid h-[30px] min-w-[30px] place-items-center rounded-full bg-riempimento px-1.5 text-[11px] font-semibold text-testo-2 ring-2 ring-superficie">
+              +{doc.partecipanti.length - 6}
+            </span>
+          )}
         </div>
       </div>
 
@@ -136,7 +141,7 @@ export function Documento() {
                 sottotitolo="Passa sopra una proposta per vedere da quali frasi nasce." />
               {sue.length === 0
                 ? <Vuoto icona={Inbox} titolo="Nessuna proposta" testo="Il Brain non ha estratto nulla da questo documento." />
-                : <ul className="divide-y divide-separatore">{sue.map((p) => <CartaProposta key={p.id} p={p} onEvidenzia={setSuHover} />)}</ul>}
+                : <ProposteACassetti proposte={sue} onEvidenzia={setSuHover} />}
             </Card>
           ) : (
             <Card>

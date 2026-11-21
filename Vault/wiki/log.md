@@ -131,3 +131,8 @@
 ## [2026-11-21 15:00] decisione | Gestione dei progetti
 - Crea un progetto solo chi ha ruolo «project manager»; lo modifica solo il suo manager; gli altri vedono solo i progetti di cui sono membri, e dentro solo ciò che rientra nelle loro competenze.
 - Per ora solo frontend (pagina «Progetti»: schede, creazione, modifica, membri e manager): finché Pietro non aggiunge `GET/POST /progetti` e `PATCH /progetti/{id}` (`docs/proposte-contratto-ui.md` §8), creare e modificare danno un errore chiaro, senza dati finti.
+
+## [2026-11-21 16:05] decisione | CRUD dei progetti nel backend e app svuotata
+- Su richiesta del team, Mauro ha aggiunto nel backend `POST/PATCH/DELETE /progetti` (crea solo chi ha ruolo «project manager»; modifica ed elimina solo il manager del progetto; eliminazione a cascata; tutto nel registro). Test in `tests/test_progetti_crud.py`.
+- Il db locale `brain.db` è stato svuotato (restano le 8 persone, nessun progetto) con il nuovo `scripts/svuota_db.py`; copia di sicurezza nello scratchpad di Mauro. `scripts/crea_db.py` riporta i progetti d'esempio.
+- UI: chi può creare progetti e non ne ha vede subito il modulo; elimina progetto con conferma; selettori con ricerca, cassetti delle proposte, impostazioni, fonti compatte.

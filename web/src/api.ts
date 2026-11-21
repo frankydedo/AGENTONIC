@@ -27,6 +27,7 @@ async function chiama<T>(percorso: string, init: RequestInit = {}): Promise<T> {
     try { dettaglio = (await res.json()).detail ?? dettaglio } catch { /* corpo non JSON */ }
     throw new ErroreApi(res.status, typeof dettaglio === 'string' ? dettaglio : JSON.stringify(dettaglio))
   }
+  if (res.status === 204) return undefined as T
   return res.json() as Promise<T>
 }
 
@@ -101,6 +102,9 @@ export const api = {
   modificaProgetto: (id: string, dati: DatiProgetto) =>
     senzaRiserva('modificare i progetti', () => chiama<Progetto>(`/progetti/${id}`, { method: 'PATCH', body: JSON.stringify(dati) })),
 
+  /** Solo il manager del progetto: toglie il progetto con tutti i suoi dati. */
+  eliminaProgetto: (id: string) => chiama<void>(`/progetti/${id}`, { method: 'DELETE' }),
+
   documenti: (progettoId: string) =>
     conRiserva('documenti', () => chiama<Documento[]>(`/documenti?progetto_id=${progettoId}`),
       () => DOC_FINTI.filter((d) => d.progetto_id === progettoId)),
@@ -122,6 +126,9 @@ export const api = {
   /** `modifiche`: correzioni del manager (PROPOSTA di contratto; il backend attuale le ignora). */
   approva: (id: string, aree: Area[] | null, modifiche: Modifiche | null = null, nota: string | null = null) =>
     chiama<Proposta>(`/proposte/${id}/approva`, json({ aree, modifiche, nota })),
+  /** Riporta una proposta rifiutata «in attesa» (PROPOSTA: POST /proposte/{id}/riapri, solo il manager). */
+  riapriProposta: (id: string) =>
+    senzaRiserva('recuperare le proposte rifiutate', () => chiama<Proposta>(`/proposte/${id}/riapri`, { method: 'POST' })),
   rifiuta: (id: string, nota: string | null = null) =>
     chiama<Proposta>(`/proposte/${id}/rifiuta`, json({ nota })),
 

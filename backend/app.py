@@ -149,6 +149,86 @@ def dettaglio_progetto(progetto_id: str, chi: Persona = Depends(persona_corrente
     return membro(conn, progetto_id, chi)
 
 
+class DatiProgetto(BaseModel):
+    """Corpo di creazione e modifica di un progetto."""
+    nome: str
+    cliente: str
+    manager_id: str
+    membri: list[str] = []
+    scadenza: str                         # AAAA-MM-GG
+    descrizione: str = ""
+
+
+def _valida_progetto(conn: sqlite3.Connection, d: DatiProgetto) -> DatiProgetto:
+    """Regole del progetto, nel codice: nomi non vuoti, data valida e non passata, persone esistenti,
+    manager sempre tra i membri."""
+    nome, cliente = " ".join(d.nome.split()), " ".join(d.cliente.split())
+    if not nome or not cliente:
+        raise HTTPException(422, "Nome e cliente del progetto non possono essere vuoti.")
+    if len(nome) > 200 or len(cliente) > 200 or len(d.descrizione) > 2000:
+        raise HTTPException(422, "Testo troppo lungo.")
+    try:
+        scadenza = date.fromisoformat(d.scadenza)
+    except ValueError:
+        raise HTTPException(422, "La scadenza deve essere una data AAAA-MM-GG.")
+    if scadenza < date.today():
+        raise HTTPException(422, "La scadenza non può essere nel passato.")
+    membri = list(dict.fromkeys([*d.membri, d.manager_id]))   # senza doppioni, manager compreso
+    sconosciute = [pid for pid in membri if db.persona(conn, pid) is None]
+    if sconosciute:
+        raise HTTPException(422, f"Persone inesistenti: {', '.join(sconosciute)}.")
+    return d.model_copy(update={"nome": nome, "cliente": cliente, "membri": membri,
+                                "scadenza": scadenza.isoformat(), "descrizione": d.descrizione.strip()})
+
+
+def _salva_membri(conn: sqlite3.Connection, progetto_id: str, membri: list[str]) -> None:
+    conn.execute("DELETE FROM membri WHERE progetto_id = ?", (progetto_id,))
+    conn.executemany("INSERT INTO membri (progetto_id, persona_id) VALUES (?, ?)", [(progetto_id, m) for m in membri])
+
+
+@app.post("/progetti", status_code=201)
+def crea_progetto(body: DatiProgetto, chi: Persona = Depends(persona_corrente),
+                  conn: sqlite3.Connection = Depends(get_db)) -> Progetto:
+    """Solo chi ha ruolo «project manager» crea un progetto (decisione del team, 21/11)."""
+    if chi.ruolo.strip().lower() != "project manager":
+        raise HTTPException(403, "Solo un project manager può creare progetti.")
+    d = _valida_progetto(conn, body)
+    n = conn.execute("SELECT COUNT(*) FROM progetti").fetchone()[0] + 1
+    while conn.execute("SELECT 1 FROM progetti WHERE id = ?", (f"prj-{n:02d}",)).fetchone():
+        n += 1
+    pid = f"prj-{n:02d}"
+    conn.execute("INSERT INTO progetti (id, nome, cliente, manager_id, scadenza, descrizione) VALUES (?, ?, ?, ?, ?, ?)",
+                 (pid, d.nome, d.cliente, d.manager_id, d.scadenza, d.descrizione))
+    _salva_membri(conn, pid, d.membri)
+    db.registra(conn, "decisione", chi.id, "crea_progetto", progetto_id=pid,
+                output={"progetto_id": pid, "membri": len(d.membri)})
+    return db.progetto(conn, pid)
+
+
+@app.patch("/progetti/{progetto_id}")
+def modifica_progetto(progetto_id: str, body: DatiProgetto, chi: Persona = Depends(persona_corrente),
+                      conn: sqlite3.Connection = Depends(get_db)) -> Progetto:
+    """Solo il manager del progetto. Togliere un membro non cancella la memoria: smette solo di vederla."""
+    manager(conn, progetto_id, chi)
+    d = _valida_progetto(conn, body)
+    conn.execute("UPDATE progetti SET nome = ?, cliente = ?, manager_id = ?, scadenza = ?, descrizione = ? WHERE id = ?",
+                 (d.nome, d.cliente, d.manager_id, d.scadenza, d.descrizione, progetto_id))
+    _salva_membri(conn, progetto_id, d.membri)
+    db.registra(conn, "decisione", chi.id, "modifica_progetto", progetto_id=progetto_id,
+                output={"manager_id": d.manager_id, "membri": len(d.membri)})
+    return db.progetto(conn, progetto_id)
+
+
+@app.delete("/progetti/{progetto_id}", status_code=204)
+def elimina_progetto(progetto_id: str, chi: Persona = Depends(persona_corrente),
+                     conn: sqlite3.Connection = Depends(get_db)) -> Response:
+    """Solo il manager del progetto. Toglie il progetto con tutti i suoi dati."""
+    manager(conn, progetto_id, chi)
+    db.elimina_progetto(conn, progetto_id)
+    db.registra(conn, "decisione", chi.id, "elimina_progetto", output={"progetto_id": progetto_id})
+    return Response(status_code=204)
+
+
 # --- Documenti: ingestion -> analisi -> proposte e avvisi ---------------------------------------
 
 class EsitoCaricamento(BaseModel):
