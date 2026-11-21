@@ -56,7 +56,9 @@ def test_avviso_inoltrato_per_nome_o_per_area():
     assert not puo_vedere_avviso(PERSONE["p-08"], PRJ, per_area)   # fuori dal progetto
 
 
-def test_inoltra_solo_manager_e_solo_membri():
+def test_inoltra_solo_manager_e_solo_membri(client):   # `client` di conftest: db nuovo, non lo scheletro
+    from conftest import carica
+    carica(client)                                      # gli avvisi nascono dal caricamento della riunione
     url = "/avvisi/avv-001/inoltra"
     assert client.post(url, json={"persona_ids": ["p-03"]}, headers={"X-Persona": "p-04"}).status_code == 403
     assert client.post(url, json={"persona_ids": ["p-08"]}, headers={"X-Persona": "p-01"}).status_code == 422
