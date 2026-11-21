@@ -1,9 +1,9 @@
-import { BrainCircuit, LoaderCircle, ServerCrash, UserRoundX } from 'lucide-react'
+import { ServerCrash, UserRoundX } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { Navigate, Route, Routes } from 'react-router'
-import { api, ErroreApi } from './api'
+import { Navigate, Route, Routes, useNavigate } from 'react-router'
+import { api } from './api'
 import { Layout } from './componenti/Layout'
-import { Avatar, Bottone } from './componenti/ui'
+import { Avatar, Bottone, MarchioBrain } from './componenti/ui'
 import { ContestoApp, type Contesto } from './contesto'
 import { DatiProvider } from './dati'
 import { Chiedi } from './pagine/Chiedi'
@@ -15,45 +15,53 @@ import { SceltaPersona } from './pagine/SceltaPersona'
 import { Team } from './pagine/Team'
 import type { Persona, Progetto } from './tipi'
 
-const PROGETTO_ID = 'prj-01'
 const CHIAVE = 'company-brain-persona'
+const CHIAVE_PROGETTO = 'company-brain-progetto'
 
-// La persona scelta sopravvive al ricaricamento della pagina (solo comodità della demo).
-const ricorda = (id: string | null) => {
-  try { if (id) sessionStorage.setItem(CHIAVE, id); else sessionStorage.removeItem(CHIAVE) } catch { /* storage non disponibile */ }
+// Persona e progetto scelti sopravvivono al ricaricamento della pagina (solo comodità della demo).
+const salva = (chiave: string, id: string | null) => {
+  try { if (id) sessionStorage.setItem(chiave, id); else sessionStorage.removeItem(chiave) } catch { /* storage non disponibile */ }
 }
-const ricordata = () => { try { return sessionStorage.getItem(CHIAVE) } catch { return null } }
+const leggi = (chiave: string) => { try { return sessionStorage.getItem(chiave) } catch { return null } }
 
 type Fase = 'avvio' | 'scelta' | 'carico' | 'pronto' | 'non_membro' | 'offline'
 
 export default function App() {
   const [persone, setPersone] = useState<Persona[]>([])
   const [io, setIo] = useState<Persona | null>(null)
-  const [progetto, setProgetto] = useState<Progetto | null>(null)
+  const [progetti, setProgetti] = useState<Progetto[]>([])
+  const [progettoId, setProgettoId] = useState<string | null>(null)
   const [fase, setFase] = useState<Fase>('avvio')
+  const vai = useNavigate()
 
   const scegli = useCallback(async (id: string) => {
     setFase('carico')
     try {
       setIo(await api.apriSessione(id))
-      ricorda(id)
-      try {
-        setProgetto(await api.progetto(PROGETTO_ID))
-        setFase('pronto')
-      } catch (e) {
-        if (e instanceof ErroreApi && e.status === 403) { setProgetto(null); setFase('non_membro') } else throw e
-      }
+      salva(CHIAVE, id)
+      const suoi = await api.progetti()
+      setProgetti(suoi)
+      if (suoi.length === 0) { setProgettoId(null); setFase('non_membro'); return }
+      const ricordato = leggi(CHIAVE_PROGETTO)
+      setProgettoId(suoi.some((p) => p.id === ricordato) ? ricordato : suoi[0].id)
+      setFase('pronto')
     } catch {
       setFase('offline')
     }
   }, [])
+
+  const scegliProgetto = useCallback((id: string) => {
+    salva(CHIAVE_PROGETTO, id)
+    setProgettoId(id)
+    vai('/')
+  }, [vai])
 
   const avvia = useCallback(() => {
     setFase('avvio')
     api.persone()
       .then((ps) => {
         setPersone(ps)
-        const r = ricordata()
+        const r = leggi(CHIAVE)
         if (r && ps.some((p) => p.id === r)) scegli(r)
         else setFase('scelta')
       })
@@ -62,25 +70,26 @@ export default function App() {
 
   useEffect(() => { avvia() }, [avvia])
 
-  const esci = useCallback(() => { ricorda(null); setIo(null); setProgetto(null); setFase('scelta') }, [])
+  const esci = useCallback(() => { salva(CHIAVE, null); setIo(null); setProgetti([]); setFase('scelta') }, [])
 
+  const progetto = progetti.find((p) => p.id === progettoId) ?? null
   const ctx = useMemo<Contesto | null>(() => {
     if (!io || !progetto) return null
     const mappa = Object.fromEntries(persone.map((p) => [p.id, p]))
     return {
-      io, progetto, persone: mappa,
+      io, progetto, progetti, scegliProgetto, persone: mappa,
       membri: progetto.membri.map((id) => mappa[id]).filter(Boolean),
       sonoManager: io.id === progetto.manager_id,
       scegliPersona: scegli, esci,
     }
-  }, [io, progetto, persone, scegli, esci])
+  }, [io, progetto, progetti, scegliProgetto, persone, scegli, esci])
 
   if (fase === 'avvio' || fase === 'carico') {
     return (
-      <div className="grid min-h-screen place-items-center">
-        <div className="flex flex-col items-center gap-3 text-slate-500">
-          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white"><BrainCircuit size={24} /></span>
-          <LoaderCircle size={18} className="animate-spin" />
+      <div className="quadrettatura grid min-h-screen place-items-center">
+        <div className="flex flex-col items-center gap-4" role="status">
+          <MarchioBrain size={52} parla />
+          <p className="text-sm font-medium text-grafite">{fase === 'carico' ? 'Il Brain prepara la tua giornata…' : 'Accensione…'}</p>
         </div>
       </div>
     )
@@ -96,8 +105,8 @@ export default function App() {
   if (fase === 'scelta' || !io) return <SceltaPersona persone={persone} onScegli={scegli} />
   if (fase === 'non_membro' || !ctx) {
     return (
-      <Schermo icona={<UserRoundX size={26} />} titolo={`${io.nome.split(' ')[0]}, non fai parte di questo progetto`}
-        testo="Il Brain non ti mostra nulla del progetto: né i dati, né che esistono. Chiedi al manager di aggiungerti.">
+      <Schermo icona={<UserRoundX size={26} />} titolo={`${io.nome.split(' ')[0]}, non fai parte di nessun progetto`}
+        testo="Il Brain non ti mostra nulla dei progetti di cui non sei membro: né i dati, né che esistono. Chiedi a un manager di aggiungerti.">
         <div className="flex items-center gap-3"><Avatar persona={io} size={32} /><Bottone onClick={esci}>Cambia persona</Bottone></div>
       </Schermo>
     )
@@ -105,7 +114,7 @@ export default function App() {
 
   return (
     <ContestoApp.Provider value={ctx}>
-      <DatiProvider key={io.id}>
+      <DatiProvider key={`${io.id}:${progetto?.id}`}>
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<Panoramica />} />
@@ -124,12 +133,12 @@ export default function App() {
 
 function Schermo({ icona, titolo, testo, children }: { icona: ReactNode; titolo: string; testo: string; children: ReactNode }) {
   return (
-    <div className="grid min-h-screen place-items-center px-4">
-      <div className="max-w-md text-center">
-        <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-slate-100 text-slate-500">{icona}</span>
-        <h1 className="mt-4 text-xl font-semibold">{titolo}</h1>
-        <p className="mt-2 text-slate-500">{testo}</p>
-        <div className="mt-6 flex justify-center">{children}</div>
+    <div className="quadrettatura grid min-h-screen place-items-center px-4">
+      <div className="sopra max-w-md rounded-md border border-inchiostro bg-foglio p-7">
+        <span className="grid h-11 w-11 place-items-center rounded-[4px] bg-segnale text-inchiostro">{icona}</span>
+        <h1 className="titolo-tavola mt-5 text-2xl">{titolo}</h1>
+        <p className="mt-2 text-grafite">{testo}</p>
+        <div className="mt-6 flex">{children}</div>
       </div>
     </div>
   )

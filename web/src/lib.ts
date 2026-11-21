@@ -1,6 +1,6 @@
 import { differenceInCalendarDays, format, parseISO, startOfDay } from 'date-fns'
 import { it } from 'date-fns/locale'
-import type { Proposta, StatoTask, Task } from './tipi'
+import type { PassoRegistro, Proposta, StatoTask, Task } from './tipi'
 
 // --- Tempo --------------------------------------------------------------------------------------
 
@@ -49,6 +49,41 @@ export const daChiarire = (p: Proposta) =>
 
 // --- Persone ------------------------------------------------------------------------------------
 
-const PALETTE = ['bg-indigo-500', 'bg-sky-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500', 'bg-violet-500', 'bg-teal-500', 'bg-fuchsia-500']
+// Toni d'inchiostro, non pastello: stanno sulla carta come i colori dei cavi in un quadro.
+const PALETTE = ['#2d64a8', '#1d7347', '#6a4c93', '#a8456b', '#2a7d77', '#8a5a1c', '#3b4a6b', '#9b3f2f']
 export const coloreDi = (id: string) => PALETTE[[...id].reduce((a, c) => a + c.charCodeAt(0), 0) % PALETTE.length]
 export const iniziali = (nome: string) => nome.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()
+
+// --- Registro: passi in italiano semplice ---------------------------------------------------------
+
+const leggibile = (k: string) => k.replace(/_/g, ' ')
+
+/** `{segmenti: 16, task: 7}` → `["16 segmenti", "7 task"]`; ignora oggetti e liste. */
+export function riassuntoOutput(o: Record<string, unknown>): string[] {
+  return Object.entries(o).flatMap(([k, v]) =>
+    typeof v === 'number' ? [`${v} ${leggibile(k)}`] : typeof v === 'string' ? [`${leggibile(k)}: ${v}`] : [])
+}
+
+/** Una frase per il manager, senza gergo: chi ha fatto cosa, su quale documento. */
+export function descriviPasso(p: PassoRegistro, nomePersona: (id: string) => string, titoloDoc: (id: string) => string | null): string {
+  const chi = p.attore === 'brain' ? 'Il Brain' : nomePersona(p.attore)
+  const docId = p.documento_id ?? (typeof p.input.documento_id === 'string' ? p.input.documento_id : null)
+  const doc = docId ? `«${titoloDoc(docId) ?? docId}»` : 'il documento'
+  const proposta = typeof p.input.proposta_id === 'string' ? ` ${p.input.proposta_id}` : ''
+  const step = p.step.toLowerCase()
+  if (step.startsWith('ingestion')) return `${chi} ha letto ${doc} e l'ha diviso in interventi`
+  if (step.startsWith('estrazion')) return `${chi} ha estratto task, fatti e punti oscuri da ${doc}`
+  if (step.includes('abbin')) return `${chi} ha abbinato i nomi detti alle persone del progetto`
+  if (step.includes('lacun') || step.includes('sconosc')) return `${chi} ha cercato persone e contesti che non conosce`
+  if (step.includes('incongru')) return `${chi} ha confrontato ${doc} con le riunioni precedenti`
+  if (step.includes('differenz')) return `${chi} ha confrontato ${doc} con la lista del progetto`
+  if (step === 'approva') return `${chi} ha approvato la proposta${proposta}`
+  if (step === 'rifiuta') return `${chi} ha rifiutato la proposta${proposta}`
+  if (step.includes('inoltr')) return `${chi} ha inoltrato un avviso`
+  if (p.tipo === 'caricamento') return `${chi} ha caricato ${doc}`
+  if (p.tipo === 'domanda') return `${chi} ha fatto una domanda al Brain`
+  return `${chi}: ${leggibile(p.step)}`
+}
+
+export const durata = (ms: number | null | undefined) =>
+  ms == null ? null : ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1).replace('.', ',')} s`

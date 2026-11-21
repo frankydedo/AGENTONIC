@@ -24,15 +24,16 @@ export function Team() {
         sottotitolo={sonoManager ? 'Chi fa cosa, entro quando, e cosa blocca chi.' : 'I task del progetto che rientrano nelle tue competenze.'}
         azioni={
           <div className="flex items-center gap-2">
-            <select value={chi} onChange={(e) => imposta('chi', e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+            <select value={chi} onChange={(e) => imposta('chi', e.target.value)} aria-label="Filtra per persona" className="rounded-[4px] border border-linea-forte bg-foglio px-3 py-2 text-sm">
               <option value="">Tutte le persone</option>
               {membri.map((m) => <option key={m.id} value={m.id}>{m.nome}</option>)}
             </select>
-            <div className="flex rounded-lg bg-slate-100 p-1">
+            <div className="flex rounded-[5px] border border-inchiostro p-0.5">
               {([['gantt', 'Gantt', ChartGantt], ['persone', 'Per persona', Users]] as const).map(([k, etichetta, Icona]) => (
                 <button key={k} onClick={() => imposta('vista', k === 'gantt' ? '' : k)}
-                  className={clsx('inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition',
-                    vista === k ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800')}>
+                  aria-pressed={vista === k}
+                  className={clsx('inline-flex items-center gap-1.5 rounded-[3px] px-3 py-1.5 text-sm font-semibold transition-colors',
+                    vista === k ? 'bg-inchiostro text-foglio' : 'text-grafite hover:text-inchiostro')}>
                   <Icona size={15} /> {etichetta}
                 </button>
               ))}
@@ -62,35 +63,35 @@ function CartaPersona({ p }: { p: Persona }) {
 
   return (
     <Card className="flex flex-col">
-      <div className="flex items-start gap-3 border-b border-slate-100 p-5">
+      <div className="flex items-start gap-3 border-b border-linea p-5">
         <Avatar persona={p} size={44} />
         <div className="min-w-0 flex-1">
-          <p className="font-semibold">{p.nome}</p>
-          <p className="text-sm text-slate-500">{p.id === progetto.manager_id ? 'Manager del progetto' : p.ruolo}</p>
+          <p className="text-[17px] font-bold [font-stretch:108%]">{p.nome}</p>
+          <p className="text-sm text-grafite">{p.id === progetto.manager_id ? 'Manager del progetto' : p.ruolo}</p>
           <div className="mt-2 flex flex-wrap gap-1">{p.competenze.map((a) => <ChipArea key={a} area={a} />)}</div>
         </div>
       </div>
-      <div className="grid grid-cols-3 divide-x divide-slate-100 border-b border-slate-100 text-center">
+      <div className="grid grid-cols-3 divide-x divide-linea border-b border-linea">
         <Numero n={aperti.length} etichetta="aperti" />
-        <Numero n={urgenti} etichetta="entro 7 gg" tono={urgenti ? 'text-amber-600' : undefined} />
-        <Numero n={bloccati} etichetta="bloccati" tono={bloccati ? 'text-red-600' : undefined} />
+        <Numero n={urgenti} etichetta="entro 7 gg" tono={urgenti ? 'text-segnale-scuro' : undefined} />
+        <Numero n={bloccati} etichetta="bloccati" tono={bloccati ? 'text-allarme' : undefined} />
       </div>
       <div className="flex-1 space-y-4 p-5">
         <section>
-          <h3 className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-slate-500 uppercase">
+          <h3 className="mb-2 flex items-center gap-1.5 text-sm font-bold">
             <Sun size={13} /> Oggi
             {todo && (stimata
-              ? <Badge className="ml-auto normal-case" tono="grigio">stimata dai task</Badge>
-              : todo.accettata ? <Badge className="ml-auto normal-case" tono="verde">accettata</Badge> : <Badge className="ml-auto normal-case" tono="giallo">da accettare</Badge>)}
+              ? <Badge className="ml-auto" tono="grigio">stimata dai task</Badge>
+              : todo.accettata ? <Badge className="ml-auto" tono="verde">accettata</Badge> : <Badge className="ml-auto" tono="giallo">da accettare</Badge>)}
           </h3>
-          {!todo ? <div className="h-10 animate-pulse rounded-lg bg-slate-100" /> : todo.task.length === 0
-            ? <p className="text-sm text-slate-400">Niente in programma.</p>
-            : <ul className="space-y-2">{todo.task.map((t) => <li key={t.id} className="rounded-lg bg-slate-50 p-2.5"><RigaTask t={t} conAssegnatario={false} compatta /></li>)}</ul>}
+          {!todo ? <div className="h-10 animate-pulse rounded-[4px] bg-velina" /> : todo.task.length === 0
+            ? <p className="text-sm text-traccia">Niente in programma.</p>
+            : <ul className="space-y-2">{todo.task.map((t) => <li key={t.id} className="rounded-[4px] border-l-[3px] border-inchiostro bg-velina p-2.5"><RigaTask t={t} conAssegnatario={false} compatta /></li>)}</ul>}
         </section>
         <section>
-          <h3 className="mb-2 text-xs font-semibold tracking-wide text-slate-500 uppercase">Tutti i suoi task</h3>
-          {suoi.length === 0 ? <p className="text-sm text-slate-400">Nessun task visibile.</p>
-            : <ul className="space-y-2">{suoi.map((t) => <li key={t.id} className="rounded-lg border border-slate-100 p-2.5"><RigaTask t={t} conAssegnatario={false} compatta /></li>)}</ul>}
+          <h3 className="mb-2 text-sm font-bold">Tutti i suoi task</h3>
+          {suoi.length === 0 ? <p className="text-sm text-traccia">Nessun task visibile.</p>
+            : <ul className="space-y-2">{suoi.map((t) => <li key={t.id} className="rounded-[4px] border border-linea p-2.5"><RigaTask t={t} conAssegnatario={false} compatta /></li>)}</ul>}
         </section>
       </div>
     </Card>
@@ -99,9 +100,9 @@ function CartaPersona({ p }: { p: Persona }) {
 
 function Numero({ n, etichetta, tono }: { n: number; etichetta: string; tono?: string }) {
   return (
-    <div className="py-3">
-      <p className={clsx('text-xl font-semibold tabular-nums', tono)}>{n}</p>
-      <p className="text-[11px] text-slate-500">{etichetta}</p>
+    <div className="px-4 py-3">
+      <p className={clsx('condensato text-3xl leading-none font-bold', !n && 'text-traccia', tono)}>{n}</p>
+      <p className="mt-1 text-xs text-grafite">{etichetta}</p>
     </div>
   )
 }

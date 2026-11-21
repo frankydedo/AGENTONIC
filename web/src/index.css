@@ -1,7 +1,44 @@
 @import "tailwindcss";
 
+/*
+ * Linguaggio visivo: la tavola tecnica di una commessa di automazione.
+ * Carta da disegno, inchiostro di Prussia, il giallo dei segnali industriali (RAL 1003)
+ * usato solo dove il Brain chiede attenzione, il verde del timbro per le decisioni umane.
+ */
 @theme {
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  --color-carta: #e9eae4;
+  --color-foglio: #f8f8f4;
+  --color-velina: #f0f1eb;
+  --color-linea: #d2d4cc;
+  --color-linea-forte: #a7aba2;
+
+  --color-inchiostro: #14213d;
+  --color-inchiostro-2: #24365e;
+  --color-grafite: #535a6a;
+  --color-traccia: #80858f;
+
+  --color-segnale: #f2b705;
+  --color-segnale-chiaro: #fbf0c9;
+  --color-segnale-scuro: #6b4f00;
+
+  --color-timbro: #1d7347;
+  --color-timbro-chiaro: #dcebe1;
+  --color-allarme: #b3342a;
+  --color-allarme-chiaro: #f5dfdb;
+  --color-cavo: #2d64a8;
+  --color-cavo-chiaro: #dfe8f3;
+  --color-viola: #6a4c93;
+  --color-viola-chiaro: #e9e3f1;
+
+  --animate-spia: spia 2.4s ease-in-out infinite;
+}
+
+@keyframes spia {
+  0%, 100% { opacity: 1; filter: none; }
+  50% { opacity: 0.55; filter: saturate(0.7); }
 }
 
 html {
@@ -9,15 +46,66 @@ html {
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
-  font-feature-settings: "cv11", "ss01", "ss03";
+  @apply bg-carta text-inchiostro antialiased;
+  font-stretch: 100%;
+}
+
+/* Titoli: larghi e pesanti, come le intestazioni di una tavola. */
+.titolo-tavola {
+  font-stretch: 120%;
+  font-weight: 760;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+}
+
+/* Dati e riferimenti: condensati, a cifre tabulari. */
+.condensato {
+  font-stretch: 76%;
+  font-variant-numeric: tabular-nums;
+}
+
+.cifre {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Il foglio quadrettato delle schermate di ingresso. */
+.quadrettatura {
+  background-color: var(--color-carta);
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--color-linea) 70%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--color-linea) 70%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: -1px -1px;
+}
+
+/* Ombra degli oggetti che stanno sopra il foglio: netta, non sfumata. */
+.sopra {
+  box-shadow: 5px 5px 0 var(--color-inchiostro);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-inchiostro);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--color-segnale-chiaro);
 }
 
 /* La fonte selezionata lampeggia quando la si apre da una citazione. */
 @keyframes evidenzia {
-  0%, 30% { background-color: var(--color-indigo-200); }
-  100% { background-color: var(--color-indigo-50); }
+  0%, 30% { background-color: color-mix(in oklab, var(--color-segnale) 55%, var(--color-foglio)); }
+  100% { background-color: var(--color-segnale-chiaro); }
 }
 .segmento-evidenziato {
   animation: evidenzia 1.8s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

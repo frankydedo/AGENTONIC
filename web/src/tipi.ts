@@ -18,6 +18,7 @@ export interface Persona {
   ruolo: string
   alias: string[]
   competenze: Area[]
+  reparto?: string | null // PROPOSTA: l'area aziendale (ufficio tecnico, acquisti, ...)
 }
 
 export interface Progetto {
@@ -102,6 +103,9 @@ export interface Avviso {
   risolto: boolean
   creato_il: string
   proposta_id?: string | null // PROPOSTA: la proposta da correggere (punto oscuro, sconosciuto)
+  aree?: Area[]
+  basato_su_proposte?: string[] // nasce da proposte non ancora approvate
+  inoltrato_a?: string[]
 }
 
 /** Correzioni del manager al contenuto di una proposta (PROPOSTA di contratto). */
@@ -132,12 +136,19 @@ export interface EsitoCaricamento {
 }
 
 export interface PassoRegistro {
-  id: number
+  id: number | null
   quando: string
-  tipo: string
-  attore: string
+  tipo: 'workflow' | 'caricamento' | 'decisione' | 'domanda' | string
+  attore: string // "brain" oppure l'id della persona
   step: string
+  documento_id?: string | null
+  provider?: 'locale' | 'cloud' | 'mock' | null
+  modello?: string | null
+  versione_prompt?: string | null
   input: Record<string, unknown>
   output: Record<string, unknown>
+  esito?: 'ok' | 'scartato' | 'errore'
   motivo: string | null
+  tentativi?: number
+  durata_ms?: number | null
 }

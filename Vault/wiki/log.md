@@ -120,3 +120,10 @@
   lo stub di Franky.
 - Aperto: come i `rif` temporanei arrivano in `Proposta.contenuto.dipende_da`; le richieste di Mauro
   in `docs/proposte-contratto-ui.md` (documenti, `modifiche`, `Avviso.proposta_id`, to-do letta dal manager).
+
+
+## [2026-11-21 14:45] decisione | Progetti multipli, Brain al lavoro e file d'esempio (Mauro)
+- Il team ha deciso: l'azienda è divisa in aree (reparti) che lavorano sugli stessi progetti; la UI deve far scegliere il progetto.
+- UI: selettore del progetto (solo quelli di cui si è membri), pulsante «Carica riunione» con i passi del Brain, Registro riscritto in frasi italiane (i dati grezzi in «Dettagli tecnici»), inoltro degli avvisi.
+- Proposte al backend in `docs/proposte-contratto-ui.md` §6-7: `GET /progetti`, `Persona.reparto`, `prj-02` (manager Marco Bianchi) e `prj-03` (manager Paola Greco) in `azienda.json`, evento SSE `passo`.
+- File d'esempio fuori dalla repo in `~/Desktop/File esempio` (3 progetti + casi limite, con `LEGGIMI.md`): da `segmenta()` emergono due casi da gestire, l'id duplicato (riu-001) e il progetto dell'intestazione diverso da quello del caricamento.

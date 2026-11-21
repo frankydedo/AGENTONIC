@@ -9,7 +9,7 @@ import { useApp } from '../contesto'
 import { useDati } from '../dati'
 import { campo, daChiarire, dataBreve, oraDi, titoloProposta } from '../lib'
 import { AREE, type Area, type Modifiche, type Proposta } from '../tipi'
-import { Avatar, Badge, Bottone, ChipArea, Citazioni, Scadenza } from './ui'
+import { Avatar, Badge, Bottone, ChipArea, Citazioni, Scadenza, Timbro } from './ui'
 
 const TIPI: Record<Proposta['tipo'], [string, LucideIcon]> = {
   nuovo_task: ['Nuovo task', ListPlus],
@@ -33,6 +33,7 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
   const { decidi, avvisoDiProposta, documenti } = useDati()
   const [inModifica, setInModifica] = useState(correggiSubito)
   const [occupato, setOccupato] = useState(false)
+  const [appenaDecisa, setAppenaDecisa] = useState(false)
   const originale = {
     titolo: campo(p, 'titolo') ?? '',
     assegnatario_id: campo(p, 'assegnatario_id') ?? '',
@@ -69,6 +70,7 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
     try {
       await decidi(p, esito, esito === 'approva' ? { aree, modifiche: inModifica ? modifiche() : undefined } : {})
       setInModifica(false)
+      setAppenaDecisa(true)
       onDecisa?.()
     } catch { /* il toast l'ha già mostrato */ } finally {
       setOccupato(false)
@@ -82,18 +84,17 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
       initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
       onMouseEnter={() => onEvidenzia?.(segmenti)} onMouseLeave={() => onEvidenzia?.(null)}
       className={clsx(
-        'list-none rounded-xl border p-4 transition',
-        !inAttesa && 'border-slate-100 bg-slate-50/70',
-        inAttesa && dubbio && 'border-amber-200 bg-amber-50/30',
-        inAttesa && !dubbio && 'border-slate-200 bg-white hover:border-slate-300',
+        'relative list-none rounded-[5px] border p-4 transition-colors',
+        !inAttesa && 'border-linea bg-velina/70',
+        inAttesa && dubbio && 'border-segnale bg-foglio shadow-[inset_4px_0_0_var(--color-segnale)] pl-5',
+        inAttesa && !dubbio && 'border-linea-forte/70 bg-foglio hover:border-inchiostro/60',
       )}
     >
-      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-        <span className="inline-flex items-center gap-1.5 font-medium text-slate-700"><Icona size={14} className="text-indigo-500" />{etichetta}</span>
-        {p.stato === 'approvata' && <Badge tono="verde" icona={Check}>Approvata</Badge>}
-        {p.stato === 'rifiutata' && <Badge tono="grigio" icona={X}>Rifiutata</Badge>}
+      {!inAttesa && <Timbro esito={p.stato === 'approvata' ? 'approvata' : 'rifiutata'} nuovo={appenaDecisa} className="absolute top-3 right-4" />}
+      <div className="flex flex-wrap items-center gap-2 pr-28 text-xs text-grafite">
+        <span className="inline-flex items-center gap-1.5 font-semibold text-inchiostro"><Icona size={14} strokeWidth={2.3} />{etichetta}</span>
         {mostraDocumento && documento && (
-          <Link to={`/documenti/${documento.id}`} className="ml-auto inline-flex items-center gap-1 hover:text-indigo-600">
+          <Link to={`/documenti/${documento.id}`} className="ml-auto inline-flex items-center gap-1 underline-offset-4 hover:text-inchiostro hover:underline">
             <FileText size={12} /> {documento.titolo}
           </Link>
         )}
@@ -113,7 +114,7 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
               <div className="grid gap-3 sm:grid-cols-2">
                 <Campo etichetta="Chi se ne occupa">
                   <select value={bozza.assegnatario_id} onChange={(e) => setBozza({ ...bozza, assegnatario_id: e.target.value })}
-                    className={clsx(INPUT, !bozza.assegnatario_id && 'border-amber-300 bg-amber-50')}>
+                    className={clsx(INPUT, !bozza.assegnatario_id && 'border-segnale bg-segnale-chiaro')}>
                     <option value="">— nessuno —</option>
                     {membri.map((m) => <option key={m.id} value={m.id}>{m.nome} · {m.ruolo}</option>)}
                   </select>
@@ -127,13 +128,12 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
         </div>
       ) : (
         <>
-          <p className="mt-2 font-medium text-slate-900">{titoloProposta(p)}</p>
+          <p className={clsx('mt-2 text-[16px] leading-snug font-semibold', p.stato === 'rifiutata' && 'text-grafite line-through decoration-allarme/50')}>{titoloProposta(p)}</p>
           {!isFatto && (
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-grafite">
               {assegnatario
                 ? <span className="inline-flex items-center gap-1.5"><Avatar persona={assegnatario} size={22} />{assegnatario.nome}</span>
                 : <Badge tono="giallo">Nessun responsabile</Badge>}
-              <span className="text-slate-300">·</span>
               <span>{campo(p, 'scadenza') ? `entro ${dataBreve(campo(p, 'scadenza'))}` : 'senza scadenza'}</span>
               {inAttesa && campo(p, 'scadenza') && <Scadenza iso={campo(p, 'scadenza')} />}
             </div>
@@ -142,14 +142,14 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
       )}
 
       {inAttesa && dubbio && (
-        <div className="mt-3 flex gap-2 rounded-lg bg-amber-100/60 px-3 py-2 text-sm text-amber-900">
-          <TriangleAlert size={16} className="mt-0.5 shrink-0" />
+        <div className="mt-3 flex gap-2 rounded-[3px] bg-segnale-chiaro px-3 py-2 text-sm text-segnale-scuro">
+          <TriangleAlert size={16} strokeWidth={2.3} className="mt-0.5 shrink-0" />
           <span>{avviso?.testo ?? 'Il Brain non è sicuro di questa voce: controllala prima di approvarla.'}</span>
         </div>
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
-        <span className="mr-1 text-xs text-slate-500" title="Chi ha almeno una di queste aree potrà vedere la voce">Visibile a:</span>
+        <span className="mr-1 text-xs text-grafite" title="Chi ha almeno una di queste aree potrà vedere la voce">Visibile a:</span>
         {inAttesa
           ? AREE.map((a) => <ChipArea key={a} area={a} attiva={aree.includes(a)} onClick={() => alterna(a)} />)
           : (p.aree_confermate ?? p.aree_proposte).map((a) => <ChipArea key={a} area={a} />)}
@@ -180,7 +180,7 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
         </div>
       ) : (
         p.decisa_da && (
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-3 text-xs text-grafite">
             {p.stato === 'approvata' ? 'Approvata' : 'Rifiutata'} da {persone[p.decisa_da]?.nome ?? p.decisa_da}
             {p.decisa_il && ` alle ${oraDi(p.decisa_il)}`}
           </p>
@@ -190,12 +190,12 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
   )
 }
 
-const INPUT = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none'
+const INPUT = 'w-full rounded-[4px] border border-linea-forte bg-foglio px-3 py-2 text-sm transition focus:border-inchiostro focus:ring-2 focus:ring-segnale/50 focus:outline-none'
 
 function Campo({ etichetta, children }: { etichetta: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-medium text-slate-600">{etichetta}</span>
+      <span className="mb-1 block text-xs font-semibold text-grafite">{etichetta}</span>
       {children}
     </label>
   )
