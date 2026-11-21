@@ -1,0 +1,79 @@
+{
+  "_nota": "BOZZA di Franky del 21/11, da rivedere con Pietro (proprietario del file). Dati sintetici. Aree ammesse: sviluppo, budget, commerciale, fornitori, personale, generale.",
+  "azienda": {
+    "nome": "Automazioni Dora S.r.l.",
+    "settore": "automazione industriale (quadri elettrici, PLC, HMI, revamping di linee)",
+    "sede": "Settimo Torinese (TO)"
+  },
+  "persone": [
+    {
+      "id": "p-01",
+      "nome": "Giulia Ferraris",
+      "ruolo": "project manager",
+      "alias": ["Giulia", "Ferraris"],
+      "competenze": ["sviluppo", "budget", "commerciale", "fornitori", "personale", "generale"]
+    },
+    {
+      "id": "p-02",
+      "nome": "Marco Bianchi",
+      "ruolo": "senior software engineer PLC",
+      "alias": ["Marco B.", "Bianchi"],
+      "competenze": ["sviluppo", "budget", "generale"],
+      "_nota": "sviluppo dal ruolo, budget aggiunto personalmente (senior)"
+    },
+    {
+      "id": "p-03",
+      "nome": "Marco Rinaldi",
+      "ruolo": "tecnico quadri elettrici",
+      "alias": ["Marco R.", "Rinaldi"],
+      "competenze": ["sviluppo", "generale"]
+    },
+    {
+      "id": "p-04",
+      "nome": "Sara Colombo",
+      "ruolo": "sviluppatrice HMI/SCADA",
+      "alias": ["Sara", "Colombo"],
+      "competenze": ["sviluppo", "generale"]
+    },
+    {
+      "id": "p-05",
+      "nome": "Luca Gallo",
+      "ruolo": "account commerciale",
+      "alias": ["Luca", "Gallo"],
+      "competenze": ["commerciale", "generale"]
+    },
+    {
+      "id": "p-06",
+      "nome": "Elena Russo",
+      "ruolo": "responsabile acquisti",
+      "alias": ["Elena", "Russo"],
+      "competenze": ["fornitori", "budget", "generale"]
+    },
+    {
+      "id": "p-07",
+      "nome": "Davide Conti",
+      "ruolo": "tecnico di messa in servizio",
+      "alias": ["Davide", "Conti"],
+      "competenze": ["sviluppo", "generale"]
+    },
+    {
+      "id": "p-08",
+      "nome": "Paola Greco",
+      "ruolo": "amministrazione e personale",
+      "alias": ["Paola", "Greco"],
+      "competenze": ["personale", "budget", "generale"],
+      "_nota": "non è membro del progetto prj-01"
+    }
+  ],
+  "progetti": [
+    {
+      "id": "prj-01",
+      "nome": "Revamping linea di confezionamento 3",
+      "cliente": "Pastificio Valsangone S.p.A.",
+      "manager_id": "p-01",
+      "membri": ["p-01", "p-02", "p-03", "p-04", "p-05", "p-06", "p-07"],
+      "scadenza": "2027-01-20",
+      "descrizione": "Sostituzione del PLC e del quadro elettrico della linea 3, nuova HMI, collaudo presso il cliente."
+    }
+  ]
+}
