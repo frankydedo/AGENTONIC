@@ -17,7 +17,8 @@ def test_db_da_zero(client):
 
 def test_caricamento_crea_proposte_e_avvisi(client):
     r = carica(client)
-    assert r.status_code == 200 and r.json() == {"documento_id": "riu-001", "proposte": 12, "avvisi": 2, "scartate": 0}
+    assert r.status_code == 200 and r.json() == {"documento_id": "riu-001", "segmenti": 16, "proposte": 12,
+                                                 "avvisi": 2, "scartate": 0, "analisi_non_riuscite": []}
     assert len(proposte(client)) == 12
     assert carica(client).status_code == 409            # stesso documento due volte
 
@@ -65,7 +66,8 @@ def test_sa_chi_chiede_e_cita(client):
     assert chiedi(client, SARA, "Che PLC usa il cliente nella linea 2 dello stabilimento?") == sara
     motivi = [p["motivo"] for p in client.get("/registro?progetto_id=prj-01", headers=GIULIA).json()
               if p["tipo"] == "domanda"]
-    assert motivi == ["non_lo_so", "non_autorizzato", None]           # dal più recente
+    assert motivi[0].startswith("non_lo_so") and motivi[1].startswith("non_autorizzato") and motivi[2] is None
+    assert "fat-001" in motivi[1]                                     # dal più recente; quale voce era nascosta
 
 
 def test_identita_solo_dalla_sessione(client):
@@ -101,13 +103,16 @@ def test_citazioni_inventate_scartate(client, monkeypatch):
             progetto_id="prj-01", tipo="nuovo_fatto", aree_proposte=["generale"], citazioni=[finta],
             contenuto={"soggetto": "progetto", "attributo": "budget", "valore": "un milione"})])
     monkeypatch.setattr(modulo_app, "analizza_documento", analisi_bugiarda)
-    assert carica(client).json() == {"documento_id": "riu-001", "proposte": 1, "avvisi": 0, "scartate": 1}
+    esito = carica(client).json()
+    assert (esito["proposte"], esito["avvisi"], esito["scartate"]) == (1, 0, 1)
 
     # e una risposta che cita un segmento non ricevuto diventa neutra
     approva(client, proposte(client)[0])
-    monkeypatch.setattr(modulo_app, "rispondi", lambda d, p, voci, m: Risposta(
+    vera = finti.rispondi_tracciato
+    monkeypatch.setattr(modulo_app, "rispondi_tracciato", lambda d, p, voci, m: (Risposta(
         esito="risposta", testo="Il SAL è di Luca.", citazioni=[
-            Citazione(segmento_id="riu-001#s003", documento_id="riu-001", titolo="x", data="x", speaker="x", frase="x")]))
+            Citazione(segmento_id="riu-001#s003", documento_id="riu-001", titolo="x", data="x", speaker="x", frase="x")]),
+        vera(d, p, voci, m)[1]))
     assert chiedi(client, GIULIA, "Chi prepara il SAL?")["esito"] == "non_lo_so"
 
 

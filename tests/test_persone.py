@@ -42,6 +42,39 @@ def test_nome_con_accento():
     assert abbina_nome("Ànna", persone).persona_id == "p-91"
 
 
+def test_nome_composto_di_piu_parole():
+    """Segnalazione 12: «Gian Marco» trova «Gian Marco Rossi» (prefisso di parole intere)."""
+    gian = Persona(id="p-90", nome="Gian Marco Rossi", ruolo="test")
+    persone = MEMBRI + [gian]
+    for detto in ("Gian Marco", "gian  marco", "Gian Marco Rossi", "Gian"):
+        ab = abbina_nome(detto, persone)
+        assert (ab.persona_id, ab.candidati) == ("p-90", ["p-90"]), detto
+    # l'ambiguità non cambia: «Marco» resta fra i due Marco e non include Gian Marco Rossi
+    ab = abbina_nome("Marco", persone)
+    assert ab.persona_id is None and ab.candidati == ["p-02", "p-03"]
+    assert ab.motivo == '"Marco" è ambiguo: Marco Bianchi o Marco Rinaldi'
+    assert abbina_nome("Marco Bianchi", persone).persona_id == "p-02"
+    # «Gian Marco» non si abbina a «Marco Bianchi», né un pezzo di parola a un nome
+    senza_gian = abbina_nome("Gian Marco", MEMBRI)
+    assert senza_gian.persona_id is None and senza_gian.candidati == []
+    assert abbina_nome("Gian Mar", persone).candidati == [] and abbina_nome("Gia", persone).candidati == []
+    # due persone con lo stesso nome composto: ambiguo, non si sceglie
+    doppio = abbina_nome("Gian Marco", persone + [Persona(id="p-91", nome="Gian Marco Bruni", ruolo="test")])
+    assert doppio.persona_id is None and doppio.candidati == ["p-90", "p-91"]
+    assert doppio.motivo == '"Gian Marco" è ambiguo: Gian Marco Rossi o Gian Marco Bruni'
+
+
+def test_apostrofo_tipografico():
+    """Segnalazione 12: «D’Amico» (apostrofo tipografico) è la stessa persona di «D'Amico»."""
+    persone = [Persona(id="p-90", nome="Luca D'Amico", ruolo="test"),
+               Persona(id="p-91", nome="Anna D’Angelo", ruolo="test", alias=["Dell‘Orto"])]
+    for detto in ("D’Amico", "D‘Amico", "d'amico", "D`Amico", "Luca D’Amico"):
+        assert abbina_nome(detto, persone).persona_id == "p-90", detto
+    for detto in ("D'Angelo", "Anna D’Angelo", "Dell'Orto"):
+        assert abbina_nome(detto, persone).persona_id == "p-91", detto
+    assert normalizza("D’Amico") == normalizza("D'Amico") == "d'amico"
+
+
 def test_non_membro_e_nome_vuoto():
     ab = abbina_nome("Paola Greco", MEMBRI)
     assert ab.persona_id is None and ab.candidati == []

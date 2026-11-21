@@ -5,13 +5,18 @@ Due parti (vedi `docs/analisi.md`):
 - modello: per ogni `nuovo_fatto`, i fatti approvati e le proposte in attesa con lo stesso attributo
   sono candidati; il modello dice se parlano della stessa cosa e se sono in conflitto.
 Il codice tiene solo i giudizi su candidati passati davvero, costruisce testi, citazioni e aree.
-Fail closed per fatto: un errore del modello non produce avvisi per quel fatto.
+Fail closed per fatto: un errore (del modello, di rete o inatteso) non produce avvisi per quel fatto,
+ma non cancella gli avvisi già trovati (regole e altri fatti) e lascia un passo `esito="errore"`.
+Chiave del mock: `incongruenze_<doc>_<hash>` (`chiave_incongruenza`), legata al contenuto del fatto e
+dei candidati, non alla posizione del fatto nell'estrazione.
 """
 
 from __future__ import annotations
 
+import hashlib
 import re
 import time
+import unicodedata
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
@@ -199,6 +204,26 @@ def _da_fatto(f: Fatto) -> _Candidato:
                       aree=list(f.aree), citazioni=list(f.citazioni), in_attesa=False)
 
 
+def _norma(testo: object) -> str:
+    """Per la chiave del mock: stesso testo anche se cambiano maiuscole, spazi o forma Unicode."""
+    testo = unicodedata.normalize("NFKC", str(testo if testo is not None else ""))
+    return " ".join(testo.lower().split())
+
+
+def chiave_incongruenza(fatto: Proposta, candidati: list[_Candidato], doc: Documento) -> str:
+    """Chiave del mock e della registrazione: `incongruenze_<doc>_<hash>`.
+
+    L'hash (sha1, 10 cifre) dipende da soggetto, attributo e valore del fatto nuovo e da id, soggetto
+    e valore di ogni candidato (ordinati), non dalla posizione del fatto: se l'estrazione cambia
+    ordine ogni fatto ritrova il suo giudizio; se cambia il fatto o un candidato la chiave cambia e
+    il mock manca (passo `errore`), invece di applicare il giudizio registrato per un altro fatto."""
+    c = fatto.contenuto
+    parti = [_norma(c.get("soggetto")), _norma(c.get("attributo")), _norma(c.get("valore"))]
+    parti += sorted(json_compatto([str(k.id), _norma(k.soggetto), _norma(k.valore)]) for k in candidati)
+    impronta = hashlib.sha1(json_compatto(parti).encode("utf-8")).hexdigest()[:10]
+    return f"incongruenze_{doc.id}_{impronta}"
+
+
 def _messaggi(fatto: Proposta, doc: Documento, candidati: list[_Candidato]) -> list[dict]:
     c = fatto.contenuto
     nuovo = {"soggetto": _dato(c.get("soggetto")), "attributo": _dato(c.get("attributo")),
@@ -228,7 +253,7 @@ def _giudica_fatto(n: int, fatto: Proposta, candidati: list[_Candidato], doc: Do
     inizio = time.monotonic()
     try:
         r = chat(_messaggi(fatto, doc, candidati), GiudizioIncongruenze,
-                 chiave=f"incongruenze_{doc.id}_{n}", config=config)
+                 chiave=chiave_incongruenza(fatto, candidati, doc), config=config)
     except (LLMNonDisponibile, OutputNonValido, ValueError) as e:
         return [], _passo("incongruenze", doc, provider=config.provider, modello=config.modello or None,
                           versione_prompt=VERSIONE_PROMPT, input=ingresso, output={"incongruenze": 0},
@@ -274,11 +299,18 @@ def trova_incongruenze(proposte: list[Proposta], doc: Documento, contesto: Conte
     passi = [passo]
     fatti_nuovi = [p for p in proposte if p.tipo == "nuovo_fatto"]
     for n, fatto in enumerate(fatti_nuovi, 1):
-        candidati = _candidati(fatto, doc, contesto)
-        if not candidati:
-            continue
-        config = config or Config.da_ambiente()
-        nuovi, passo = _giudica_fatto(n, fatto, candidati, doc, contesto, config)
+        try:
+            candidati = _candidati(fatto, doc, contesto)
+            if not candidati:
+                continue
+            config = config or Config.da_ambiente()
+            nuovi, passo = _giudica_fatto(n, fatto, candidati, doc, contesto, config)
+        except Exception as e:  # noqa: BLE001 - fail closed per fatto: gli avvisi già trovati restano
+            nuovi, passo = [], _passo(
+                "incongruenze", doc, provider=config.provider if config else None,
+                versione_prompt=VERSIONE_PROMPT, output={"incongruenze": 0}, esito="errore",
+                input={"fatto_nuovo": n, "segmenti": [c.segmento_id for c in fatto.citazioni]},
+                motivo=f"Errore inatteso ({type(e).__name__}).")
         avvisi += nuovi
         passi.append(passo)
     return avvisi, passi

@@ -55,7 +55,7 @@ ESTR_RIU_001 = EstrazioneRiunione(
         fatto("progetto", "budget", "48.000 euro approvati, 12.500 già impegnati", ["budget"], s(3)),
         fatto("PLC", "decisione", "Siemens S7-1500 al posto dell'S7-300, programma riscritto", ["sviluppo"], s(4, 5)),
         fatto("inverter", "costo", "Elettrotecnica Piemonte, 6.200 euro, consegna in 3 settimane",
-              ["fornitori"], s(7)),
+              ["fornitori", "budget"], s(7)),                      # come nei mock della demo
         fatto("cliente", "requisito", "un SAL ogni mese", ["commerciale"], s(2)),
     ],
 )
@@ -140,9 +140,30 @@ def test_regole_sulle_aree():
     assert regola_aree(["generale"]) == ["generale"]
     assert regola_aree(["budget", "generale"]) == ["budget"]
     assert regola_aree(["generale", "sviluppo"]) == ["sviluppo"]
-    assert regola_aree(["sviluppo"], "costo") == ["sviluppo", "budget"]
+    assert regola_aree(["sviluppo"], "costo") == ["budget"]             # area sbagliata dal modello: solo budget
+    assert regola_aree(["sviluppo", "commerciale"], "budget") == ["budget"]
+    assert regola_aree(["fornitori", "budget"], "costo") == ["fornitori", "budget"]   # budget già messo: restano
     assert regola_aree(["generale"], "budget") == ["budget"]
+    assert regola_aree(["generale"], "costo") == ["budget"]
+    assert regola_aree(["generale", "budget"], "costo") == ["budget"]
+    assert regola_aree(["budget", "generale", "fornitori"], "budget") == ["budget", "fornitori"]
     assert regola_aree([], "costo") == ["budget"]
+    assert regola_aree(["sviluppo"], "requisito") == ["sviluppo"]         # gli altri attributi non cambiano
+
+
+def test_costo_o_budget_con_area_sbagliata_solo_budget():
+    """Segnalazione 5: un costo con l'area sbagliata non deve restare visibile a quell'area."""
+    estr = EstrazioneRiunione(fatti=[
+        fatto("inverter", "costo", "6.200 euro", ["sviluppo"], s(7)),
+        fatto("progetto", "budget", "48.000 euro", ["generale"], s(3)),
+        fatto("inverter", "costo", "7.400 euro", ["fornitori", "budget"], s(7)),
+        fatto("trasferta", "costo", "forse 300 euro", ["sviluppo"], s(13), "bassa"),
+    ])
+    proposte, avvisi, _ = analizza(estr)
+    assert [p.aree_proposte for p in proposte] == [["budget"], ["budget"], ["fornitori", "budget"]]
+    assert all(p.contenuto["aree"] == p.aree_proposte for p in proposte)
+    assert all("generale" not in p.aree_proposte and "sviluppo" not in p.aree_proposte for p in proposte)
+    assert [a.aree for a in avvisi] == [["budget"]]                       # anche l'avviso del fatto incerto
 
 
 def test_aree_applicate_a_proposta_e_contenuto():
@@ -222,11 +243,17 @@ def test_chiudi_task():
     estr = EstrazioneRiunione(aggiornamenti=[
         AggiornamentoTask(task_id="task-002", campo="stato", valore="fatto", segmenti=s(6), sicurezza="alta"),
         AggiornamentoTask(task_id="task-002", campo="stato", valore="in_corso", segmenti=s(6), sicurezza="alta"),
+        AggiornamentoTask(task_id="task-002", campo="stato", valore=" Annullato ", segmenti=s(6), sicurezza="alta"),
     ])
     proposte, _, passo = analizza(estr)
-    assert proposte[0].tipo == "chiudi_task" and proposte[0].contenuto == {"task_id": "task-002", "stato": "fatto"}
-    assert proposte[1].tipo == "aggiorna_task" and proposte[1].contenuto["valore"] == "in_corso"
-    assert passo.output["proposte"] == {"chiudi_task": 1, "aggiorna_task": 1}
+    # contratto di `modelli.py`: {"task_id", "campo", "valore"} anche per chiudi_task (segnalazione 6)
+    assert proposte[0].tipo == "chiudi_task"
+    assert proposte[0].contenuto == {"task_id": "task-002", "campo": "stato", "valore": "fatto"}
+    assert proposte[1].tipo == "aggiorna_task"
+    assert proposte[1].contenuto == {"task_id": "task-002", "campo": "stato", "valore": "in_corso"}
+    assert proposte[2].tipo == "chiudi_task"
+    assert proposte[2].contenuto == {"task_id": "task-002", "campo": "stato", "valore": "annullato"}
+    assert passo.output["proposte"] == {"chiudi_task": 2, "aggiorna_task": 1}
 
 
 def test_assegnatario_non_membro():

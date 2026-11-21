@@ -1,22 +1,25 @@
 """Cervello finto per i test del backend: nessun modello, nessuna rete, risultati fissi.
 
-Sostituisce `analizza_documento` (I2) e `rispondi` (I3) di Franky nei test di `tests/`, così il
+Sostituisce `analizza_documento` (I2) e `rispondi_tracciato` (I3) di Franky nei test di `tests/`, così il
 backend si prova da solo anche mentre il workflow vero cambia. La segmentazione è quella vera.
 """
 
+import re
 from datetime import datetime
 
 from backend.analisi.ingestione import citazione
+from backend.domande import risposta_neutra
+from backend.ricerca import STOP
 from backend.modelli import (Avviso, Citazione, ContestoProgetto, Documento, PassoRegistro, Persona, Proposta,
                              RisultatoAnalisi, Risposta, Voce)
 
-# (titolo, assegnatario_id, scadenza, aree, segmenti, sicurezza, dipende_da) — da dati/attese/riu-001.md
+# (titolo, assegnatario_id, scadenza, aree, segmenti, sicurezza, dipende_da); il rif è «riu-001:t<posizione>»
 _TASK_RIU_001 = [
     ("Preparare il primo SAL per il cliente", "p-05", "2026-12-15", ["commerciale"], [2], "alta", []),
     ("Quadro elettrico cablato e pronto per il collaudo in officina", "p-03", "2026-12-10", ["sviluppo"], [5, 6], "alta", []),
     ("Ordinare gli inverter a Elettrotecnica Piemonte", "p-06", "2026-11-18", ["fornitori"], [7], "alta", []),
     ("Preparare la lista dei tag del PLC", None, "2026-11-25", ["sviluppo"], [9, 10], "bassa", []),
-    ("Schermate della nuova HMI", "p-04", "2026-12-04", ["sviluppo"], [11, 12], "alta", ["Preparare la lista dei tag del PLC"]),
+    ("Schermate della nuova HMI", "p-04", "2026-12-04", ["sviluppo"], [11, 12], "alta", ["riu-001:t4"]),
     ("Sopralluogo sulla linea dal cliente", "p-07", "2026-11-19", ["sviluppo"], [13], "alta", []),
     ("Aggiornare il manuale d'uso per gli operatori", None, "2027-01-20", ["generale"], [14, 15], "bassa", []),
 ]
@@ -40,9 +43,10 @@ def analizza_documento(doc: Documento, contesto: ContestoProgetto) -> RisultatoA
     prj = contesto.progetto.id
     proposte = [
         Proposta(progetto_id=prj, documento_id=doc.id, tipo="nuovo_task", aree_proposte=aree, sicurezza=sic,
-                 contenuto={"titolo": titolo, "assegnatario_id": chi, "scadenza": scad, "dipende_da": dip},
+                 contenuto={"progetto_id": prj, "titolo": titolo, "assegnatario_id": chi, "scadenza": scad,
+                            "dipende_da": dip, "rif": f"{doc.id}:t{n}"},
                  citazioni=cita(numeri))
-        for titolo, chi, scad, aree, numeri, sic, dip in _TASK_RIU_001
+        for n, (titolo, chi, scad, aree, numeri, sic, dip) in enumerate(_TASK_RIU_001, 1)
     ] + [
         Proposta(progetto_id=prj, documento_id=doc.id, tipo="nuovo_fatto", aree_proposte=aree,
                  contenuto={"soggetto": sogg, "attributo": attr, "valore": val}, citazioni=cita(numeri))
@@ -61,10 +65,18 @@ def analizza_documento(doc: Documento, contesto: ContestoProgetto) -> RisultatoA
     return RisultatoAnalisi(proposte=proposte, avvisi=avvisi, passi=passi)
 
 
-def rispondi(domanda: str, persona: Persona, voci: list[Voce], manager_nome: str) -> Risposta:
-    """Finto di I3: nessun modello, riporta le prime voci trovate con le loro citazioni."""
-    if not voci:
-        return Risposta(esito="non_lo_so", testo="")
-    scelte = voci[:3]
-    return Risposta(esito="risposta", testo=" ".join(v.testo for v in scelte),
-                    citazioni=[c for v in scelte for c in v.citazioni])
+def _parole(testo: str) -> set[str]:
+    return set(re.findall(r"[^\W\d_]{3,}", testo.lower())) - STOP
+
+
+def rispondi_tracciato(domanda: str, persona: Persona, voci: list[Voce], manager_nome: str,
+                       config=None) -> tuple[Risposta, PassoRegistro]:
+    """Finto di `domande.rispondi_tracciato`: nessun modello. Risponde con le voci che hanno parole in
+    comune con la domanda; se non ce ne sono, testo neutro (come un modello che dice «non lo so»)."""
+    passo = PassoRegistro(quando=datetime.now(), tipo="domanda", attore=persona.id, step="domanda",
+                          provider="mock", modello="finto-dei-test", input={"voci": len(voci)})
+    scelte = [v for v in voci if _parole(domanda) & _parole(v.testo)][:3]
+    if not scelte:
+        return risposta_neutra(manager_nome), passo
+    return (Risposta(esito="risposta", testo=" ".join(v.testo for v in scelte),
+                     citazioni=[c for v in scelte for c in v.citazioni]), passo)

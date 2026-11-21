@@ -61,9 +61,13 @@ def segmenta_pdf(dati: bytes, doc_id: str, titolo: str, data: str, progetto_id: 
     """PDF -> `Documento` integrativo con segmenti `doc-001#p01s01`, ... e `pagina` da 1.
 
     Solleva `DocumentoNonValido` se il file non è un PDF, è cifrato, non ha testo estraibile
-    (scansione) o supera i limiti di dimensione, pagine o caratteri.
+    (scansione) o supera i limiti di dimensione, pagine o caratteri. Id, data e titolo arrivano da
+    chi chiama e si controllano come quelli dell'intestazione di una minuta.
     """
     valida_id_e_data(doc_id, data)
+    titolo = ingestione.titolo_pulito(titolo)
+    if not isinstance(dati, (bytes, bytearray)):
+        raise DocumentoNonValido("Il file non è un PDF.")
     if len(dati) > MAX_BYTE:
         raise DocumentoNonValido(f"PDF troppo grande ({len(dati) // (1024 * 1024)} MB, massimo {MAX_BYTE // (1024 * 1024)} MB).")
     if b"%PDF-" not in dati[:1024]:

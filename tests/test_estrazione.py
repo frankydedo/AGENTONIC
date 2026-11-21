@@ -8,11 +8,17 @@ import pytest
 from backend import llm
 from backend.analisi import estrazione
 from backend.analisi.estrazione import (
-    VERSIONE_TASK, EstrazioneFatti, dividi_in_blocchi, estrai_fatti, estrai_lacune, estrai_task, unisci,
+    VERSIONE_TASK, AggiornamentoDelModello, EstrazioneFatti, FattoDelModello, OutputFatti, OutputLacune,
+    OutputTask, PuntoOscuroDelModello, SconosciutoDelModello, TaskDelModello, dividi_in_blocchi, estrai_fatti,
+    estrai_lacune, estrai_task, unisci,
 )
 from backend.analisi.ingestione import segmenta
+from backend.analisi.proposte import in_proposte
 from backend.llm import Config
-from backend.modelli import ContestoProgetto, Documento, Persona, Progetto, Segmento, Task
+from backend.modelli import (
+    AggiornamentoTask, ContestoProgetto, Documento, FattoEstratto, Persona, Progetto, PuntoOscuro, Sconosciuto,
+    Segmento, Task, TaskEstratto,
+)
 
 RADICE = Path(__file__).parent.parent
 DATI = json.loads((RADICE / "dati" / "azienda.json").read_text(encoding="utf-8"))
@@ -48,7 +54,8 @@ def spia(monkeypatch):
     chiamate = []
 
     def finta(messaggi, schema=None, *, chiave, config=None):
-        chiamate.append({"chiave": chiave, "system": messaggi[0]["content"], "utente": messaggi[1]["content"]})
+        chiamate.append({"chiave": chiave, "schema": schema, "system": messaggi[0]["content"],
+                         "utente": messaggi[1]["content"]})
         return llm.chat(messaggi, schema, chiave=chiave, config=config)
 
     monkeypatch.setattr(estrazione, "chat", finta)
@@ -139,14 +146,17 @@ def test_fatti_e_lacune_riu001_e_unisci(tmp_path, spia):
          "aree": ["sviluppo"], "segmenti": [s(4), s(5)], "sicurezza": "alta"}]})
     mock(tmp_path, "lacune_riu-001_1di1", {
         "punti_oscuri": [{"descrizione": "Nessuno è responsabile del manuale d'uso.", "segmenti": [s(14), s(16)]}],
-        "sconosciuti": [{"nome": "Paola", "descrizione": "citata per le ferie", "segmenti": [s(15)],
-                         "persona_id": "p-01"}]})
+        "sconosciuti": [{"nome": "Paola", "descrizione": "citata per le ferie", "segmenti": [s(15)]}]})
     fatti, passi_f = estrai_fatti(RIU_001, CONTESTO, cfg(tmp_path))
     lacune, passi_l = estrai_lacune(RIU_001, CONTESTO, cfg(tmp_path))
     assert passi_f[0].step == "estrazione_fatti" and passi_f[0].output == {"fatti": 2, "scartati": 0}
     assert passi_l[0].step == "estrazione_lacune"
     assert passi_l[0].output == {"punti_oscuri": 1, "sconosciuti": 1, "scartati": 0}
     assert lacune.sconosciuti[0].persona_id is None              # mai impostato dal modello
+    # il modello compila gli schemi dedicati; dal codice escono i modelli condivisi
+    assert [c["schema"] for c in spia] == [OutputFatti, OutputLacune]
+    assert type(fatti.fatti[0]) is FattoEstratto and type(lacune.punti_oscuri[0]) is PuntoOscuro
+    assert type(lacune.sconosciuti[0]) is Sconosciuto
 
     tutto = unisci(None, fatti, lacune)
     assert len(tutto.fatti) == 2 and len(tutto.punti_oscuri) == 1 and tutto.task == []
@@ -171,7 +181,7 @@ def test_id_inventati_scartati(tmp_path):
         {"soggetto": "PLC", "attributo": "decisione", "valore": "S7-1500", "aree": ["sviluppo"],
          "segmenti": ["riu-001#s077"], "sicurezza": "alta"}]})
     estr, passi = estrai_task(RIU_001, CONTESTO, cfg(tmp_path))
-    assert [t.rif for t in estr.task] == ["t4"]
+    assert [(t.rif, t.titolo) for t in estr.task] == [("t1", "Buono")]     # rinumerato: è l'unico rimasto
     assert estr.task[0].dipende_da == ["task-001"]    # t1 scartato, t9 e task-999 inesistenti, t4 è sé stesso
     assert passi[0].output["scartati"] == 3 and passi[0].output["dipendenze_tolte"] == 4
     assert passi[0].esito == "ok" and "3 elementi scartati" in passi[0].motivo
@@ -231,24 +241,120 @@ def test_errore_sul_secondo_blocco_niente_risultati_parziali(tmp_path):
     assert estr is None and [p.esito for p in passi] == ["ok", "errore"]
 
 
-# --- Più blocchi: rif unici ---------------------------------------------------------------------
+# --- I rif li assegna il codice (REVISIONE 9) ---------------------------------------------------
 
-def test_rif_rinominati_con_piu_blocchi(tmp_path):
+def nuovo(rif: str, titolo: str, segmento: str, dipende_da=()) -> dict:
+    return {"rif": rif, "titolo": titolo, "aree": ["sviluppo"], "segmenti": [segmento], "sicurezza": "alta",
+            "dipende_da": list(dipende_da)}
+
+
+def test_rif_unici_con_piu_blocchi(tmp_path):
     doc = doc_lungo("riu-099", 4, 10_000)
     mock(tmp_path, "task_riu-099_1di2", {"task": [
-        {"rif": "t1", "titolo": "A", "aree": ["sviluppo"], "segmenti": ["riu-099#s001"], "sicurezza": "alta"},
-        {"rif": "t2", "titolo": "B", "aree": ["sviluppo"], "segmenti": ["riu-099#s002"], "sicurezza": "alta",
-         "dipende_da": ["t1"]}]})
+        nuovo("t1", "A", "riu-099#s001"),
+        nuovo("p2-t1", "B", "riu-099#s002", ["t1"])]})          # il vecchio nome del blocco 2: non collide più
     mock(tmp_path, "task_riu-099_2di2", {"task": [
-        {"rif": "t1", "titolo": "C", "aree": ["sviluppo"], "segmenti": ["riu-099#s003"], "sicurezza": "alta"},
-        {"rif": "t2", "titolo": "D", "aree": ["sviluppo"], "segmenti": ["riu-099#s004"], "sicurezza": "alta",
-         "dipende_da": ["t1", "task-001"]},
-        {"rif": "t3", "titolo": "Cita il blocco 1", "aree": ["sviluppo"], "segmenti": ["riu-099#s001"],
-         "sicurezza": "alta"}]})
+        nuovo("t1", "C", "riu-099#s003"),
+        nuovo("t2", "D", "riu-099#s004", ["t1", "task-001", "p2-t1"]),
+        nuovo("t3", "Cita il blocco 1", "riu-099#s001")]})
     estr, passi = estrai_task(doc, CONTESTO, cfg(tmp_path))
-    assert [t.rif for t in estr.task] == ["t1", "t2", "p2-t1", "p2-t2"]
-    assert estr.task[1].dipende_da == ["t1"] and estr.task[3].dipende_da == ["p2-t1", "task-001"]
-    assert passi[1].output["scartati"] == 1          # un segmento di un'altra parte non vale
+    assert [(t.rif, t.titolo) for t in estr.task] == [("t1", "A"), ("t2", "B"), ("t3", "C"), ("t4", "D")]
+    assert estr.task[1].dipende_da == ["t1"]
+    assert estr.task[3].dipende_da == ["t3", "task-001"]        # t1 è quello della sua parte; p2-t1 non esiste lì
+    assert passi[0].output == {"task": 2, "aggiornamenti": 0, "dipendenze_tolte": 0, "rif_non_validi": 1,
+                               "scartati": 0}
+    assert passi[1].output == {"task": 2, "aggiornamenti": 0, "dipendenze_tolte": 1, "scartati": 1}
+    assert "segmenti fuori dalla parte" in passi[1].motivo      # un segmento di un'altra parte non vale
+
+
+def test_rif_del_modello_fuori_formato_o_doppi(tmp_path):
+    """Nessun task si perde per colpa del rif; le dipendenze verso rif non affidabili si scartano."""
+    mock(tmp_path, "task_riu-001_1di1", {"task": [
+        nuovo("t7", "A", s(2)),                    # valido ma fuori ordine: diventa t1
+        nuovo("p2-t1", "B", s(3)),                 # fuori formato
+        nuovo("task-001", "C", s(4)),              # uguale all'id di un task approvato
+        nuovo("t2", "D", s(5)),
+        nuovo("t2", "E", s(6)),                    # doppio: prima il secondo si perdeva
+        nuovo("", "F", s(7), ["t7", "task-001", "p2-t1", "t2", "t9", "task-999"])]})
+    estr, passi = estrai_task(RIU_001, CONTESTO, cfg(tmp_path))
+    assert [(t.rif, t.titolo) for t in estr.task] == [("t1", "A"), ("t2", "B"), ("t3", "C"), ("t4", "D"),
+                                                      ("t5", "E"), ("t6", "F")]
+    # t7 -> t1 (rimappato); task-001 è il task approvato, non il nuovo task «C»;
+    # p2-t1 fuori formato, t2 ambiguo, t9 e task-999 inesistenti: scartati e contati
+    assert estr.task[5].dipende_da == ["t1", "task-001"]
+    assert passi[0].output == {"task": 6, "aggiornamenti": 0, "dipendenze_tolte": 4, "rif_non_validi": 5,
+                               "scartati": 0}
+    assert passi[0].esito == "ok"
+
+    # la forma dei rif resta quella che proposte.py compone in "<doc>:<rif>"
+    proposte, _, _ = in_proposte(unisci(estr, None, None), RIU_001, CONTESTO)
+    contenuti = [p.contenuto for p in proposte]
+    assert [c["rif"] for c in contenuti] == [f"riu-001:t{n}" for n in range(1, 7)]
+    assert contenuti[5]["dipende_da"] == ["riu-001:t1", "task-001"]
+
+
+def test_rif_mai_uguale_all_id_di_un_task_approvato(tmp_path):
+    strano = CONTESTO.model_copy(update={"task": [TASK_APPROVATO.model_copy(update={"id": "t2"})]})
+    mock(tmp_path, "task_riu-001_1di1", {"task": [
+        nuovo("t1", "A", s(2)), nuovo("t2", "B", s(3), ["t1"]), nuovo("t3", "C", s(4), ["t2"])]})
+    estr, _ = estrai_task(RIU_001, strano, cfg(tmp_path))
+    assert [t.rif for t in estr.task] == ["t1", "t3", "t4"]     # t2 è occupato dal task approvato
+    assert estr.task[1].dipende_da == ["t1"]
+    assert estr.task[2].dipende_da == ["t2"]                    # un id approvato vale così com'è
+
+
+# --- Schemi dedicati per il modello (REVISIONE 7) -----------------------------------------------
+
+SCHEMI = {"task": OutputTask, "fatti": OutputFatti, "lacune": OutputLacune}
+
+
+def test_schemi_del_modello_chiusi_e_senza_persona_id():
+    for schema in SCHEMI.values():
+        js = schema.model_json_schema()
+        oggetti = [js, *js["$defs"].values()]
+        assert all(o["type"] == "object" and o["additionalProperties"] is False for o in oggetti)
+        assert "persona_id" not in json.dumps(js)
+    # stessi campi dei modelli condivisi, tranne quello che imposta solo il codice
+    for del_modello, condiviso in ((TaskDelModello, TaskEstratto), (AggiornamentoDelModello, AggiornamentoTask),
+                                   (FattoDelModello, FattoEstratto), (PuntoOscuroDelModello, PuntoOscuro)):
+        assert set(del_modello.model_fields) == set(condiviso.model_fields)
+    assert set(SconosciutoDelModello.model_fields) == set(Sconosciuto.model_fields) - {"persona_id"}
+
+
+def test_schemi_non_adatti_a_strict():
+    """Perché `strict` resta `false` in llm.py: i campi facoltativi non sono tutti in `required`."""
+    js = OutputTask.model_json_schema()
+    task = js["$defs"]["TaskDelModello"]
+    assert set(task["required"]) < set(task["properties"]) and "required" not in js
+
+
+def test_mock_della_demo_validi_con_gli_schemi_dedicati():
+    cartella = RADICE / "dati" / "mock_llm"
+    for agente, schema in SCHEMI.items():
+        file = sorted(cartella.glob(f"{agente}_*.json"))
+        assert len(file) >= 6
+        for percorso in file:
+            schema.model_validate_json(percorso.read_text(encoding="utf-8"))
+
+
+def test_campo_in_piu_dal_modello_output_non_valido(tmp_path):
+    sconosciuto = {"nome": "Paola", "descrizione": "citata per le ferie", "segmenti": [s(15)]}
+    mock(tmp_path, "lacune_riu-001_1di1", {"punti_oscuri": [], "sconosciuti": [{**sconosciuto, "persona_id": "p-01"}]})
+    estr, passi = estrai_lacune(RIU_001, CONTESTO, cfg(tmp_path))
+    assert estr is None and passi[-1].esito == "errore" and passi[-1].tentativi == 2
+    assert "persona_id" in passi[-1].motivo and "p-01" not in passi[-1].motivo
+
+    # al nuovo tentativo il modello toglie il campo: l'estrazione riesce
+    mock(tmp_path, "lacune_riu-001_1di1.2", {"punti_oscuri": [], "sconosciuti": [sconosciuto]})
+    estr, passi = estrai_lacune(RIU_001, CONTESTO, cfg(tmp_path))
+    assert passi[-1].esito == "ok" and passi[-1].tentativi == 2
+    assert estr.sconosciuti == [Sconosciuto(**sconosciuto, persona_id=None)]
+
+    # vale a ogni livello, anche per task e fatti
+    mock(tmp_path, "task_riu-001_1di1", {"task": [{**nuovo("t1", "A", s(2)), "id": "task-001"}]})
+    mock(tmp_path, "fatti_riu-001_1di1", {"fatti": [], "nota": "campo inventato"})
+    assert estrai_task(RIU_001, CONTESTO, cfg(tmp_path))[0] is None
+    assert estrai_fatti(RIU_001, CONTESTO, cfg(tmp_path))[0] is None
 
 
 # --- Prompt per tipo di documento ---------------------------------------------------------------

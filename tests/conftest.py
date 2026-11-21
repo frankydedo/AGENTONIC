@@ -14,14 +14,26 @@ GIULIA, MARCO_B, SARA, PAOLA = ({"X-Persona": p} for p in ("p-01", "p-02", "p-04
 def client(tmp_path, monkeypatch):
     """Db nuovo per ogni test e cervello finto (nessun modello, nessuna rete)."""
     monkeypatch.setenv("BRAIN_DB", str(tmp_path / "test.db"))
+    monkeypatch.setenv("LLM_PROVIDER", "mock")
     db.ricrea()
-    for nome in ("analizza_documento", "rispondi"):
+    for nome in ("analizza_documento", "rispondi_tracciato"):
         monkeypatch.setattr(modulo_app, nome, getattr(finti, nome))
     return TestClient(modulo_app.app)
 
 
-def carica(client, chi=GIULIA, contenuto=MINUTA):
-    return client.post("/riunioni?progetto_id=prj-01", headers=chi, files={"file": ("riu-001.md", contenuto)})
+@pytest.fixture
+def client_vero(tmp_path, monkeypatch):
+    """Db nuovo e cervello VERO di Franky con il provider mock (risposte registrate, nessuna rete)."""
+    monkeypatch.setenv("BRAIN_DB", str(tmp_path / "test.db"))
+    monkeypatch.setenv("LLM_PROVIDER", "mock")
+    monkeypatch.delenv("LLM_REGISTRA", raising=False)
+    db.ricrea()
+    return TestClient(modulo_app.app)
+
+
+def carica(client, chi=GIULIA, contenuto=MINUTA, progetto="prj-01", nome="riu-001.md", percorso="/riunioni", **query):
+    return client.post(percorso, params={"progetto_id": progetto, **query}, headers=chi,
+                       files={"file": (nome, contenuto)})
 
 
 def proposte(client):

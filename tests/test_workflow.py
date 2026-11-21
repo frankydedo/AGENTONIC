@@ -1,13 +1,14 @@
 """Workflow completo (F5 + F12): `analizza_documento` sul percorso della demo, solo provider mock."""
 
 import json
+import shutil
 
 import pytest
 
-from backend.analisi import analizza_documento, estrazione
+from backend.analisi import _parallelo, analizza_documento, estrazione, incongruenze
 from backend.analisi.proposte import data_valida, in_proposte
 from backend.analisi.simulatore import Simulatore, documenti_demo, esegui_percorso
-from backend.llm import Config
+from backend.llm import CARTELLA_MOCK, Config
 from backend.modelli import AggiornamentoTask, EstrazioneRiunione, Task, TaskEstratto
 
 MOCK = Config(provider="mock")
@@ -22,7 +23,8 @@ ATTESE = {
     "riu-003": ({"nuovo_task": 1, "aggiorna_task": 2, "nuovo_fatto": 4}, {"punto_oscuro": 1, "incongruenza": 4}),
     "riu-004": ({"chiudi_task": 2, "aggiorna_task": 3, "nuovo_fatto": 1}, {}),
     "riu-005": ({"nuovo_task": 2, "aggiorna_task": 1, "nuovo_fatto": 2}, {"punto_oscuro": 1, "incongruenza": 1}),
-    "doc-001": ({"nuovo_task": 2, "nuovo_fatto": 7}, {"punto_oscuro": 3, "sconosciuto": 1, "incongruenza": 1}),
+    # 4 punti oscuri: due «non ha un responsabile» del codice, più velocità nominale e penale del modello
+    "doc-001": ({"nuovo_task": 2, "nuovo_fatto": 7}, {"punto_oscuro": 4, "sconosciuto": 1, "incongruenza": 1}),
 }
 
 
@@ -86,6 +88,18 @@ def test_punti_oscuri_non_doppi(percorso):
     assert len(testi) == 2
 
 
+def test_punto_oscuro_su_altro_negli_stessi_segmenti_resta(percorso):
+    """doc-001 p01s05: il codice segnala il task senza responsabile, il modello la «velocità nominale».
+    Stesso segmento ma cose diverse: restano tutti e due (prima il secondo si perdeva)."""
+    _, r = _per_doc(percorso)["doc-001"]
+    su_p01s05 = [a.testo for a in r.avvisi if a.tipo == "punto_oscuro"
+                 and [c.segmento_id for c in a.citazioni] == ["doc-001#p01s05"]]
+    assert len(su_p01s05) == 2
+    assert "non ha un responsabile" in su_p01s05[0] and "velocità nominale" in su_p01s05[1]
+    assert any("valore dell'ordine" in a.testo for a in r.avvisi if a.tipo == "punto_oscuro")
+    assert r.passi[-1].output["punti_oscuri_doppi_tolti"] == 0
+
+
 def test_citazioni_solo_da_segmenti_esistenti(percorso):
     segmenti = {s.id: s for doc in documenti_demo() for s in doc.segmenti}
     for _, r in _per_doc(percorso).values():
@@ -139,24 +153,90 @@ def test_un_estrattore_fallisce_gli_altri_proseguono(monkeypatch):
 
 
 def test_deduplica_punti_oscuri_del_modello(tmp_path):
+    """Doppione = stessi segmenti E stessa cosa di un punto oscuro del codice; nel dubbio si tiene."""
     doc = documenti_demo()[0]
+    s9, s14 = ["riu-001#s009"], ["riu-001#s014"]
     for agente, dati in {
         "task": {"task": [{"rif": "t1", "titolo": "Preparare la lista dei tag del PLC", "assegnatario_detto": "Marco",
-                           "scadenza": "fine mese", "aree": ["sviluppo"], "segmenti": ["riu-001#s009"],
-                           "sicurezza": "alta"}], "aggiornamenti": []},
+                           "scadenza": "fine mese", "aree": ["sviluppo"], "segmenti": s9, "sicurezza": "alta"},
+                          {"rif": "t2", "titolo": "Aggiornare il manuale", "assegnatario_detto": None,
+                           "scadenza": None, "aree": ["generale"], "segmenti": s14, "sicurezza": "alta"}],
+                 "aggiornamenti": []},
         "fatti": {"fatti": []},
-        "lacune": {"punti_oscuri": [{"descrizione": "Marco chi?", "segmenti": ["riu-001#s009"]},
-                                    {"descrizione": "Altro dubbio.", "segmenti": ["riu-001#s003"]}],
+        "lacune": {"punti_oscuri": [
+            {"descrizione": "Marco chi?", "segmenti": s9},                                   # doppione: responsabile
+            {"descrizione": "«Fine mese» è una scadenza vaga.", "segmenti": s9},             # doppione: data
+            {"descrizione": "Non si sa quale versione del PLC usare.", "segmenti": s9},      # altra cosa: resta
+            {"descrizione": "Non si sa quale versione del PLC usare.", "segmenti": s9},      # ripetizione identica
+            {"descrizione": "Nessuno ha preso l'incarico del manuale.", "segmenti": s14},    # doppione: responsabile
+            {"descrizione": "Non si sa entro quando serve il manuale.", "segmenti": s14},    # qui il codice non parla di date: resta
+            {"descrizione": "Altro dubbio.", "segmenti": ["riu-001#s003"]}],                 # segmenti nuovi: resta
                    "sconosciuti": []},
     }.items():
         (tmp_path / f"{agente}_riu-001_1di1.json").write_text(json.dumps(dati), encoding="utf-8")
     r = Simulatore().analizza(doc, Config(provider="mock", cartella_mock=tmp_path))
     testi = [a.testo for a in r.avvisi]
-    # i due del codice (nome ambiguo, data non chiara) restano anche se citano lo stesso segmento
+    # quelli del codice (nome ambiguo, data non chiara, nessun responsabile) restano sempre
     assert any("ambiguo" in t for t in testi) and any("non è una data chiara" in t for t in testi)
-    assert "Marco chi?" not in testi and "Altro dubbio." in testi
-    assert r.passi[-1].output["punti_oscuri_doppi_tolti"] == 1
+    assert any("non ha un responsabile" in t for t in testi)
+    for tolto in ("Marco chi?", "«Fine mese» è una scadenza vaga.", "Nessuno ha preso l'incarico del manuale."):
+        assert tolto not in testi, tolto
+    assert testi.count("Non si sa quale versione del PLC usare.") == 1
+    assert "Non si sa entro quando serve il manuale." in testi and "Altro dubbio." in testi
+    assert r.passi[-1].output["punti_oscuri_doppi_tolti"] == 4
+    assert r.passi[-1].output["avvisi"] == {"punto_oscuro": 6}
     assert r.proposte[0].contenuto["scadenza"] is None
+
+
+def test_errore_inatteso_nelle_incongruenze_avvisa_il_manager(monkeypatch):
+    """Segnalazione 4: se il controllo delle incongruenze cade, il manager lo sa e il risultato è `errore`."""
+    def rotto(proposte, doc, contesto, config=None):
+        raise RuntimeError("boom")
+    monkeypatch.setattr(incongruenze, "trova_incongruenze", rotto)
+    r = Simulatore().analizza(documenti_demo()[0], MOCK)
+    assert conta(r.proposte) == ATTESE["riu-001"][0]                      # le proposte restano
+    assert [a.testo for a in r.avvisi].count(
+        "L'analisi di incongruenze non è riuscita: il documento va ricontrollato a mano.") == 1
+    passo = next(p for p in r.passi if p.step == "incongruenze")
+    assert passo.esito == "errore" and "boom" not in (passo.motivo or "")
+    risultato = r.passi[-1]
+    assert risultato.step == "risultato" and risultato.esito == "errore"
+    assert risultato.output["analisi_non_riuscite"] == ["incongruenze"]
+    assert risultato.motivo == "Analisi non riuscita: incongruenze."
+
+
+def test_modello_delle_incongruenze_non_disponibile_restano_quelle_deterministiche(tmp_path):
+    """Segnalazione 4: senza il giudizio del modello (qui: mock mancanti) restano le incongruenze
+    calcolate dal codice sulle scadenze, e il manager riceve UN avviso «non è riuscita»."""
+    sim = Simulatore()
+    riu_001, riu_002, riu_003 = documenti_demo()[:3]
+    for doc in (riu_001, riu_002):
+        sim.approva_tutto(sim.analizza(doc, MOCK))
+    for agente in ("task", "fatti", "lacune"):                            # estrazione sì, incongruenze no
+        shutil.copy(CARTELLA_MOCK / f"{agente}_riu-003_1di1.json", tmp_path)
+    r = sim.analizza(riu_003, Config(provider="mock", cartella_mock=tmp_path))
+    assert conta(r.proposte) == ATTESE["riu-003"][0]
+    incongruenze_trovate = [a.testo for a in r.avvisi if a.tipo == "incongruenza"]
+    assert len(incongruenze_trovate) == 2 and all("La scadenza di" in t for t in incongruenze_trovate)
+    assert [a.testo for a in r.avvisi].count(
+        "L'analisi di incongruenze non è riuscita: il documento va ricontrollato a mano.") == 1
+    falliti = [p for p in r.passi if p.step == "incongruenze"]
+    assert falliti and all(p.esito == "errore" for p in falliti)
+    assert (r.passi[-1].esito, r.passi[-1].output["analisi_non_riuscite"]) == ("errore", ["incongruenze"])
+
+
+@pytest.mark.parametrize("valore, atteso", [("abc", 1), ("1.5", 1), ("0", 1), ("-2", 1), ("", 3), ("  ", 3),
+                                            (" 2 ", 2), ("1", 1), (None, 3)])
+def test_llm_parallelo_non_valido_non_ferma_il_workflow(monkeypatch, valore, atteso):
+    """Segnalazione 8: `LLM_PARALLELO` non numerico o <= 0 non fa cadere il workflow."""
+    if valore is None:
+        monkeypatch.delenv("LLM_PARALLELO", raising=False)
+    else:
+        monkeypatch.setenv("LLM_PARALLELO", valore)
+    assert _parallelo() == atteso
+    r = Simulatore().analizza(documenti_demo()[0], MOCK)
+    assert (conta(r.proposte), conta(r.avvisi)) == ATTESE["riu-001"]
+    assert all(p.esito == "ok" for p in r.passi)
 
 
 def test_date_non_chiare():

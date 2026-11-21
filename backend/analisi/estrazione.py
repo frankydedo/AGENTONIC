@@ -7,22 +7,27 @@
 Ogni agente divide il documento in blocchi «parte x di X» (segmenti interi), fa una chiamata
 al modello per blocco e poi valida l'output con il codice: si tengono solo gli elementi che
 citano id di segmenti del blocco e id di task del contesto (security by design §4-5).
+Il modello risponde con schemi dedicati e chiusi (`Output*`); il codice li converte nei modelli
+condivisi e assegna i `rif` dei task (`t1…tn`), che il modello non sceglie.
 Fail closed: se un blocco fallisce, l'agente restituisce `None` e un passo `errore`.
 Nei passi del registro ci sono solo id e conteggi, mai il testo del documento.
 """
 
 from __future__ import annotations
 
+import re
 import time
+from collections import Counter
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
 from backend.analisi.ingestione import neutralizza
 from backend.llm import Config, LLMNonDisponibile, OutputNonValido, chat
 from backend.modelli import (
-    AggiornamentoTask, ContestoProgetto, Documento, EstrazioneRiunione, FattoEstratto, PassoRegistro,
-    PuntoOscuro, Sconosciuto, Segmento, TaskEstratto,
+    AggiornamentoTask, Area, Attributo, ContestoProgetto, Documento, EstrazioneRiunione, FattoEstratto,
+    PassoRegistro, PuntoOscuro, Sconosciuto, Segmento, Sicurezza, TaskEstratto,
 )
 
 VERSIONE_TASK = "task-v2"
@@ -31,7 +36,69 @@ VERSIONE_LACUNE = "lacune-v2"
 MAX_BLOCCHI = 10          # oltre, il documento è troppo lungo: errore chiaro, nessuna chiamata
 
 
-# --- Schemi di output del modello (sottoinsiemi di EstrazioneRiunione) -------------------------
+# --- Schemi di output del modello (dedicati: il modello vede e compila solo questi) -------------
+# Chiusi a ogni livello (`extra="forbid"`: un campo in più è un output non valido, quindi nuovo
+# tentativo e poi fail closed) e senza i campi che imposta solo il codice (`Sconosciuto.persona_id`).
+# I campi facoltativi restano facoltativi: per questo in `llm.py` lo `json_schema` ha `strict: false`.
+
+class _Chiuso(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+class TaskDelModello(_Chiuso):
+    rif: str                                # serve solo a risolvere i dipende_da: il rif vero lo dà il codice
+    titolo: str
+    assegnatario_detto: str | None = None
+    scadenza: str | None = None
+    aree: list[Area]
+    segmenti: list[str]
+    sicurezza: Sicurezza
+    dipende_da: list[str] = []
+
+
+class AggiornamentoDelModello(_Chiuso):
+    task_id: str
+    campo: Literal["stato", "scadenza", "assegnatario", "titolo"]
+    valore: str
+    segmenti: list[str]
+    sicurezza: Sicurezza
+
+
+class FattoDelModello(_Chiuso):
+    soggetto: str
+    attributo: Attributo
+    valore: str
+    aree: list[Area]
+    segmenti: list[str]
+    sicurezza: Sicurezza
+
+
+class PuntoOscuroDelModello(_Chiuso):
+    descrizione: str
+    segmenti: list[str]
+
+
+class SconosciutoDelModello(_Chiuso):       # niente persona_id: lo imposta solo il codice
+    nome: str
+    descrizione: str
+    segmenti: list[str]
+
+
+class OutputTask(_Chiuso):
+    task: list[TaskDelModello] = []
+    aggiornamenti: list[AggiornamentoDelModello] = []
+
+
+class OutputFatti(_Chiuso):
+    fatti: list[FattoDelModello] = []
+
+
+class OutputLacune(_Chiuso):
+    punti_oscuri: list[PuntoOscuroDelModello] = []
+    sconosciuti: list[SconosciutoDelModello] = []
+
+
+# --- Risultato di un agente: modelli condivisi, dopo la validazione del codice ------------------
 
 class EstrazioneTask(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -47,7 +114,7 @@ class EstrazioneFatti(BaseModel):
 class EstrazioneLacune(BaseModel):
     model_config = ConfigDict(extra="forbid")
     punti_oscuri: list[PuntoOscuro] = []
-    sconosciuti: list[Sconosciuto] = []     # il modello non compila mai persona_id
+    sconosciuti: list[Sconosciuto] = []     # persona_id sempre None: lo imposta persone.classifica_sconosciuto
 
 
 # --- Prompt -------------------------------------------------------------------------------------
@@ -194,41 +261,62 @@ def _cita_bene(segmenti: list[str], ammessi: set[str]) -> bool:
     return bool(segmenti) and all(s in ammessi for s in segmenti)
 
 
-def _valida_task(dati: EstrazioneTask, ammessi: set[str], contesto: ContestoProgetto,
-                 x: int) -> tuple[EstrazioneTask, dict, int]:
+_RIF = re.compile(r"t[0-9]+")     # l'unica forma di rif che vale, per il modello e per il codice
+
+
+def _valida_task(dati: OutputTask, ammessi: set[str], contesto: ContestoProgetto,
+                 precedenti: list[EstrazioneTask]) -> tuple[EstrazioneTask, dict, int]:
+    """I `rif` li assegna il codice: `t1…tn` per posizione, unici in tutto il documento.
+
+    Il rif scritto dal modello serve solo a risolvere i `dipende_da` della stessa parte, e solo se
+    ha la forma `t<numero>` e compare una volta sola. Un rif fuori formato (`p2-t1`, `task-004`,
+    vuoto) o doppio non fa perdere il task, che viene rinumerato come gli altri: si scartano solo
+    le dipendenze che lo citano, perché il codice non può sapere a quale task si riferiscono."""
     id_task = {t.id for t in contesto.task}
-    tenuti: list[TaskEstratto] = []
-    for t in dati.task:
-        if t.rif.strip() and t.rif not in {k.rif for k in tenuti} and _cita_bene(t.segmenti, ammessi):
-            tenuti.append(t)
-    aggiornamenti = [a for a in dati.aggiornamenti if a.task_id in id_task and _cita_bene(a.segmenti, ammessi)]
+    tenuti = [t for t in dati.task if _cita_bene(t.segmenti, ammessi)]
+    aggiornamenti = [AggiornamentoTask(**a.model_dump()) for a in dati.aggiornamenti
+                     if a.task_id in id_task and _cita_bene(a.segmenti, ammessi)]
     scartati = len(dati.task) - len(tenuti) + len(dati.aggiornamenti) - len(aggiornamenti)
 
-    rif_validi = {t.rif for t in tenuti}
-    prefisso = f"p{x}-" if x > 1 else ""          # con più blocchi: t1 del blocco 2 -> p2-t1
+    # Numeri liberi: mai un rif già dato a un'altra parte né l'id di un task approvato.
+    occupati = id_task | {t.rif for r in precedenti for t in r.task}
+    nuovi: list[str] = []
+    n = 0
+    for _ in tenuti:
+        n += 1
+        while f"t{n}" in occupati:
+            n += 1
+        nuovi.append(f"t{n}")
+    volte = Counter(t.rif for t in dati.task)
+    mappa = {t.rif: nuovo for t, nuovo in zip(tenuti, nuovi) if _RIF.fullmatch(t.rif) and volte[t.rif] == 1}
+
     tolte = 0
     task = []
-    for t in tenuti:
-        dip = list(dict.fromkeys(d for d in t.dipende_da if d != t.rif and (d in rif_validi or d in id_task)))
+    for t, nuovo in zip(tenuti, nuovi):
+        # dipendenze ammesse: id di task approvati (così come sono) e rif di questa parte (rimappati)
+        dip = [d if d in id_task else mappa.get(d) for d in t.dipende_da]
+        dip = list(dict.fromkeys(d for d in dip if d and d != nuovo))
         tolte += len(t.dipende_da) - len(dip)
-        dip = [prefisso + d if d in rif_validi else d for d in dip]
-        task.append(t.model_copy(update={"rif": prefisso + t.rif, "dipende_da": dip}))
+        task.append(TaskEstratto(**{**t.model_dump(), "rif": nuovo, "dipende_da": dip}))
 
     output = {"task": len(task), "aggiornamenti": len(aggiornamenti), "dipendenze_tolte": tolte}
+    non_validi = sum(1 for t in tenuti if t.rif not in mappa)
+    if non_validi:                    # solo se succede: il passo normale resta com'era
+        output["rif_non_validi"] = non_validi
     return EstrazioneTask(task=task, aggiornamenti=aggiornamenti), output, scartati
 
 
-def _valida_fatti(dati: EstrazioneFatti, ammessi: set[str], contesto: ContestoProgetto,
-                  x: int) -> tuple[EstrazioneFatti, dict, int]:
-    fatti = [f for f in dati.fatti if _cita_bene(f.segmenti, ammessi)]
+def _valida_fatti(dati: OutputFatti, ammessi: set[str], contesto: ContestoProgetto,
+                  precedenti: list[EstrazioneFatti]) -> tuple[EstrazioneFatti, dict, int]:
+    fatti = [FattoEstratto(**f.model_dump()) for f in dati.fatti if _cita_bene(f.segmenti, ammessi)]
     return EstrazioneFatti(fatti=fatti), {"fatti": len(fatti)}, len(dati.fatti) - len(fatti)
 
 
-def _valida_lacune(dati: EstrazioneLacune, ammessi: set[str], contesto: ContestoProgetto,
-                   x: int) -> tuple[EstrazioneLacune, dict, int]:
-    punti = [p for p in dati.punti_oscuri if _cita_bene(p.segmenti, ammessi)]
-    # persona_id lo imposta solo il codice (persone.classifica_sconosciuto), mai il modello
-    sconosciuti = [s.model_copy(update={"persona_id": None}) for s in dati.sconosciuti
+def _valida_lacune(dati: OutputLacune, ammessi: set[str], contesto: ContestoProgetto,
+                   precedenti: list[EstrazioneLacune]) -> tuple[EstrazioneLacune, dict, int]:
+    punti = [PuntoOscuro(**p.model_dump()) for p in dati.punti_oscuri if _cita_bene(p.segmenti, ammessi)]
+    # persona_id lo imposta solo il codice (persone.classifica_sconosciuto): lo schema del modello non lo ha
+    sconosciuti = [Sconosciuto(**s.model_dump(), persona_id=None) for s in dati.sconosciuti
                    if _cita_bene(s.segmenti, ammessi)]
     scartati = len(dati.punti_oscuri) - len(punti) + len(dati.sconosciuti) - len(sconosciuti)
     output = {"punti_oscuri": len(punti), "sconosciuti": len(sconosciuti)}
@@ -237,8 +325,9 @@ def _valida_lacune(dati: EstrazioneLacune, ammessi: set[str], contesto: Contesto
 
 # --- Esecuzione di un agente --------------------------------------------------------------------
 
-def _esegui(agente: str, schema: type[BaseModel], versione: str, valida, doc: Documento,
-            contesto: ContestoProgetto, config: Config | None):
+def _esegui(agente: str, schema: type[BaseModel], risultato: type[BaseModel], versione: str, valida,
+            doc: Documento, contesto: ContestoProgetto, config: Config | None):
+    """`schema` è quello che compila il modello, `risultato` il contenitore dei modelli condivisi."""
     cfg = config or Config.da_ambiente()
     step = f"estrazione_{agente}"
     blocchi = dividi_in_blocchi(doc)
@@ -249,7 +338,7 @@ def _esegui(agente: str, schema: type[BaseModel], versione: str, valida, doc: Do
                              documento_id=doc.id, versione_prompt=versione, **campi)
 
     if n == 0:
-        return schema(), [passo(input={"documento_id": doc.id, "parte": "0/0", "segmenti": 0},
+        return risultato(), [passo(input={"documento_id": doc.id, "parte": "0/0", "segmenti": 0},
                                 motivo="Documento senza segmenti: nessuna chiamata al modello.")]
     if n > MAX_BLOCCHI:
         return None, [passo(input={"documento_id": doc.id, "parte": f"0/{n}", "segmenti": len(doc.segmenti)},
@@ -269,8 +358,8 @@ def _esegui(agente: str, schema: type[BaseModel], versione: str, valida, doc: Do
                                tentativi=2 if isinstance(e, OutputNonValido) else 1,
                                durata_ms=int((time.monotonic() - inizio) * 1000)))
             return None, passi
-        pulito, output, scartati = valida(r.dati, {s.id for s in blocco}, contesto, x)
-        tenuti = sum(v for k, v in output.items() if k != "dipendenze_tolte")
+        pulito, output, scartati = valida(r.dati, {s.id for s in blocco}, contesto, risultati)
+        tenuti = sum(len(getattr(pulito, campo)) for campo in risultato.model_fields)
         motivo = None
         if scartati:
             motivo = f"{scartati} elementi scartati: citano segmenti fuori dalla parte o task inesistenti."
@@ -279,23 +368,24 @@ def _esegui(agente: str, schema: type[BaseModel], versione: str, valida, doc: Do
                            esito="scartato" if scartati and not tenuti else "ok", motivo=motivo))
         risultati.append(pulito)
 
-    unito = schema(**{campo: [el for r in risultati for el in getattr(r, campo)] for campo in schema.model_fields})
+    unito = risultato(**{campo: [el for r in risultati for el in getattr(r, campo)]
+                         for campo in risultato.model_fields})
     return unito, passi
 
 
 def estrai_task(doc: Documento, contesto: ContestoProgetto,
                 config: Config | None = None) -> tuple[EstrazioneTask | None, list[PassoRegistro]]:
-    return _esegui("task", EstrazioneTask, VERSIONE_TASK, _valida_task, doc, contesto, config)
+    return _esegui("task", OutputTask, EstrazioneTask, VERSIONE_TASK, _valida_task, doc, contesto, config)
 
 
 def estrai_fatti(doc: Documento, contesto: ContestoProgetto,
                  config: Config | None = None) -> tuple[EstrazioneFatti | None, list[PassoRegistro]]:
-    return _esegui("fatti", EstrazioneFatti, VERSIONE_FATTI, _valida_fatti, doc, contesto, config)
+    return _esegui("fatti", OutputFatti, EstrazioneFatti, VERSIONE_FATTI, _valida_fatti, doc, contesto, config)
 
 
 def estrai_lacune(doc: Documento, contesto: ContestoProgetto,
                   config: Config | None = None) -> tuple[EstrazioneLacune | None, list[PassoRegistro]]:
-    return _esegui("lacune", EstrazioneLacune, VERSIONE_LACUNE, _valida_lacune, doc, contesto, config)
+    return _esegui("lacune", OutputLacune, EstrazioneLacune, VERSIONE_LACUNE, _valida_lacune, doc, contesto, config)
 
 
 def unisci(task: EstrazioneTask | None, fatti: EstrazioneFatti | None,

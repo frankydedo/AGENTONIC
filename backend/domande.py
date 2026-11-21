@@ -23,6 +23,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
+from backend.analisi.ingestione import neutralizza
 from backend.llm import Config, LLMNonDisponibile, OutputNonValido, chat
 from backend.modelli import (TESTO_NEUTRO, Citazione, Fatto, PassoRegistro, Persona, Progetto, Risposta,
                              Task, Voce, puo_vedere)
@@ -79,8 +80,10 @@ def preseleziona(domanda: str, voci: list[Voce], massimo: int = MAX_VOCI) -> lis
 
 
 def _dato(testo: str, massimo: int) -> str:
-    """Testo da mettere nel prompt come dato: niente finti delimitatori, lunghezza limitata."""
-    return " ".join(testo.split())[:massimo].replace("<", "‹").replace(">", "›")
+    """Testo da mettere nel prompt come dato: niente finti delimitatori, lunghezza limitata.
+
+    Stessa pulizia dei documenti (`ingestione.neutralizza`): anche `＜/domanda＞` e `&lt;/domanda&gt;`."""
+    return neutralizza(" ".join(testo.split())[:massimo])[:massimo]
 
 
 def messaggi(domanda: str, voci: list[Voce]) -> list[dict]:
@@ -129,8 +132,16 @@ def rispondi_tracciato(domanda: str, persona: Persona, voci: list[Voce], manager
     try:
         r = chat(messaggi(domanda, passate), RispostaModello, chiave=chiave_domanda(domanda), config=config)
     except Exception as e:  # noqa: BLE001 - qualunque errore -> testo neutro (fail closed)
+        # Nel passo il messaggio entra solo se lo scrive `llm.py` (testo fisso). Quello di un output
+        # non valido può contenere parole scelte dal modello, quindi della domanda o delle voci.
+        if isinstance(e, LLMNonDisponibile):
+            motivo = f"LLMNonDisponibile: {e}"[:300]
+        elif isinstance(e, OutputNonValido):
+            motivo = "OutputNonValido: l'output del modello non rispetta lo schema"
+        else:
+            motivo = type(e).__name__
         return neutra, passo.model_copy(update={
-            "esito": "errore", "motivo": f"{type(e).__name__}: {e}"[:300],
+            "esito": "errore", "motivo": motivo,
             "durata_ms": int((time.monotonic() - inizio) * 1000)})
     passo = passo.model_copy(update={"provider": r.provider, "modello": r.modello,
                                      "tentativi": r.tentativi, "durata_ms": r.durata_ms})

@@ -8,32 +8,50 @@ from backend import db
 from backend.modelli import Persona, Task
 
 APERTI = ("da_fare", "in_corso", "bloccato")
+CHIUSI = ("fatto", "annullato")
 
 
 def task_del_progetto(conn: sqlite3.Connection, progetto_id: str) -> list[Task]:
     """Tutti i task approvati, con le dipendenze risolte e lo stato `bloccato` calcolato.
 
-    `dipende_da` può contenere un id o il titolo di un task: se il task richiesto non è (ancora)
-    nella lista del progetto, resta il titolo e il task risulta bloccato.
+    `dipende_da` contiene id di task (`task-004`) o rif di proposte (`riu-001:t4`). Un rif diventa
+    l'id del task quando la sua proposta è approvata; se la proposta aspetta ancora il manager il rif
+    resta e il task è bloccato; se è stata rifiutata o non esiste, la dipendenza cade.
     """
-    tutti = [db.task(r) for r in conn.execute("SELECT * FROM task WHERE progetto_id = ? ORDER BY id", (progetto_id,))]
+    righe = conn.execute("SELECT * FROM task WHERE progetto_id = ? ORDER BY id", (progetto_id,)).fetchall()
+    tutti = [db.task(r) for r in righe]
     per_id = {t.id: t for t in tutti}
-    per_titolo = {t.titolo.lower(): t for t in tutti}
+    per_rif = {r["rif"]: per_id[r["id"]] for r in righe if r["rif"]}
+    in_attesa = set()
+    for r in conn.execute("SELECT contenuto FROM proposte WHERE progetto_id = ? AND tipo = 'nuovo_task' "
+                          "AND stato = 'in_attesa'", (progetto_id,)):
+        in_attesa.add(json.loads(r["contenuto"]).get("rif"))
+    chiuso_in_origine = {t.id: t.stato in CHIUSI for t in tutti}
     for t in tutti:
-        risolte = [per_id.get(d) or per_titolo.get(d.lower()) for d in t.dipende_da]
-        in_sospeso = any(r is None or r.stato not in ("fatto", "annullato") for r in risolte)
-        t.dipende_da = [r.id if r else d for r, d in zip(risolte, t.dipende_da)]
+        dipendenze, in_sospeso = [], False
+        for d in t.dipende_da:
+            richiesto = per_id.get(d) or per_rif.get(d)
+            if richiesto is not None and richiesto.id != t.id:
+                dipendenze.append(richiesto.id)
+                in_sospeso |= not chiuso_in_origine[richiesto.id]
+            elif richiesto is None and d in in_attesa:
+                dipendenze.append(d)          # il task richiesto aspetta ancora l'approvazione
+                in_sospeso = True
+        t.dipende_da = list(dict.fromkeys(dipendenze))
         if in_sospeso and t.stato in ("da_fare", "in_corso"):
             t.stato = "bloccato"
     return tutti
 
 
-def todo_oggi(conn: sqlite3.Connection, persona: Persona) -> dict:
-    """I task aperti della persona (in tutti i suoi progetti), per scadenza; se li ha già
-    accettati oggi, nel suo ordine."""
+def todo_oggi(conn: sqlite3.Connection, persona: Persona, progetti: list[str] | None = None) -> dict:
+    """I task aperti della persona, per scadenza; se li ha già accettati oggi, nel suo ordine.
+
+    `progetti`: limita ai progetti indicati (il manager vede solo quelli che dirige)."""
     oggi = date.today().isoformat()
-    progetti = [r[0] for r in conn.execute("SELECT progetto_id FROM membri WHERE persona_id = ?", (persona.id,))]
-    miei = [t for prj in progetti for t in task_del_progetto(conn, prj)
+    suoi = [r[0] for r in conn.execute("SELECT progetto_id FROM membri WHERE persona_id = ?", (persona.id,))]
+    if progetti is not None:
+        suoi = [p for p in suoi if p in progetti]
+    miei = [t for prj in suoi for t in task_del_progetto(conn, prj)
             if t.assegnatario_id == persona.id and t.stato in APERTI]
     miei.sort(key=lambda t: (t.scadenza or "9999", t.id))
     r = conn.execute("SELECT task_ids FROM todo_oggi WHERE persona_id = ? AND data = ?",

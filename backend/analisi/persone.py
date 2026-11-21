@@ -1,9 +1,10 @@
 """Persone (F4): dal nome detto o scritto nel documento all'id della persona.
 
 Codice deterministico, nessun modello: il modello non imposta mai un `persona_id`.
-Il confronto è normalizzato (minuscole, senza accenti, spazi compattati, punti ignorati) su
-nome completo, alias, nome e cognome. Se il nome corrisponde a più persone non si sceglie:
-l'ambiguità diventa un punto oscuro per il manager.
+Il confronto è normalizzato (minuscole, senza accenti, spazi compattati, punti ignorati, apostrofi
+tipografici come quello dritto) su nome completo, alias, nome (anche composto: «Gian Marco» per
+«Gian Marco Rossi») e cognome. Se il nome corrisponde a più persone non si sceglie: l'ambiguità
+diventa un punto oscuro per il manager.
 """
 
 import unicodedata
@@ -19,9 +20,13 @@ class Abbinamento(BaseModel):
     motivo: str | None = None          # perché non c'è un abbinamento (testo per il manager)
 
 
+_APOSTROFI = str.maketrans({c: "'" for c in "’‘ʼ`´"})   # «D’Amico», «D`Amico» -> «D'Amico»
+
+
 def normalizza(testo: str) -> str:
-    """«  Marco B. » -> «marco b»; «Niccolò» -> «niccolo»."""
-    senza_accenti = "".join(c for c in unicodedata.normalize("NFKD", testo.replace("’", "'").replace("‘", "'")) if not unicodedata.combining(c))
+    """«  Marco B. » -> «marco b»; «Niccolò» -> «niccolo»; «D’Amico» -> «d'amico»."""
+    senza_accenti = "".join(c for c in unicodedata.normalize("NFKD", testo.translate(_APOSTROFI))
+                            if not unicodedata.combining(c))
     return " ".join(senza_accenti.lower().replace(".", " ").split())
 
 
@@ -29,8 +34,9 @@ def _chiavi(p: Persona) -> set[str]:
     completo = normalizza(p.nome)
     parole = completo.split()
     chiavi = {completo, *(normalizza(a) for a in p.alias)}
-    if parole:
-        chiavi.add(parole[0])                      # nome
+    # nome, anche composto: i prefissi di parole intere («gian», «gian marco» per «Gian Marco Rossi»).
+    # Solo prefissi: «marco» da solo NON è una chiave di «Gian Marco Rossi».
+    chiavi.update(" ".join(parole[:n]) for n in range(1, len(parole)))
     if len(parole) > 1:
         chiavi.add(" ".join(parole[1:]))           # cognome (anche di più parole)
     return chiavi - {""}

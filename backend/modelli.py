@@ -36,6 +36,7 @@ class Persona(BaseModel):
     id: str
     nome: str
     ruolo: str
+    reparto: str | None = None   # area aziendale (reparto); diversa dalle competenze
     alias: list[str] = []
     competenze: list[Area] = []
 
@@ -68,7 +69,7 @@ class Documento(BaseModel):
     id: str                      # "riu-001"
     progetto_id: str
     tipo: Literal["riunione", "integrativo"]
-    formato: Literal["minuta", "trascrizione", "audio", "pdf"]
+    formato: Literal["minuta", "trascrizione", "audio", "video", "pdf"]
     titolo: str
     data: str                    # AAAA-MM-GG
     ora_inizio: str | None = None
@@ -212,6 +213,7 @@ class Avviso(BaseModel):
     basato_su_proposte: list[str] = []
     solo_manager: bool = True               # finché il manager non lo inoltra, lo vede solo lui
     inoltrato_a: list[str] = []             # id di persone a cui il manager l'ha inoltrato
+    proposta_id: str | None = None          # la proposta da correggere (punto oscuro): la collega il backend
     risolto: bool = False
     creato_il: datetime | None = None       # assegnato dal backend al salvataggio
 

@@ -12,6 +12,7 @@ Nei passi del registro solo id e conteggi, mai testo dei documenti.
 from __future__ import annotations
 
 import os
+import re
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
@@ -23,6 +24,27 @@ from backend.modelli import (
 )
 
 _ESTRATTORI = ("task", "fatti", "lacune")       # ordine fisso: estrazione.estrai_<nome>
+
+# Temi dei punti oscuri generati dal codice: (frasi fisse scritte da `proposte.in_proposte`, parole
+# che in un punto oscuro del modello dicono che parla della stessa cosa). Vedi `_togli_doppi`.
+_TEMI = (
+    (("non ha un responsabile", "è ambiguo", "non è un membro del progetto"),          # responsabile
+     re.compile(r"\b(chi|responsabil\w*|assegnat\w*|incaric\w*|ambigu\w*|omonim\w*|occup\w*)\b")),
+    (("non è una data chiara",),                                                        # data
+     re.compile(r"\b(data|date|scadenz\w*|quando|entro|termine)\b")),
+)
+
+
+def _parallelo() -> int:
+    """Estrazioni insieme: `LLM_PARALLELO` (default 3; con LM Studio 1). Un valore sbagliato non
+    ferma il workflow: vuoto -> 3; non numerico o <= 0 -> 1 (una alla volta va bene con ogni provider)."""
+    grezzo = os.environ.get("LLM_PARALLELO", "").strip()
+    if not grezzo:
+        return 3
+    try:
+        return max(1, int(grezzo))
+    except ValueError:
+        return 1
 
 
 def _passo(step: str, doc: Documento, **campi) -> PassoRegistro:
@@ -41,20 +63,29 @@ def _estrai(funzione, nome: str, doc: Documento, contesto: ContestoProgetto, con
 
 
 def _togli_doppi(avvisi: list[Avviso], estr: EstrazioneRiunione) -> tuple[list[Avviso], int]:
-    """Toglie i punti oscuri del modello che citano gli stessi segmenti di un altro punto oscuro.
+    """Toglie i punti oscuri del modello che ripetono un punto oscuro generato dal codice.
 
-    Quelli generati dal codice (responsabile ambiguo o mancante, date) vengono prima in `in_proposte`
-    e si tengono sempre; un punto oscuro del modello si tiene solo se i suoi segmenti sono nuovi."""
+    È un doppione solo se cita gli stessi segmenti E parla della stessa cosa (responsabile ambiguo o
+    mancante, data non chiara: `_TEMI`). Citare gli stessi segmenti non basta: sullo stesso paragrafo
+    il modello può segnalare altro (doc-001 p01s05, la «velocità nominale»). Nel dubbio si tiene.
+    Quelli del codice vengono prima in `in_proposte` e si tengono sempre; del modello si toglie anche
+    la ripetizione identica (stesso testo, stessi segmenti)."""
     dal_modello = {po.descrizione.strip() for po in estr.punti_oscuri}
-    visti: set[frozenset[str]] = set()
+    temi_del_codice: dict[frozenset[str], set[int]] = {}      # segmenti -> temi già segnalati dal codice
+    visti: set[tuple[str, frozenset[str]]] = set()
     tenuti: list[Avviso] = []
     for a in avvisi:
         if a.tipo == "punto_oscuro":
             chiave = frozenset(c.segmento_id for c in a.citazioni)
-            if a.testo in dal_modello and chiave and chiave in visti:
-                continue
-            if chiave:
-                visti.add(chiave)
+            if a.testo in dal_modello:
+                testo = persone.normalizza(a.testo)
+                if (a.testo, chiave) in visti or any(_TEMI[i][1].search(testo)
+                                                     for i in temi_del_codice.get(chiave, ())):
+                    continue
+                visti.add((a.testo, chiave))
+            else:
+                temi_del_codice.setdefault(chiave, set()).update(
+                    i for i, (frasi, _) in enumerate(_TEMI) if any(f in a.testo for f in frasi))
         tenuti.append(a)
     return tenuti, len(avvisi) - len(tenuti)
 
@@ -75,7 +106,7 @@ def analizza_documento(doc: Documento, contesto: ContestoProgetto,
                         output={"speaker_abbinati": abbinati, "speaker_non_abbinati": len(doc.segmenti) - abbinati}))
 
     # 2. tre agenti di estrazione in parallelo; risultati raccolti in ordine fisso
-    with ThreadPoolExecutor(max_workers=max(1, int(os.environ.get("LLM_PARALLELO", "3")))) as pool:
+    with ThreadPoolExecutor(max_workers=_parallelo()) as pool:
         futuri = [pool.submit(_estrai, getattr(estrazione, f"estrai_{nome}"), nome, doc, contesto, cfg)
                   for nome in _ESTRATTORI]
         risultati = [f.result() for f in futuri]

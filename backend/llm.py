@@ -39,6 +39,13 @@ class OutputNonValido(RuntimeError):
     """Il modello ha risposto, ma l'output non rispetta lo schema neanche dopo il nuovo tentativo."""
 
 
+def _numero(nome: str, predefinito: str) -> float:
+    try:
+        return float(os.environ.get(nome, predefinito))
+    except ValueError:      # senza il valore: negli errori non finisce mai ciò che sta nell'ambiente
+        raise ValueError(f"{nome} non è un numero.") from None
+
+
 @dataclass(frozen=True)
 class Config:
     provider: Provider = "mock"
@@ -61,8 +68,8 @@ class Config:
             base_url=os.environ.get("LLM_BASE_URL", "").rstrip("/"),
             modello=os.environ.get("LLM_MODEL", ""),
             api_key=os.environ.get("LLM_API_KEY", ""),
-            temperatura=float(os.environ.get("LLM_TEMPERATURE", "0.3")),
-            timeout_s=float(os.environ.get("LLM_TIMEOUT", "120")),
+            temperatura=_numero("LLM_TEMPERATURE", "0.3"),
+            timeout_s=_numero("LLM_TIMEOUT", "120"),
             registra=os.environ.get("LLM_REGISTRA", "") == "1",
         )
 
@@ -120,17 +127,20 @@ def _chiama_openai(cfg: Config, messaggi: list[dict], schema: type[BaseModel] | 
         }
     intestazioni = {"Authorization": f"Bearer {cfg.api_key}"} if cfg.api_key else {}
     proprio = client is None
-    client = client or httpx.Client(timeout=cfg.timeout_s)
     try:
+        client = client or httpx.Client(timeout=cfg.timeout_s)
         r = client.post(f"{cfg.base_url}/chat/completions", json=corpo, headers=intestazioni)
         r.raise_for_status()
-        return r.json()["choices"][0]["message"]["content"] or ""
+        contenuto = r.json()["choices"][0]["message"]["content"] or ""
+        if not isinstance(contenuto, str):
+            raise TypeError("content non testuale")
+        return contenuto
     except httpx.HTTPStatusError as e:
         raise LLMNonDisponibile(f"Il modello ha risposto HTTP {e.response.status_code}.") from None
     except Exception as e:  # noqa: BLE001 - qualunque guasto (rete, URL, JSON, null) -> fail closed
         raise LLMNonDisponibile(f"Modello non raggiungibile o risposta inattesa ({type(e).__name__}).") from None
     finally:
-        if proprio:
+        if proprio and client is not None:
             client.close()
 
 
@@ -145,7 +155,10 @@ def chat(messaggi: list[dict], schema: type[BaseModel] | None = None, *, chiave:
     """
     if not _CHIAVE_VALIDA.match(chiave):
         raise ValueError(f"Chiave non valida: {chiave!r} (solo a-z, 0-9, _ e -)")
-    cfg = config or Config.da_ambiente()
+    try:
+        cfg = config or Config.da_ambiente()
+    except ValueError as e:     # .env sbagliato (provider, temperatura, timeout): fail closed
+        raise LLMNonDisponibile(f"Configurazione del modello non valida: {e}") from None
     inizio = time.monotonic()
     storia = list(messaggi)
     ultimo_errore = ""
