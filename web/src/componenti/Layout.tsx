@@ -45,7 +45,7 @@ export function Layout() {
         <div className="flex items-center gap-2.5 px-2">
           <MarchioBrain size={30} parla={segnalazioni + inAttesa > 0} />
           <div>
-            <p className="text-[15px] leading-tight font-semibold tracking-[-0.01em]">Company Brain</p>
+            <p className="text-[15px] leading-tight font-semibold tracking-[-0.01em]">Agentonic</p>
             <p className="text-xs text-testo-2">Automazioni Dora</p>
           </div>
         </div>
