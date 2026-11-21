@@ -81,7 +81,7 @@ def classifica_sconosciuto(s: Sconosciuto, persone_azienda: list[Persona]) -> Sc
 # sconosciuto non dipende solo dal modello. Il nome che segue il titolo deve iniziare con la maiuscola.
 _TITOLO = re.compile(
     r"\b((?i:mr\.?|mrs\.?|ms\.?|dr\.?|eng\.|ing\.|ingegner[ea]?|dott\.(?:ssa)?|dottor(?:essa)?|sig\.(?:ra)?|signor[a]?|avv\.|avvocat[oa]|"
-    r"geom\.|geometra|arch\.|architett[oa]))\s+([A-ZÀ-Ý][a-zà-ÿ']+(?:\s+[A-ZÀ-Ý][a-zà-ÿ']+)?)")
+    r"geom\.|geometra|arch\.|architett[oa]|engineer|eng\.|dr\.|doctor|mr\.|mrs\.|ms\.|mister))\s+([A-ZÀ-Ý][a-zà-ÿ']+(?:\s+[A-ZÀ-Ý][a-zà-ÿ']+)?)")
 
 
 def sconosciuti_con_titolo(doc: Documento, membri: list[Persona], gia: list[Sconosciuto]) -> list[Sconosciuto]:

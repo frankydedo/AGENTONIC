@@ -18,7 +18,7 @@ export function SceltaPersona({ persone, managerId, membri, onScegli }: {
       <div className="absolute top-4 right-4"><SceltaTema piccolo /></div>
       <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
         <MarchioBrain size={72} parla className="shadow-[0_14px_44px_rgba(94,92,230,0.38)]" />
-        <h1 className="titolo-grande mt-7 text-[44px] sm:text-[60px]">Company Brain</h1>
+        <h1 className="titolo-grande mt-7 text-[44px] sm:text-[60px]">Agentonic</h1>
         <p className="mt-4 max-w-xl text-[19px] leading-snug text-testo-2 sm:text-[21px]">
           The team member who reads the meetings, keeps the project’s memory and tells you what needs your attention.
           It always asks before acting.

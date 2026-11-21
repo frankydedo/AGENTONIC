@@ -1,0 +1,41 @@
+{
+ "fatti": [
+  {
+   "soggetto": "project",
+   "attributo": "scadenza",
+   "valore": "acceptance test at the client's site on 2027-01-20",
+   "aree": [
+    "generale"
+   ],
+   "segmenti": [
+    "rap-101#s001"
+   ],
+   "sicurezza": "alta"
+  },
+  {
+   "soggetto": "project",
+   "attributo": "budget",
+   "valore": "€48,000 approved, €12,500 already committed for the design",
+   "aree": [
+    "budget"
+   ],
+   "segmenti": [
+    "rap-101#s002"
+   ],
+   "sicurezza": "alta"
+  },
+  {
+   "soggetto": "inverters",
+   "attributo": "costo",
+   "valore": "€6,200 (Elettrotecnica Piemonte quote)",
+   "aree": [
+    "fornitori",
+    "budget"
+   ],
+   "segmenti": [
+    "rap-101#s003"
+   ],
+   "sicurezza": "alta"
+  }
+ ]
+}

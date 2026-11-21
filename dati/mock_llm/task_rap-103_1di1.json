@@ -1,0 +1,23 @@
+{
+ "task": [],
+ "aggiornamenti": [
+  {
+   "task_id": "task-002",
+   "campo": "stato",
+   "valore": "fatto",
+   "segmenti": [
+    "rap-103#s001"
+   ],
+   "sicurezza": "alta"
+  },
+  {
+   "task_id": "task-003",
+   "campo": "stato",
+   "valore": "in_corso",
+   "segmenti": [
+    "rap-103#s002"
+   ],
+   "sicurezza": "alta"
+  }
+ ]
+}
