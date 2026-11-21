@@ -27,6 +27,7 @@ Schema completo e prove dal browser: `http://127.0.0.1:8000/docs`.
 | `POST /proposte/{id}/approva` | manager | `{"aree": ["budget"] \| null, "nota": null}` | `Proposta` approvata |
 | `POST /proposte/{id}/rifiuta` | manager | `{"nota": null}` | `Proposta` rifiutata |
 | `GET /avvisi?progetto_id=prj-01` | membri | SSE | eventi `avviso` con un `Avviso` JSON |
+| `POST /avvisi/{id}/inoltra` | manager | `{"persona_ids": ["p-04"], "aree": ["sviluppo"]}` | `Avviso` con `solo_manager: false` |
 | `POST /avvisi/{id}/risolvi` | manager | - | `Avviso` |
 | `GET /progetti/{id}/todo` | membri | - | `Task[]` visibili alla persona |
 | `GET /persone/{id}/todo-oggi` | la persona stessa | - | `{persona_id, data, accettata, task: Task[]}` |
@@ -55,9 +56,32 @@ curl -s -X POST localhost:8000/domande -H 'X-Persona: p-02' -H 'content-type: ap
 Persone utili in demo: `p-01` Giulia (manager), `p-02` Marco Bianchi (sviluppo + budget),
 `p-04` Sara Colombo (solo sviluppo), `p-08` Paola Greco (fuori dal progetto).
 
-## Da allineare con Franky
-- Chi trasforma il `.md` in `Documento` (proposta: `segmenta(testo) -> Documento` di F2, chiamata
-  da `POST /riunioni`).
-- Firme: `analizza_documento(doc: Documento, contesto: ContestoProgetto) -> RisultatoAnalisi` (I2),
-  `rispondi(domanda: str, persona: Persona, voci: list[Voce]) -> Risposta` (I3).
-- Formato di `TaskEstratto.dipende_da` (titoli o id).
+## Allineato con Franky (21/11, 13:50)
+Modifiche di Franky al contratto, da rivedere con Pietro:
+- **Segmentazione**: `segmenta(testo) -> Documento` la scrive Franky (F2, `backend/analisi/`) e la
+  chiama `POST /riunioni`.
+- Firme (stub pronti, Fase 0):
+  - `backend.analisi.ingestione.segmenta(testo, progetto_id=None) -> Documento`: solleva
+    `DocumentoNonValido` (→ `422`) se manca l'intestazione, non ci sono turni o il testo è troppo grande;
+  - `backend.analisi.analizza_documento(doc, contesto) -> RisultatoAnalisi` (I2);
+  - `backend.domande.rispondi(domanda, persona, voci, manager_nome) -> Risposta` (I3). `voci` già
+    filtrate; con `voci` vuota restituisce il testo neutro senza chiamare il modello. Il motivo vero
+    (`non_autorizzato` o dato mancante) lo scrive nel registro chi chiama.
+- **Registro (I6)**: `PassoRegistro` in `modelli.py`. `RisultatoAnalisi.passi` contiene la traccia del
+  workflow da salvare; caricamenti, decisioni e domande li registra il backend con lo stesso modello.
+  `GET /registro` restituisce `PassoRegistro[]`.
+- **`TaskEstratto.dipende_da`**: ogni task estratto ha un `rif` temporaneo (`t1`, `t2`);
+  `dipende_da` contiene `rif` di questa estrazione o id di task già approvati (`task-004`). Li
+  risolve il codice e scarta quelli inesistenti.
+- **Id assegnati dal backend**: in `Proposta` e `Avviso` i campi `id` e `creata_il`/`creato_il` sono
+  opzionali. Il workflow li lascia `None` e il backend li riempie al salvataggio.
+- **Incongruenze con proposte in attesa**: `ContestoProgetto.proposte_in_attesa` (le usa solo
+  l'agente delle incongruenze); l'avviso che ne deriva ha `basato_su_proposte` non vuoto e la UI lo
+  marca «da proposte non ancora approvate».
+- **Sconosciuti**: conta solo chi è membro del progetto. `ContestoProgetto.persone_azienda` contiene
+  i dipendenti fuori dal progetto; se il nome è uno di loro, il codice imposta
+  `Sconosciuto.persona_id` e l'avviso dice «non fa parte del progetto».
+- **Inoltro degli avvisi**: `POST /avvisi/{id}/inoltra` (solo il manager), corpo
+  `{"persona_ids": ["p-04"], "aree": ["sviluppo"]}`. Mette `solo_manager: false`; da lì l'avviso lo
+  vede chi è in `inoltrato_a` oppure chi ha una delle sue `aree`. La regola è
+  `puo_vedere_avviso()` in `modelli.py`; `GET /avvisi` dovrà usarla al posto del filtro attuale.

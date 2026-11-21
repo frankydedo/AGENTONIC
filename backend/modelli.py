@@ -90,13 +90,16 @@ class Citazione(BaseModel):
 # Il modello cita solo id di segmenti/task ricevuti; non risolve persone e non scrive citazioni.
 
 class TaskEstratto(BaseModel):
+    rif: str                                # id temporaneo dentro questa estrazione: "t1", "t2", ...
     titolo: str
     assegnatario_detto: str | None = None   # il nome come è stato detto ("Marco")
     scadenza: str | None = None
     aree: list[Area]
     segmenti: list[str]
     sicurezza: Sicurezza
-    dipende_da: list[str] = []              # titoli o id di task (da precisare con Franky)
+    # "t2" per un task nuovo di questa estrazione, "task-004" per un task già approvato.
+    # Li risolve il codice; quelli che non esistono vengono scartati.
+    dipende_da: list[str] = []
 
 
 class AggiornamentoTask(BaseModel):
@@ -122,9 +125,16 @@ class PuntoOscuro(BaseModel):
 
 
 class Sconosciuto(BaseModel):
-    nome: str                               # persona o contesto mai visto
+    """Persona o contesto che non appartiene al progetto.
+
+    Conta solo chi è membro del progetto: una persona dell'azienda fuori dal progetto è
+    «sconosciuta», ma il codice la riconosce e imposta `persona_id` (mai il modello), così
+    l'avviso dice «non fa parte del progetto» invece di «persona mai vista».
+    """
+    nome: str
     descrizione: str
     segmenti: list[str]
+    persona_id: str | None = None           # impostato dal codice se è in azienda ma fuori dal progetto
 
 
 class EstrazioneRiunione(BaseModel):
@@ -171,7 +181,7 @@ class Voce(BaseModel):
 # --- Proposte e avvisi --------------------------------------------------------------------------
 
 class Proposta(BaseModel):
-    id: str
+    id: str | None = None                   # assegnato dal backend al salvataggio; None se esce dal workflow
     progetto_id: str
     documento_id: str | None = None
     tipo: TipoProposta
@@ -182,35 +192,68 @@ class Proposta(BaseModel):
     aree_confermate: list[Area] | None = None
     sicurezza: Sicurezza = "alta"
     citazioni: list[Citazione] = []
-    creata_il: datetime
+    creata_il: datetime | None = None       # assegnato dal backend al salvataggio
     decisa_da: str | None = None
     decisa_il: datetime | None = None
 
 
 class Avviso(BaseModel):
-    id: str
+    id: str | None = None                   # assegnato dal backend al salvataggio
     progetto_id: str
     documento_id: str | None = None
     tipo: TipoAvviso
     testo: str
     citazioni: list[Citazione] = []
-    solo_manager: bool = True               # prima dell'approvazione li vede solo il manager
+    aree: list[Area] = []                   # aree delle informazioni da cui nasce l'avviso
+    # Id delle proposte ancora in attesa su cui si basa (es. un'incongruenza con una riunione
+    # non ancora approvata). Se non è vuoto, la UI lo marca «da proposte non ancora approvate».
+    basato_su_proposte: list[str] = []
+    solo_manager: bool = True               # finché il manager non lo inoltra, lo vede solo lui
+    inoltrato_a: list[str] = []             # id di persone a cui il manager l'ha inoltrato
     risolto: bool = False
-    creato_il: datetime
+    creato_il: datetime | None = None       # assegnato dal backend al salvataggio
+
+
+class PassoRegistro(BaseModel):
+    """Una riga del registro (I6): ogni passo del workflow e ogni decisione di una persona.
+
+    Mai segreti (`.env`, token) né testo integrale dei documenti: solo id e conteggi.
+    Il registro lo vede solo il manager del progetto.
+    """
+    id: int | None = None                   # assegnato dal backend al salvataggio
+    quando: datetime
+    tipo: Literal["workflow", "caricamento", "decisione", "domanda"]
+    attore: str                             # "brain" oppure l'id della persona
+    step: str                               # "ingestione", "estrazione", "incongruenze", "approva", ...
+    documento_id: str | None = None
+    provider: Literal["locale", "cloud", "mock"] | None = None   # solo per i passi del modello
+    modello: str | None = None
+    versione_prompt: str | None = None
+    input: dict = {}                        # id in ingresso, parte "x/X", ...
+    output: dict = {}                       # id e conteggi prodotti
+    esito: Literal["ok", "scartato", "errore"] = "ok"
+    motivo: str | None = None               # perché scartato/errore, o il motivo vero di un non_autorizzato
+    tentativi: int = 1
+    durata_ms: int | None = None
 
 
 class RisultatoAnalisi(BaseModel):
     """Uscita di `analizza_documento` (I2). Gli id li assegna il backend al salvataggio."""
     proposte: list[Proposta] = []
     avvisi: list[Avviso] = []
+    passi: list[PassoRegistro] = []         # la traccia del workflow, da salvare nel registro
 
 
 class ContestoProgetto(BaseModel):
     """Ciò che `analizza_documento` sa del progetto prima del nuovo documento."""
     progetto: Progetto
     persone: list[Persona]                  # solo i membri del progetto
+    persone_azienda: list[Persona] = []     # dipendenti NON membri: per riconoscere gli «sconosciuti»
     task: list[Task] = []                   # approvati
     fatti: list[Fatto] = []                 # approvati
+    # Proposte in attesa dei documenti precedenti: le usa solo l'agente delle incongruenze,
+    # che marca l'avviso con `basato_su_proposte`. Mai la memoria, mai le domande.
+    proposte_in_attesa: list[Proposta] = []
     documenti_precedenti: list[str] = []    # id
 
 
@@ -243,3 +286,15 @@ def puo_vedere(persona: Persona, progetto: Progetto, aree: list[str]) -> bool:
     if "generale" in aree:
         return True
     return bool(set(aree) & set(persona.competenze))
+
+
+def puo_vedere_avviso(persona: Persona, progetto: Progetto, avviso: Avviso) -> bool:
+    """Il manager vede tutti gli avvisi del progetto. Gli altri solo quelli che il manager ha
+    inoltrato: a loro per nome, oppure a chi ha una delle aree dell'avviso (`puo_vedere`)."""
+    if persona.id not in progetto.membri:
+        return False
+    if persona.id == progetto.manager_id:
+        return True
+    if avviso.solo_manager:
+        return False
+    return persona.id in avviso.inoltrato_a or puo_vedere(persona, progetto, avviso.aree)

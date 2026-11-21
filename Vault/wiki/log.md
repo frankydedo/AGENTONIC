@@ -74,10 +74,25 @@
   Franky (F1-F11), Pietro (P1-P11) e Mauro (M1.1-M1.10), percorso critico verso M1 e M2.
 - Aperto: chi possiede la ricerca tra le voci approvate (Pietro in P6 o Franky in F6).
 
+## [2026-11-21 13:40] decisione | Security by design e tracciabilità
+- Principi concordati con Franky, in `concepts/security-by-design.md`: località, HITL dopo
+  l'ingestion (gli agenti propongono, il manager approva), minimo privilegio per il modello,
+  documenti come dati, validazione che fallisce chiusa, tracciabilità, limiti, testo semplice in UI,
+  invarianti testate.
+- WBS aggiornata: interfaccia I6 (`PassoRegistro`) e pacchetto F12 (traccia del workflow); P8 ampliato.
+- Da discutere con Pietro: `GET /segmenti/{id}`, `generale` combinata con altre aree, `Citazione.frase`, modello del registro.
+
 ## [2026-11-21 13:50] decisione | Interfaccia senza fixture, direttamente sullo stub di Pietro
 - `web/` (React 19 + TS + Vite 6 + Tailwind v4) chiama il backend tramite il proxy di Vite (`/api/*` → `BACKEND_URL`, default `:8000`); le risposte d'esempio di `backend/esempi.py` sostituiscono i JSON in `web/src/fixtures/` previsti da I4.
 - Tipi TS in `web/src/tipi.ts`, specchio di `backend/modelli.py`: se cambia il contratto, vanno aggiornati insieme.
 - Viste: manager (carica minuta, proposte con aree modificabili, avvisi SSE, registro), membro (to-do del giorno, lista del progetto), «Chiedi al Brain» con citazioni cliccabili per tutti.
+
+## [2026-11-21 13:55] decisione | Sei modifiche al contratto (Franky, da rivedere con Pietro)
+- `segmenta()` è di Franky (F2). `TaskEstratto.rif` + `dipende_da` con rif temporanei o id approvati.
+- `id` e data di creazione opzionali in `Proposta` e `Avviso` (li assegna il backend).
+- `ContestoProgetto.proposte_in_attesa` per le incongruenze, con l'avviso marcato `basato_su_proposte`.
+- Sconosciuto = non membro del progetto; `persone_azienda` nel contesto e `Sconosciuto.persona_id`.
+- Inoltro degli avvisi: `POST /avvisi/{id}/inoltra`, regola `puo_vedere_avviso()`. Dettagli in `docs/api.md`.
 
 ## [2026-11-21 14:00] decisione | Interfaccia a pagine e proposte di contratto per il backend
 - `web/` diventa un'app a pagine (react-router): Panoramica, Documenti, documento con fonte evidenziata, Team e scadenze (Gantt + per persona), Chiedi al Brain, Registro. Librerie: lucide-react, motion, sonner, date-fns, Inter.
