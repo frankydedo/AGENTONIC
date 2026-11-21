@@ -287,7 +287,8 @@ def test_mock_della_demo_ne_orfani_ne_mancanti(monkeypatch):
 
     monkeypatch.setattr("backend.analisi.incongruenze.chat", spia)
     _, percorso = esegui_percorso(MOCK_DEMO)
-    registrati = {p.stem for p in (RADICE / "dati" / "mock_llm").glob("incongruenze_*.json")}
+    registrati = {p.stem for p in (RADICE / "dati" / "mock_llm").glob("incongruenze_*.json")
+                  if not p.stem.startswith("incongruenze_rap-")}   # mock delle prove rapide, non della demo
     assert set(chieste) == registrati, (sorted(registrati - set(chieste)), sorted(set(chieste) - registrati))
     assert all(_CHIAVE_VALIDA.match(c) and re.fullmatch(r"incongruenze_[a-z0-9-]+_[0-9a-f]{10}", c) for c in chieste)
     assert all(p.esito == "ok" for _, r, _ in percorso for p in r.passi if p.step == "incongruenze")

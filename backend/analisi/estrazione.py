@@ -30,9 +30,9 @@ from backend.modelli import (
     PassoRegistro, PuntoOscuro, Sconosciuto, Segmento, Sicurezza, TaskEstratto,
 )
 
-VERSIONE_TASK = "task-v2"
-VERSIONE_FATTI = "fatti-v1"
-VERSIONE_LACUNE = "lacune-v2"
+VERSIONE_TASK = "task-v3"
+VERSIONE_FATTI = "fatti-v2"
+VERSIONE_LACUNE = "lacune-v3"
 MAX_BLOCCHI = 10          # oltre, il documento è troppo lungo: errore chiaro, nessuna chiamata
 
 
@@ -169,16 +169,16 @@ _SICUREZZA = {
 
 _COMPITO = {
     "task": """Task: extract
-- "task": concrete activities someone has to do. rif "t1", "t2", ... in order; short imperative title (e.g. "Prepare the PLC tag list"); assegnatario_detto = the name as said in the text, null if nobody; scadenza YYYY-MM-DD or null; dipende_da = rif of other tasks in this answer or ids of approved tasks that must finish first.
-- "aggiornamenti": changes to an approved task in the context. task_id = id of the approved task; campo = stato, scadenza, assegnatario or titolo; valore: for stato one of da_fare, in_corso, bloccato, fatto, annullato; for scadenza YYYY-MM-DD; for assegnatario the name as said. Don't repeat an already approved task as a new task.
+- "task": concrete activities someone has to do. rif "t1", "t2", ... in order; short imperative title (e.g. "Prepare the PLC tag list"); assegnatario_detto = copy EXACTLY the words of the sentence that assigns the task (e.g. if Giulia says "Marco, will you prepare…" write "Marco", even if Marco Bianchi replies afterwards or the context seems to make it clear who it is: the code resolves the people), null if nobody; scadenza YYYY-MM-DD or null; dipende_da = rif of other tasks in this answer or ids of approved tasks that must finish first.
+- "aggiornamenti": changes to an approved task in the context. task_id = id of the approved task; campo = stato, scadenza, assegnatario or titolo; valore: for stato one of da_fare, in_corso, bloccato, fatto, annullato; for scadenza YYYY-MM-DD; for assegnatario the name as said. If something changes in an approved task (e.g. a deadline that slips) write ONLY the update: don't create a new task for the same work nor a task like "update the date".
 Format: {"task":[{"rif":"t1","titolo":"...","assegnatario_detto":"...","scadenza":"YYYY-MM-DD","aree":["sviluppo"],"segmenti":["<id>"],"sicurezza":"alta","dipende_da":[]}],"aggiornamenti":[{"task_id":"<id from the context>","campo":"scadenza","valore":"YYYY-MM-DD","segmenti":["<id>"],"sicurezza":"alta"}]}""",
-    "fatti": """Task: extract "fatti", i.e. stable information about the project (not activities to do): short soggetto (e.g. "project", "PLC", "inverter", "client"), attributo, short valore with numbers and units as in the text.
+    "fatti": """Task: extract "fatti", i.e. stable information about the project (not activities to do): short soggetto (e.g. "project", "PLC", "inverter", "client"), attributo, a complete valore that makes sense on its own, with numbers, units and their meaning as in the text (e.g. "€48,000 approved, €12,500 already committed", not just "48,000 euros"). DON'T create facts for task deadlines, owners or status (an activity with who does it and when): the task agent already handles them.
 attributo (closed list, write the Italian key exactly): scadenza (deadline of the project or of one of its parts), responsabile (who is responsible for something), budget (approved, spent or committed), costo (price of a purchase or an activity), stato (progress), fornitore (who we buy from), decisione (a choice made), requisito (a client request or constraint), rischio (a possible problem), altro (other).
-If a sentence contains several pieces of information (e.g. supplier and cost), make one fact for each.
+If a sentence contains information of different kinds (e.g. supplier and cost), make one fact for each; but amounts that describe the same thing (e.g. approved and already committed budget) go in ONE fact.
 Format: {"fatti":[{"soggetto":"...","attributo":"decisione","valore":"...","aree":["sviluppo"],"segmenti":["<id>"],"sicurezza":"alta"}]}""",
     "lacune": """Task: find
-- "punti_oscuri": what the manager needs to clarify: a vague deadline, a postponed decision, contradictory information, an unresolved risk. descrizione = one sentence in English about what is unclear. DON'T flag ambiguous or missing task owners (a name that could mean several members, an activity with no owner): the code already flags them.
-- "sconosciuti": people mentioned who are not among the known names (including colleagues outside the project), or projects, clients or plants never seen in the context. nome as written in the text; descrizione = who or what it seems to be and why it's mentioned. Members, the project's client, known subjects, and suppliers and products mentioned for a purchase or a decision are not unknowns. Don't write persona_id.
+- "punti_oscuri": ONLY concrete ambiguities written in the text that the manager needs to clarify: a vague deadline ("soon", "later on"), an explicitly postponed decision, two contradictory pieces of information. No guesses, generic questions or information that simply isn't there (e.g. NOT "it's not clear whether the budget is enough"). If there are none, an empty list. descrizione = one sentence in English about what is unclear. DON'T flag ambiguous or missing task owners (a name that could mean several members, an activity with no owner): the code already flags them.
+- "sconosciuti": check EVERY person named in the text (including with a title: "Mr Rossi", "Dr Bianchi") against the known names: every person who isn't among the known names is an unknown, even if they appear inside a task. Also: people mentioned who are not among the known names (including colleagues outside the project), or projects, clients or plants never seen in the context. nome as written in the text; descrizione = who or what it seems to be and why it's mentioned. Members, the project's client, known subjects, and suppliers and products mentioned for a purchase or a decision are not unknowns. Don't write persona_id.
 Format: {"punti_oscuri":[{"descrizione":"...","segmenti":["<id>"]}],"sconosciuti":[{"nome":"...","descrizione":"...","segmenti":["<id>"]}]}""",
 }
 

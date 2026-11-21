@@ -118,6 +118,9 @@ def analizza_documento(doc: Documento, contesto: ContestoProgetto,
         if dati is None:
             falliti.append(nome)
     estr = estrazione.unisci(estratti["task"], estratti["fatti"], estratti["lacune"])
+    titolati = persone.sconosciuti_con_titolo(doc, contesto.persone, estr.sconosciuti)   # regola, non modello
+    if titolati:
+        estr = estr.model_copy(update={"sconosciuti": estr.sconosciuti + titolati})
 
     # 3. proposte e avvisi (codice)
     lista_proposte, avvisi, passo = proposte.in_proposte(estr, doc, contesto)

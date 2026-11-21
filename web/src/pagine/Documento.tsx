@@ -1,7 +1,7 @@
 import clsx from 'clsx'
-import { ChevronLeft, BellRing, Gavel, Inbox, ListTodo, Quote } from 'lucide-react'
+import { ChevronLeft, BellRing, Gavel, Inbox, ListTodo, Quote, Undo2 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { api } from '../api'
 import { ListaAvvisi } from '../componenti/Avvisi'
 import { ProposteACassetti } from '../componenti/Proposte'
@@ -23,7 +23,9 @@ export function Documento() {
   const seg = params.get('seg')
   const segId = seg ? `${id}#${seg}` : null
   const { persone, sonoManager } = useApp()
-  const { proposte, task, avvisi } = useDati()
+  const { proposte, task, avvisi, ricarica } = useDati()
+  const vai = useNavigate()
+  const [annullando, setAnnullando] = useState(false)
   const [doc, setDoc] = useState<TDocumento | null>(null)
   const [errore, setErrore] = useState<string | null>(null)
   const [suHover, setSuHover] = useState<string[] | null>(null)
@@ -63,6 +65,20 @@ export function Documento() {
   const scegli = (sid: string) => {
     setParams({ seg: sid.split('#')[1] }, { replace: true })
   }
+  const annulla = async () => {
+    if (!window.confirm(`Undo the upload of “${doc.titolo}”? The document, its pending proposals and alerts `
+      + 'will be removed. This is only possible if none of its proposals has been approved.')) return
+    setAnnullando(true)
+    try {
+      await api.annullaDocumento(doc.id)
+      await ricarica()
+      vai('/documents')
+    } catch (e) {
+      window.alert(e instanceof Error ? e.message : String(e))
+    } finally {
+      setAnnullando(false)
+    }
+  }
   const aggiornaTempo = () => {
     const t = media.current?.currentTime ?? 0
     setAttivo(doc.segmenti.find((s) => s.inizio != null && s.fine != null && t >= s.inizio && t < s.fine)?.id ?? null)
@@ -80,6 +96,13 @@ export function Documento() {
             <span>{doc.segmenti.length} contributions</span>
           </p>
         </div>
+        {sonoManager && (
+          <button type="button" onClick={annulla} disabled={annullando}
+            className="inline-flex items-center gap-1.5 rounded-full border border-separatore px-3.5 py-1.5 text-[14px] text-testo-2 hover:text-testo disabled:opacity-50"
+            title="Undo the upload of a wrong document">
+            <Undo2 size={15} /> {annullando ? 'Undoing…' : 'Undo upload'}
+          </button>
+        )}
         <div className="flex -space-x-1.5">
           {doc.partecipanti.slice(0, 6).map((n) => <Avatar key={n} persona={Object.values(persone).find((p) => p.nome === n)} nome={n} size={30} />)}
           {doc.partecipanti.length > 6 && (
