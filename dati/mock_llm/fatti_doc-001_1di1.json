@@ -1,0 +1,60 @@
+{
+  "fatti": [
+    {
+      "soggetto": "HMI",
+      "attributo": "requisito",
+      "valore": "bilingue italiano e inglese, cambio lingua dalla schermata principale senza riavvio, allarmi tradotti in entrambe le lingue",
+      "aree": ["sviluppo"],
+      "segmenti": ["doc-001#p01s04"],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "collaudo di accettazione",
+      "attributo": "requisito",
+      "valore": "presso il cliente con tre formati di pasta (penne rigate, fusilli, spaghetti), due ore consecutive per formato alla velocità nominale senza fermi dell'automazione",
+      "aree": ["sviluppo"],
+      "segmenti": ["doc-001#p01s05"],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "progetto",
+      "attributo": "scadenza",
+      "valore": "collaudo di accettazione presso il cliente entro il 2027-01-15",
+      "aree": ["generale"],
+      "segmenti": ["doc-001#p01s06"],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "penale per ritardo",
+      "attributo": "rischio",
+      "valore": "0,5% del valore dell'ordine per ogni giorno lavorativo di ritardo sul collaudo, fino a un massimo del 10%",
+      "aree": ["commerciale"],
+      "segmenti": ["doc-001#p02s01"],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "motori",
+      "attributo": "fornitore",
+      "valore": "Motori Canavese S.r.l., fornitore preferito del cliente; altri marchi solo con approvazione scritta dell'ufficio acquisti del cliente",
+      "aree": ["fornitori"],
+      "segmenti": ["doc-001#p02s02"],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "referente tecnico del cliente",
+      "attributo": "responsabile",
+      "valore": "ing. Venturi, responsabile manutenzione dello stabilimento; approva il verbale di collaudo",
+      "aree": ["generale"],
+      "segmenti": ["doc-001#p02s03"],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "manuale d'uso operatori",
+      "attributo": "requisito",
+      "valore": "in italiano e in inglese, da consegnare al cliente almeno una settimana prima del collaudo",
+      "aree": ["sviluppo"],
+      "segmenti": ["doc-001#p02s04"],
+      "sicurezza": "alta"
+    }
+  ]
+}

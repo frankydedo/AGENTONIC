@@ -1,0 +1,55 @@
+{
+  "fatti": [
+    {
+      "soggetto": "inverter",
+      "attributo": "costo",
+      "valore": "7.400 € (preventivo aggiornato di Elettrotecnica Piemonte, prima 6.200 €)",
+      "aree": [
+        "fornitori",
+        "budget"
+      ],
+      "segmenti": [
+        "riu-003#s002"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "inverter",
+      "attributo": "decisione",
+      "valore": "si resta su Elettrotecnica Piemonte; scartata Forniture Industriali Canavese (6.900 €, consegna in sei settimane)",
+      "aree": [
+        "fornitori",
+        "budget"
+      ],
+      "segmenti": [
+        "riu-003#s003",
+        "riu-003#s004"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "progetto",
+      "attributo": "budget",
+      "valore": "48.000 € approvati, 19.900 € impegnati con gli inverter, restano 28.100 €",
+      "aree": [
+        "budget"
+      ],
+      "segmenti": [
+        "riu-003#s006"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "cliente",
+      "attributo": "requisito",
+      "valore": "secondo pannello HMI a bordo linea, solo accennato al telefono: nessuna richiesta scritta",
+      "aree": [
+        "commerciale"
+      ],
+      "segmenti": [
+        "riu-003#s008"
+      ],
+      "sicurezza": "media"
+    }
+  ]
+}

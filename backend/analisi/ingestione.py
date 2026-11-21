@@ -6,12 +6,13 @@ nella forma `**Nome Cognome:** testo`. Le righe senza `**Nome:**` continuano il 
 """
 
 import re
+import unicodedata
+from datetime import date
 
 from backend.modelli import Citazione, Documento, Segmento
 
 MAX_CARATTERI = 200_000          # oltre, il documento si rifiuta (limite di resilienza)
 _TURNO = re.compile(r"^\*\*(?P<chi>[^*:]{1,80}):\*\*\s*(?P<testo>.*)$")
-_DELIMITATORE = re.compile(r"</?\s*(documento|segmento|system|istruzioni)[^>]*>", re.IGNORECASE)
 
 
 class DocumentoNonValido(ValueError):
@@ -36,9 +37,32 @@ def _front_matter(righe: list[str]) -> tuple[dict, list[str]]:
     return meta, righe[fine + 1:]
 
 
+_INVISIBILI = dict.fromkeys(map(ord, "\u200b\u200c\u200d\u2060\ufeff"), None)
+ID_VALIDO = re.compile(r"^[a-z0-9][a-z0-9-]{0,39}$")
+DATA_VALIDA = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
 def neutralizza(testo: str) -> str:
-    """Toglie dal testo i finti delimitatori che proverebbero a uscire dalla sezione «dati» del prompt."""
-    return _DELIMITATORE.sub("", testo)
+    """Rende il testo incapace di aprire o chiudere un delimitatore del prompt.
+
+    NFKC (`＜` diventa `<`), via i caratteri invisibili, poi `<`, `>` e le entità `&lt;`/`&gt;`
+    diventano `‹`/`›`: dopo la pulizia nel testo non esiste più nessun `<` o `>`."""
+    testo = unicodedata.normalize("NFKC", testo).translate(_INVISIBILI)
+    testo = re.sub(r"&(lt|#0*60|#x0*3c);", "‹", testo, flags=re.IGNORECASE)
+    testo = re.sub(r"&(gt|#0*62|#x0*3e);", "›", testo, flags=re.IGNORECASE)
+    return testo.replace("<", "‹").replace(">", "›")
+
+
+def valida_id_e_data(doc_id: str, data: str) -> None:
+    """Id minuscolo e corto (es. «riu-001») e data AAAA-MM-GG reale, altrimenti DocumentoNonValido."""
+    if not ID_VALIDO.match(doc_id or ""):
+        raise DocumentoNonValido(f"Id del documento non valido: «{doc_id}» (solo a-z, 0-9 e -, massimo 40).")
+    try:
+        if not DATA_VALIDA.match(data or ""):
+            raise ValueError
+        date.fromisoformat(data)
+    except ValueError:
+        raise DocumentoNonValido(f"Data del documento non valida: «{data}» (formato AAAA-MM-GG).") from None
 
 
 def segmenta(testo: str, progetto_id: str | None = None) -> Documento:
@@ -50,6 +74,7 @@ def segmenta(testo: str, progetto_id: str | None = None) -> Documento:
         if not meta.get(campo):
             raise DocumentoNonValido(f"Manca il campo «{campo}» nell'intestazione.")
     doc_id = meta["id"]
+    valida_id_e_data(doc_id, meta["data"])
 
     turni: list[tuple[str, str]] = []
     for riga in corpo:
@@ -89,4 +114,4 @@ def citazione(doc: Documento, segmento_id: str) -> Citazione:
     if seg is None:
         raise KeyError(segmento_id)
     return Citazione(segmento_id=seg.id, documento_id=doc.id, titolo=doc.titolo, data=doc.data,
-                     orario=doc.ora_inizio, speaker=seg.speaker, frase=seg.testo)
+                     orario=doc.ora_inizio, speaker=seg.speaker, frase=seg.testo, pagina=seg.pagina)

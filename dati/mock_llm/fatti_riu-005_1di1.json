@@ -1,0 +1,29 @@
+{
+  "fatti": [
+    {
+      "soggetto": "programma PLC",
+      "attributo": "rischio",
+      "valore": "nella prova al banco l'arresto d'emergenza della pesatrice non ferma il nastro a valle: manca un interblocco nel codice",
+      "aree": [
+        "sviluppo"
+      ],
+      "segmenti": [
+        "riu-005#s002",
+        "riu-005#s003"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "soggetto": "banco di prova",
+      "attributo": "altro",
+      "valore": "libero solo il 2026-12-03, poi occupato da un'altra commessa fino al 2026-12-15",
+      "aree": [
+        "sviluppo"
+      ],
+      "segmenti": [
+        "riu-005#s006"
+      ],
+      "sicurezza": "alta"
+    }
+  ]
+}

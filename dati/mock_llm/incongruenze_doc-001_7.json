@@ -1,0 +1,10 @@
+{
+  "giudizi": [
+    {
+      "candidato_id": "fat-006",
+      "stessa_cosa": false,
+      "in_conflitto": false,
+      "spiegazione": "Il manuale d'uso e il SAL mensile sono requisiti diversi."
+    }
+  ]
+}

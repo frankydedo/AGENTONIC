@@ -1,0 +1,10 @@
+{
+  "giudizi": [
+    {
+      "candidato_id": "fat-005",
+      "stessa_cosa": true,
+      "in_conflitto": true,
+      "spiegazione": "Stessa fornitura di inverter da Elettrotecnica Piemonte con due prezzi diversi: il preventivo è stato aggiornato."
+    }
+  ]
+}

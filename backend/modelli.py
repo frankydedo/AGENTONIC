@@ -53,13 +53,14 @@ class Progetto(BaseModel):
 # --- Documenti in ingresso ----------------------------------------------------------------------
 
 class Segmento(BaseModel):
-    """Un turno di parola: l'unità che si cita."""
-    id: str                      # "riu-001#s001"
+    """Un turno di parola (riunione) o un paragrafo (PDF): l'unità che si cita."""
+    id: str                      # "riu-001#s001"; PDF: "doc-001#p02s03" (pagina 2, paragrafo 3)
     documento_id: str
     speaker: str                 # nome grezzo detto o scritto nel documento
     persona_id: str | None = None  # abbinato dal codice, mai dal modello
     inizio: float | None = None  # secondi dall'inizio (solo da audio)
     fine: float | None = None
+    pagina: int | None = None    # solo PDF, da 1
     testo: str
 
 
@@ -84,6 +85,7 @@ class Citazione(BaseModel):
     orario: str | None = None    # "09:30" o offset del segmento, se noto
     speaker: str
     frase: str
+    pagina: int | None = None    # solo PDF: la UI mostra «pag. N»
 
 
 # --- Output del modello (step di estrazione, Franky) -------------------------------------------
@@ -275,7 +277,8 @@ def puo_vedere(persona: Persona, progetto: Progetto, aree: list[str]) -> bool:
 
     - deve essere membro del progetto;
     - il manager del progetto vede tutto;
-    - `generale` è visibile a tutti i membri;
+    - `generale` è visibile a tutti i membri, ma SOLO se è l'unica area: `[budget, generale]`
+      vale come `[budget]` (altrimenti un dato riservato diventerebbe visibile a tutti);
     - altrimenti basta un'area in comune con le competenze della persona.
     Un elemento senza aree non è visibile (default restrittivo), salvo al manager.
     """
@@ -283,9 +286,9 @@ def puo_vedere(persona: Persona, progetto: Progetto, aree: list[str]) -> bool:
         return False
     if persona.id == progetto.manager_id:
         return True
-    if "generale" in aree:
+    if list(dict.fromkeys(aree)) == ["generale"]:
         return True
-    return bool(set(aree) & set(persona.competenze))
+    return bool((set(aree) - {"generale"}) & set(persona.competenze))
 
 
 def puo_vedere_avviso(persona: Persona, progetto: Progetto, avviso: Avviso) -> bool:

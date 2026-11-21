@@ -1,0 +1,60 @@
+{
+  "task": [
+    {
+      "rif": "t1",
+      "titolo": "Inviare a Giulia i contatti dell'ingegner Venturi",
+      "assegnatario_detto": "Davide",
+      "scadenza": "2026-11-23",
+      "aree": [
+        "sviluppo"
+      ],
+      "segmenti": [
+        "riu-002#s006",
+        "riu-002#s007"
+      ],
+      "sicurezza": "alta",
+      "dipende_da": []
+    }
+  ],
+  "aggiornamenti": [
+    {
+      "task_id": "task-002",
+      "campo": "scadenza",
+      "valore": "2026-12-18",
+      "segmenti": [
+        "riu-002#s002",
+        "riu-002#s003"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "task_id": "task-006",
+      "campo": "stato",
+      "valore": "fatto",
+      "segmenti": [
+        "riu-002#s004"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "task_id": "task-004",
+      "campo": "assegnatario",
+      "valore": "Marco Bianchi",
+      "segmenti": [
+        "riu-002#s008",
+        "riu-002#s009",
+        "riu-002#s010"
+      ],
+      "sicurezza": "alta"
+    },
+    {
+      "task_id": "task-005",
+      "campo": "stato",
+      "valore": "bloccato",
+      "segmenti": [
+        "riu-002#s011"
+      ],
+      "sicurezza": "media"
+    }
+  ]
+}

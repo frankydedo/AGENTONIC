@@ -1,0 +1,16 @@
+{
+  "fatti": [
+    {
+      "soggetto": "inverter",
+      "attributo": "scadenza",
+      "valore": "consegna confermata per il 2026-12-11, materiale a magazzino",
+      "aree": [
+        "fornitori"
+      ],
+      "segmenti": [
+        "riu-004#s006"
+      ],
+      "sicurezza": "alta"
+    }
+  ]
+}

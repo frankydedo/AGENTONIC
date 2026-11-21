@@ -1,0 +1,19 @@
+{
+  "punti_oscuri": [
+    {
+      "descrizione": "Le prove di collaudo vanno fatte «alla velocità nominale», ma il capitolato non dice qual è la velocità nominale per ciascun formato di pasta.",
+      "segmenti": ["doc-001#p01s05"]
+    },
+    {
+      "descrizione": "La penale si calcola sul «valore dell'ordine», ma il capitolato non dice quale importo considerare.",
+      "segmenti": ["doc-001#p02s01"]
+    }
+  ],
+  "sconosciuti": [
+    {
+      "nome": "ing. Venturi",
+      "descrizione": "Responsabile manutenzione dello stabilimento del cliente e referente tecnico per il revamping; approva il verbale di collaudo. Non è tra le persone del progetto.",
+      "segmenti": ["doc-001#p02s03"]
+    }
+  ]
+}
