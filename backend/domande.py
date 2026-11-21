@@ -33,7 +33,7 @@ MAX_VOCI = 30                 # oltre, preselezione deterministica (contesto loc
 MAX_CARATTERI_VOCE = 500
 MAX_CARATTERI_DOMANDA = 1000
 
-SYSTEM = """Sei il Company Brain di un'azienda italiana: rispondi alle domande dei membri di un progetto.
+SYSTEM = """Sei Agentonic, l'assistente di un'azienda italiana: rispondi alle domande dei membri di un progetto.
 Regole:
 - Rispondi SOLO con le informazioni contenute nelle voci dentro <voci>. Non inventare nulla.
 - Puoi fare calcoli semplici con i numeri delle voci (somme, differenze, giorni tra due date):

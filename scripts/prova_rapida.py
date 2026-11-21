@@ -83,7 +83,7 @@ def main() -> int:
             return True
         return False
 
-    scrivi(f"# Prova rapida del Company Brain ({datetime.now():%d/%m/%Y %H:%M})")
+    scrivi(f"# Prova rapida di Agentonic ({datetime.now():%d/%m/%Y %H:%M})")
     scrivi(f"provider: {cfg.provider} · modello: {cfg.modello or '-'} · LLM_PARALLELO={os.environ['LLM_PARALLELO']} "
            f"· timeout {args.timeout:.0f} s per chiamata · limite {args.limite:.0f} s")
     scrivi()

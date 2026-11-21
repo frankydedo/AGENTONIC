@@ -1,4 +1,4 @@
-# API del Company Brain (contratto I4 + I5)
+# API di Agentonic (contratto I4 + I5)
 
 Owner: Pietro. Si cambia solo dopo averne parlato (CLAUDE.md §3). Modelli in `backend/modelli.py`.
 Il backend (FastAPI + SQLite) chiama il cervello di Franky: `backend/analisi` (workflow, I2) e

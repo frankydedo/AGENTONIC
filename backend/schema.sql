@@ -1,4 +1,4 @@
--- Schema del Company Brain (SQLite + FTS5). Le liste (aree, alias, citazioni) sono JSON in colonne di testo.
+-- Schema di Agentonic (SQLite + FTS5). Le liste (aree, alias, citazioni) sono JSON in colonne di testo.
 -- Si ricrea da zero con `python scripts/crea_db.py`.
 
 CREATE TABLE persone (

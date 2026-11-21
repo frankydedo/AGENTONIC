@@ -95,7 +95,7 @@ describe('creare e modificare progetti', () => {
   it('se il backend non ha l\'endpoint lo dice chiaramente, senza inventare un progetto', async () => {
     const { api, finti } = await carica()
     risposte = [{ status: 404, body: { detail: 'Not Found' } }]
-    await expect(api.creaProgetto(dati)).rejects.toMatchObject({ status: 501, message: expect.stringContaining('non permette ancora di creare progetti') })
+    await expect(api.creaProgetto(dati)).rejects.toMatchObject({ status: 501, message: expect.stringContaining('cannot create projects yet') })
     expect(finti.elenco()).toBe('')
   })
 

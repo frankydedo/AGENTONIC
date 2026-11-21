@@ -120,13 +120,13 @@ class EstrazioneLacune(BaseModel):
 # --- Prompt -------------------------------------------------------------------------------------
 
 _RUOLO = {
-    "task": "Sei l'agente dei task del Company Brain di un'azienda italiana. Leggi una parte di un "
+    "task": "Sei l'agente dei task di Agentonic, l'assistente di un'azienda italiana. Leggi una parte di un "
             "documento di progetto e proponi le attività da fare e gli aggiornamenti dei task già "
             "approvati. Proponi soltanto: decide il manager del progetto.",
-    "fatti": "Sei l'agente dei fatti del Company Brain di un'azienda italiana. Leggi una parte di un "
+    "fatti": "Sei l'agente dei fatti di Agentonic, l'assistente di un'azienda italiana. Leggi una parte di un "
              "documento di progetto ed estrai i fatti stabili (decisioni, budget, costi, fornitori, "
              "scadenze, requisiti, rischi). Proponi soltanto: decide il manager del progetto.",
-    "lacune": "Sei l'agente delle lacune del Company Brain di un'azienda italiana. Leggi una parte di un "
+    "lacune": "Sei l'agente delle lacune di Agentonic, l'assistente di un'azienda italiana. Leggi una parte di un "
               "documento di progetto e trovi ciò che non è chiaro (punti oscuri) e le persone o i "
               "contesti mai visti (sconosciuti). Segnali soltanto: decide il manager del progetto.",
 }

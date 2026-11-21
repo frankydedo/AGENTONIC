@@ -16,8 +16,8 @@ import { SceltaPersona } from './pagine/SceltaPersona'
 import { Team } from './pagine/Team'
 import type { Persona, Progetto } from './tipi'
 
-const CHIAVE = 'company-brain-persona'
-const CHIAVE_PROGETTO = 'company-brain-progetto'
+const CHIAVE = 'agentonic-persona'
+const CHIAVE_PROGETTO = 'agentonic-progetto'
 
 // Persona e progetto scelti sopravvivono al ricaricamento della pagina (solo comodità della demo).
 const salva = (chiave: string, id: string | null) => {
@@ -96,25 +96,25 @@ export default function App() {
       <div className="grid min-h-screen place-items-center">
         <div className="flex flex-col items-center gap-4" role="status">
           <MarchioBrain size={56} parla />
-          <p className="text-[15px] text-testo-2">{fase === 'carico' ? 'Il Brain prepara la tua giornata…' : 'Accensione…'}</p>
+          <p className="text-[15px] text-testo-2">{fase === 'carico' ? 'Agentonic is preparing your day…' : 'Starting up…'}</p>
         </div>
       </div>
     )
   }
   if (fase === 'offline') {
     return (
-      <Schermo icona={<ServerCrash size={26} />} titolo="Il backend non risponde"
-        testo="Controlla che il server FastAPI sia acceso (vedi README) e riprova.">
-        <Bottone variante="primario" onClick={avvia}>Riprova</Bottone>
+      <Schermo icona={<ServerCrash size={26} />} titolo="The backend is not responding"
+        testo="Check that the FastAPI server is running (see README) and try again.">
+        <Bottone variante="primario" onClick={avvia}>Try again</Bottone>
       </Schermo>
     )
   }
   if (fase === 'scelta' || !io) return <SceltaPersona persone={persone} onScegli={scegli} />
   if (fase === 'non_membro' || !ctx) {
     return (
-      <Schermo icona={<UserRoundX size={26} />} titolo={`${io.nome.split(' ')[0]}, non fai parte di nessun progetto`}
-        testo="Il Brain non ti mostra nulla dei progetti di cui non sei membro: né i dati, né che esistono. Chiedi a un manager di aggiungerti.">
-        <div className="flex items-center gap-3"><Avatar persona={io} size={32} /><Bottone onClick={esci}>Cambia persona</Bottone></div>
+      <Schermo icona={<UserRoundX size={26} />} titolo={`${io.nome.split(' ')[0]}, you are not on any project`}
+        testo="Agentonic shows you nothing about projects you are not a member of: not their data, not even that they exist. Ask a manager to add you.">
+        <div className="flex items-center gap-3"><Avatar persona={io} size={32} /><Bottone onClick={esci}>Switch person</Bottone></div>
       </Schermo>
     )
   }

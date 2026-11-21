@@ -3,7 +3,7 @@
 
 export type Tema = 'auto' | 'chiaro' | 'scuro'
 
-const CHIAVE = 'company-brain-tema'
+const CHIAVE = 'agentonic-tema'
 const scuroDiSistema = () => window.matchMedia('(prefers-color-scheme: dark)').matches
 
 export function leggiTema(): Tema {

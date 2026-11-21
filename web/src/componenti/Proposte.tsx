@@ -7,15 +7,15 @@ import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { useApp } from '../contesto'
 import { useDati } from '../dati'
-import { campo, daChiarire, dataBreve, oraDi, titoloProposta } from '../lib'
+import { campo, daChiarire, dataBreve, inInglese, oraDi, titoloProposta } from '../lib'
 import { AREE, type Area, type Modifiche, type Proposta } from '../tipi'
 import { Avatar, Badge, Bottone, ChipArea, Citazioni, Esito, Scadenza } from './ui'
 
 const TIPI: Record<Proposta['tipo'], [string, LucideIcon]> = {
-  nuovo_task: ['Nuovo task', ListPlus],
-  aggiorna_task: ['Aggiorna task', RefreshCw],
-  chiudi_task: ['Chiudi task', CircleCheck],
-  nuovo_fatto: ['Nuovo fatto in memoria', BookMarked],
+  nuovo_task: ['New task', ListPlus],
+  aggiorna_task: ['Update task', RefreshCw],
+  chiudi_task: ['Close task', CircleCheck],
+  nuovo_fatto: ['New fact in memory', BookMarked],
 }
 
 /**
@@ -88,12 +88,12 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
         {inAttesa ? (
           <>
             <span className="inline-flex items-center gap-1.5 font-semibold text-testo"><Icona size={14} strokeWidth={2.2} className="text-accento-testo" />{etichetta}</span>
-            {dubbio && <span className="inline-flex items-center gap-1.5 font-semibold text-arancio-testo"><span className="h-1.5 w-1.5 rounded-full bg-arancio" />Da chiarire</span>}
+            {dubbio && <span className="inline-flex items-center gap-1.5 font-semibold text-arancio-testo"><span className="h-1.5 w-1.5 rounded-full bg-arancio" />Needs clarifying</span>}
           </>
         ) : (
           <span className="inline-flex items-center gap-2">
             <Esito esito={p.stato === 'approvata' ? 'approvata' : 'rifiutata'} nuovo={appenaDecisa} />
-            <span className={clsx('font-semibold', p.stato === 'approvata' ? 'text-verde-testo' : 'text-testo-2')}>{p.stato === 'approvata' ? 'Approvata' : 'Rifiutata'}</span>
+            <span className={clsx('font-semibold', p.stato === 'approvata' ? 'text-verde-testo' : 'text-testo-2')}>{p.stato === 'approvata' ? 'Approved' : 'Rejected'}</span>
             <span>{etichetta}</span>
           </span>
         )}
@@ -112,18 +112,18 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
             </Campo>
           ) : (
             <>
-              <Campo etichetta="Titolo">
+              <Campo etichetta="Title">
                 <input value={bozza.titolo} onChange={(e) => setBozza({ ...bozza, titolo: e.target.value })} className={INPUT} />
               </Campo>
               <div className="grid gap-3 sm:grid-cols-2">
-                <Campo etichetta="Chi se ne occupa">
+                <Campo etichetta="Who handles it">
                   <select value={bozza.assegnatario_id} onChange={(e) => setBozza({ ...bozza, assegnatario_id: e.target.value })}
                     className={clsx(INPUT, !bozza.assegnatario_id && 'ring-2 ring-arancio/60')}>
-                    <option value="">Nessuno</option>
-                    {membri.map((m) => <option key={m.id} value={m.id}>{m.nome}, {m.ruolo}</option>)}
+                    <option value="">Nobody</option>
+                    {membri.map((m) => <option key={m.id} value={m.id}>{m.nome}, {inInglese(m.ruolo)}</option>)}
                   </select>
                 </Campo>
-                <Campo etichetta="Scadenza">
+                <Campo etichetta="Deadline">
                   <input type="date" value={bozza.scadenza} onChange={(e) => setBozza({ ...bozza, scadenza: e.target.value })} className={INPUT} />
                 </Campo>
               </div>
@@ -137,8 +137,8 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
             <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px] text-testo-2">
               {assegnatario
                 ? <span className="inline-flex items-center gap-1.5 text-testo"><Avatar persona={assegnatario} size={20} />{assegnatario.nome}</span>
-                : <Badge tono="giallo">Nessun responsabile</Badge>}
-              <span>{campo(p, 'scadenza') ? `entro ${dataBreve(campo(p, 'scadenza'))}` : 'senza scadenza'}</span>
+                : <Badge tono="giallo">Unassigned</Badge>}
+              <span>{campo(p, 'scadenza') ? `by ${dataBreve(campo(p, 'scadenza'))}` : 'no deadline'}</span>
               {inAttesa && campo(p, 'scadenza') && <Scadenza iso={campo(p, 'scadenza')} />}
             </div>
           )}
@@ -148,12 +148,12 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
       {inAttesa && dubbio && (
         <div className="mt-3 flex gap-2.5 rounded-2xl bg-arancio-tenue px-3.5 py-2.5 text-sm leading-snug">
           <TriangleAlert size={16} strokeWidth={2.2} className="mt-0.5 shrink-0 text-arancio-testo" />
-          <span>{avviso?.testo ?? 'Il Brain non è sicuro di questa voce: controllala prima di approvarla.'}</span>
+          <span>{avviso?.testo ?? 'Agentonic is not sure about this item: check it before approving.'}</span>
         </div>
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
-        <span className="mr-0.5 text-xs text-testo-2" title="Chi ha almeno una di queste aree potrà vedere la voce">Visibile a</span>
+        <span className="mr-0.5 text-xs text-testo-2" title="Anyone with at least one of these areas will be able to see the item">Visible to</span>
         {inAttesa
           ? AREE.map((a) => <ChipArea key={a} area={a} attiva={aree.includes(a)} onClick={() => alterna(a)} />)
           : (p.aree_confermate ?? p.aree_proposte).map((a) => <ChipArea key={a} area={a} />)}
@@ -166,27 +166,27 @@ export function CartaProposta({ p, correggiSubito = false, mostraDocumento = fal
           {inModifica ? (
             <>
               <Bottone variante="primario" icona={Check} disabled={occupato || !aree.length} onClick={() => esegui('approva')}>
-                Approva con le correzioni
+                Approve with corrections
               </Bottone>
-              <Bottone variante="secondario" onClick={() => { setBozza(originale); setInModifica(false) }}>Annulla</Bottone>
+              <Bottone variante="secondario" onClick={() => { setBozza(originale); setInModifica(false) }}>Cancel</Bottone>
             </>
           ) : (
             <>
               {dubbio
-                ? <Bottone variante="primario" icona={PenLine} onClick={() => setInModifica(true)}>Correggi</Bottone>
-                : <Bottone variante="primario" icona={Check} disabled={occupato || !aree.length} onClick={() => esegui('approva')}>Approva</Bottone>}
+                ? <Bottone variante="primario" icona={PenLine} onClick={() => setInModifica(true)}>Correct</Bottone>
+                : <Bottone variante="primario" icona={Check} disabled={occupato || !aree.length} onClick={() => esegui('approva')}>Approve</Bottone>}
               {dubbio
-                ? <Bottone variante="secondario" disabled={occupato || !aree.length} onClick={() => esegui('approva')}>Approva così</Bottone>
-                : <Bottone variante="secondario" onClick={() => setInModifica(true)}>Correggi</Bottone>}
-              <Bottone variante="pericolo" disabled={occupato} onClick={() => esegui('rifiuta')}>Rifiuta</Bottone>
+                ? <Bottone variante="secondario" disabled={occupato || !aree.length} onClick={() => esegui('approva')}>Approve as is</Bottone>
+                : <Bottone variante="secondario" onClick={() => setInModifica(true)}>Correct</Bottone>}
+              <Bottone variante="pericolo" disabled={occupato} onClick={() => esegui('rifiuta')}>Reject</Bottone>
             </>
           )}
         </div>
       ) : (
         p.decisa_da && (
           <p className="mt-3 text-[13px] text-testo-2">
-            {p.stato === 'approvata' ? 'Approvata' : 'Rifiutata'} da {persone[p.decisa_da]?.nome ?? p.decisa_da}
-            {p.decisa_il && ` alle ${oraDi(p.decisa_il)}`}
+            {p.stato === 'approvata' ? 'Approved' : 'Rejected'} by {persone[p.decisa_da]?.nome ?? p.decisa_da}
+            {p.decisa_il && ` at ${oraDi(p.decisa_il)}`}
           </p>
         )
       )}

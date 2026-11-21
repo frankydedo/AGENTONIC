@@ -6,10 +6,13 @@ import { useLocation, useNavigate } from 'react-router'
 import { api } from '../api'
 import { Avatar, Card, ChipArea, Citazioni, MarchioBrain } from '../componenti/ui'
 import { useApp } from '../contesto'
+import { inInglese } from '../lib'
 import type { Risposta } from '../tipi'
 
 interface Scambio { domanda: string; risposta?: Risposta; errore?: string }
 
+// Restano in italiano: i dati dell'azienda sono in italiano e le risposte registrate del modello
+// finto sono legate al testo esatto della domanda.
 const SUGGERIMENTI = ['Quanto budget resta?', 'Chi prepara la lista dei tag?', 'Quando è il collaudo?', 'Chi è il fornitore degli inverter?']
 
 /** Controlli 3, 4, 5: sa chi chiede (identità dalla sessione), cita, ammette di non sapere. */
@@ -59,8 +62,8 @@ export function Chiedi() {
           {storia.length === 0 && (
             <div className="mx-auto flex max-w-lg flex-col items-center pt-6 text-center">
               <MarchioBrain size={48} parla />
-              <h1 className="titolo-grande mt-5 text-[28px] sm:text-[32px]">Cosa vuoi sapere sul progetto?</h1>
-              <p className="mt-2 text-[15px] text-testo-2">Rispondo solo con ciò che il manager ha approvato e che rientra nelle tue competenze. Ogni risposta ha la sua fonte.</p>
+              <h1 className="titolo-grande mt-5 text-[28px] sm:text-[32px]">What do you want to know about the project?</h1>
+              <p className="mt-2 text-[15px] text-testo-2">I answer only with what the manager has approved and what falls within your areas. Every answer has its source.</p>
             </div>
           )}
           <AnimatePresence initial={false}>
@@ -78,17 +81,17 @@ export function Chiedi() {
                         <p className="text-[16px] leading-relaxed">{x.risposta.testo}</p>
                         {x.risposta.esito === 'risposta' ? (
                           <div className="mt-3 border-t border-separatore pt-2.5">
-                            <p className="mb-1.5 text-xs font-semibold text-testo-2">Fonti</p>
+                            <p className="mb-1.5 text-xs font-semibold text-testo-2">Sources</p>
                             <Citazioni citazioni={x.risposta.citazioni} className="[&_a]:bg-superficie [&_a]:shadow-card" />
                           </div>
                         ) : (
-                          <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-testo-2"><EyeOff size={13} /> Nessuna fonte che puoi vedere</p>
+                          <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-testo-2"><EyeOff size={13} /> No source you can see</p>
                         )}
                       </div>
                     ) : x.errore ? (
                       <p className="rounded-[20px] rounded-bl-[6px] bg-rosso-tenue px-4 py-3 text-sm text-rosso-testo">{x.errore}</p>
                     ) : (
-                      <div className="flex items-center gap-1.5 rounded-[20px] rounded-bl-[6px] bg-riempimento px-4 py-4" aria-label="Il Brain sta cercando tra le fonti">
+                      <div className="flex items-center gap-1.5 rounded-[20px] rounded-bl-[6px] bg-riempimento px-4 py-4" aria-label="Agentonic is searching the sources">
                         {[0, 1, 2].map((k) => <motion.span key={k} className="h-2 w-2 rounded-full bg-testo-3"
                           animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: k * 0.15 }} />)}
                       </div>
@@ -102,9 +105,9 @@ export function Chiedi() {
         </div>
         <form onSubmit={(e) => { e.preventDefault(); invia(testo) }} className="px-4 pt-2 pb-4 sm:px-6 sm:pb-5">
           <div className="flex h-[52px] items-center gap-2 rounded-full bg-riempimento pr-2 pl-5 transition focus-within:bg-superficie focus-within:ring-3 focus-within:ring-accento/30">
-            <input value={testo} onChange={(e) => setTesto(e.target.value)} placeholder="Fai una domanda sul progetto…" autoFocus
-              aria-label="Domanda sul progetto" className="min-w-0 flex-1 bg-transparent text-[16px] placeholder:text-testo-3 focus:outline-none" />
-            <button disabled={attesa || !testo.trim()} aria-label="Chiedi"
+            <input value={testo} onChange={(e) => setTesto(e.target.value)} placeholder="Ask a question about the project…" autoFocus
+              aria-label="Question about the project" className="min-w-0 flex-1 bg-transparent text-[16px] placeholder:text-testo-3 focus:outline-none" />
+            <button disabled={attesa || !testo.trim()} aria-label="Ask"
               className="grid h-9 w-9 place-items-center rounded-full bg-accento text-su-accento transition hover:bg-accento-premuto disabled:opacity-30">
               <ArrowUp size={18} strokeWidth={2.6} />
             </button>
@@ -124,22 +127,22 @@ export function Chiedi() {
 
       <div className="space-y-4">
         <Card className="p-5">
-          <p className="text-[13px] font-semibold text-testo-2">Stai chiedendo come</p>
+          <p className="text-[13px] font-semibold text-testo-2">You are asking as</p>
           <div className="mt-3 flex items-center gap-3">
             <Avatar persona={io} size={44} />
-            <div><p className="text-[16px] font-semibold">{io.nome}</p><p className="text-[13px] text-testo-2 first-letter:uppercase">{io.ruolo}</p></div>
+            <div><p className="text-[16px] font-semibold">{io.nome}</p><p className="text-[13px] text-testo-2 first-letter:uppercase">{inInglese(io.ruolo)}</p></div>
           </div>
           <div className="mt-3 flex flex-wrap gap-1">{io.competenze.map((a) => <ChipArea key={a} area={a} />)}</div>
         </Card>
         <Card className="p-5">
-          <p className="flex items-center gap-2 text-[17px] font-semibold"><ShieldCheck size={18} className="text-verde-testo" /> Come risponde il Brain</p>
+          <p className="flex items-center gap-2 text-[17px] font-semibold"><ShieldCheck size={18} className="text-verde-testo" /> How Agentonic answers</p>
           {/* è davvero una sequenza: l'ordine in cui il codice tratta la domanda */}
           <ol className="mt-3 space-y-3 text-sm leading-snug text-testo-2">
             {[
-              <>Filtra per le tue competenze <b className="font-semibold text-testo">prima</b> di leggere: ciò che non puoi vedere non arriva al modello.</>,
-              <>Cerca <b className="font-semibold text-testo">solo</b> tra task e fatti approvati dal manager.</>,
-              <>Ogni risposta cita la riunione: tocca la fonte per aprirla al punto esatto.</>,
-              <>Se non sa, o se l'informazione non è per te, lo dice.</>,
+              <>It filters by your areas <b className="font-semibold text-testo">before</b> reading: what you cannot see never reaches the model.</>,
+              <>It searches <b className="font-semibold text-testo">only</b> the tasks and facts approved by the manager.</>,
+              <>Every answer cites the meeting: tap the source to open it at the exact point.</>,
+              <>If it does not know, or the information is not for you, it says so.</>,
             ].map((t, i) => (
               <li key={i} className="flex gap-3">
                 <span className="cifre grid h-[22px] w-[22px] shrink-0 place-items-center rounded-full bg-accento-tenue text-xs font-bold text-accento-testo">{i + 1}</span>

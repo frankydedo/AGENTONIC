@@ -131,3 +131,9 @@
 ## [2026-11-21 15:00] decisione | Gestione dei progetti
 - Crea un progetto solo chi ha ruolo «project manager»; lo modifica solo il suo manager; gli altri vedono solo i progetti di cui sono membri, e dentro solo ciò che rientra nelle loro competenze.
 - Per ora solo frontend (pagina «Progetti»: schede, creazione, modifica, membri e manager): finché Pietro non aggiunge `GET/POST /progetti` e `PATCH /progetti/{id}` (`docs/proposte-contratto-ui.md` §8), creare e modificare danno un errore chiaro, senza dati finti.
+
+## [2026-11-21 16:37] decisione | Nome «Agentonic» e interfaccia in inglese (Pietro)
+- Il prodotto si chiama **Agentonic** (prima «Company Brain», che resta il nome della challenge A): README, UI, prompt, script, docs e pitch.
+- L'interfaccia web è in inglese (supera §4.6 di CLAUDE.md per la UI). Restano in italiano dati sintetici, prompt, messaggi del backend
+  (errori, risposta neutra, testi degli avvisi) e le domande suggerite in chat: le risposte registrate del modello finto dipendono dal testo esatto.
+- Ruoli, reparti e conteggi del registro arrivano in italiano dal backend: la UI li traduce solo in visualizzazione (`web/src/lib.ts`).

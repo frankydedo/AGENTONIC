@@ -1,4 +1,4 @@
-"""Demo del Company Brain da terminale: il percorso completo riu-001 … riu-005 + PDF doc-001.
+"""Demo di Agentonic da terminale: il percorso completo riu-001 … riu-005 + PDF doc-001.
 
 Uso:
     LLM_PROVIDER=mock .venv/bin/python scripts/demo_brain.py   # risposte registrate, senza rete

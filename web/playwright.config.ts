@@ -8,7 +8,7 @@ import { join } from 'node:path'
 const BACKEND = 8011
 const UI = 5180
 // Database nuovo a ogni esecuzione e modello finto (risposte registrate in dati/mock_llm).
-const DB = join(tmpdir(), 'company-brain-e2e.db')
+const DB = join(tmpdir(), 'agentonic-e2e.db')
 const UVICORN = process.env.UVICORN ?? '.venv/bin/uvicorn'
 const PYTHON = process.env.PYTHON ?? '.venv/bin/python'
 

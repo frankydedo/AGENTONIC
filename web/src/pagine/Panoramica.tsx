@@ -15,7 +15,7 @@ export function Panoramica() {
   const { io, sonoManager } = useApp()
   const { proposte, avvisi, task, pronto } = useDati()
   const ora = new Date().getHours()
-  const saluto = ora < 13 ? 'Buongiorno' : ora < 18 ? 'Buon pomeriggio' : 'Buonasera'
+  const saluto = ora < 12 ? 'Good morning' : ora < 18 ? 'Good afternoon' : 'Good evening'
 
   const inAttesa = proposte.filter((p) => p.stato === 'in_attesa').sort((a, b) => Number(daChiarire(b)) - Number(daChiarire(a)))
   const aperti = avvisi.filter((a) => !a.risolto)
@@ -26,11 +26,11 @@ export function Panoramica() {
 
   const [frase, dettaglio] = sonoManager
     ? inAttesa.length || aperti.length
-      ? ['Ho letto le riunioni del progetto.', `Ci sono ${inAttesa.length} proposte da approvare e ${aperti.length} punti da chiarire prima di andare avanti.`]
-      : ['Nessuna decisione in sospeso.', 'La memoria del progetto è aggiornata.']
+      ? ['I have read the project\'s meetings.', `There are ${inAttesa.length} proposals to approve and ${aperti.length} points to clarify before moving on.`]
+      : ['No pending decisions.', 'The project\'s memory is up to date.']
     : attivi.length
-      ? ['La tua giornata è pronta.', `Hai ${attivi.length} task aperti${inScadenza.length ? `, ${inScadenza.length} in scadenza questa settimana` : ''}${bloccati.length ? `, ${bloccati.length} bloccati` : ''}.`]
-      : ['Non hai task aperti al momento.', 'Quando il manager approva nuovi task per te, li trovi qui.']
+      ? ['Your day is ready.', `You have ${attivi.length} open tasks${inScadenza.length ? `, ${inScadenza.length} due this week` : ''}${bloccati.length ? `, ${bloccati.length} blocked` : ''}.`]
+      : ['You have no open tasks right now.', 'When the manager approves new tasks for you, you will find them here.']
   const haDaDire = sonoManager ? inAttesa.length + aperti.length > 0 : aperti.length + inScadenza.length + bloccati.length > 0
 
   return (
@@ -40,8 +40,8 @@ export function Panoramica() {
         <h1 className="titolo-grande mt-1 text-[34px] sm:text-[40px]">{saluto}, {io.nome.split(' ')[0]}</h1>
       </div>
 
-      {/* il Brain parla per primo */}
-      <section aria-label="Il Brain ti dice" className={clsx('alone', !haDaDire && 'alone-spento')}>
+      {/* Agentonic parla per primo */}
+      <section aria-label="Agentonic says" className={clsx('alone', !haDaDire && 'alone-spento')}>
         <div className="rounded-[22.5px] bg-superficie">
           <div className="flex items-start gap-3.5 px-5 pt-5 sm:px-6">
             <MarchioBrain size={38} parla={haDaDire} />
@@ -57,28 +57,28 @@ export function Panoramica() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {sonoManager ? (
           <>
-            <Widget icona={Check} colore="bg-accento" valore={inAttesa.length} etichetta="Proposte da decidere" a="/documenti" />
-            <Widget testoIcona="?" colore="bg-arancio" valore={aperti.length} etichetta="Punti da chiarire" a="/" />
+            <Widget icona={Check} colore="bg-accento" valore={inAttesa.length} etichetta="Proposals to decide" a="/documenti" />
+            <Widget testoIcona="?" colore="bg-arancio" valore={aperti.length} etichetta="Points to clarify" a="/" />
           </>
         ) : (
           <>
-            <Widget icona={Check} colore="bg-accento" valore={attivi.length} etichetta="I tuoi task aperti" a="/team" />
-            <Widget testoIcona="!" colore="bg-arancio" valore={aperti.length} etichetta="Avvisi per te" a="/" />
+            <Widget icona={Check} colore="bg-accento" valore={attivi.length} etichetta="Your open tasks" a="/team" />
+            <Widget testoIcona="!" colore="bg-arancio" valore={aperti.length} etichetta="Alerts for you" a="/" />
           </>
         )}
-        <Widget icona={CalendarDays} colore="bg-viola" valore={inScadenza.length} etichetta="In scadenza entro 7 giorni" a="/team" />
-        <Widget icona={Lock} colore="bg-rosso" valore={bloccati.length} etichetta="Task bloccati" a="/team" allarme />
+        <Widget icona={CalendarDays} colore="bg-viola" valore={inScadenza.length} etichetta="Due within 7 days" a="/team" />
+        <Widget icona={Lock} colore="bg-rosso" valore={bloccati.length} etichetta="Blocked tasks" a="/team" allarme />
       </div>
 
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <div className="space-y-6">
           {sonoManager ? (
             <Card>
-              <IntestazioneCard icona={Gavel} titolo="Da decidere"
-                sottotitolo="Il Brain propone, tu decidi. Niente entra nella memoria senza la tua approvazione."
-                azioni={<LinkSobrio a="/documenti">Per documento</LinkSobrio>} />
+              <IntestazioneCard icona={Gavel} titolo="To decide"
+                sottotitolo="Agentonic proposes, you decide. Nothing enters the memory without your approval."
+                azioni={<LinkSobrio a="/documenti">By document</LinkSobrio>} />
               {!pronto ? <Scheletro /> : inAttesa.length === 0
-                ? <Vuoto icona={Inbox} titolo="Nessuna proposta in attesa" testo="Carica una riunione: il Brain la legge e ti propone task e fatti." />
+                ? <Vuoto icona={Inbox} titolo="No pending proposals" testo="Upload a meeting: Agentonic reads it and proposes tasks and facts." />
                 : <ul className="divide-y divide-separatore">{inAttesa.map((p) => <CartaProposta key={p.id} p={p} mostraDocumento />)}</ul>}
             </Card>
           ) : (
@@ -87,8 +87,8 @@ export function Panoramica() {
         </div>
         <div className="space-y-6">
           <Card>
-            <IntestazioneCard icona={CalendarDays} titolo="Prossime scadenze"
-              sottotitolo={sonoManager ? 'Tutti i task approvati del progetto' : 'I task del progetto che puoi vedere'}
+            <IntestazioneCard icona={CalendarDays} titolo="Upcoming deadlines"
+              sottotitolo={sonoManager ? 'All approved tasks in the project' : 'The project tasks you can see'}
               azioni={<LinkSobrio a="/team">Gantt</LinkSobrio>} />
             {!pronto ? <Scheletro righe={2} /> : (
               <ul className="pb-2">
@@ -135,10 +135,10 @@ function RigaScadenza({ t }: { t: Task }) {
         {bloccanti.length > 0 ? (
           <p className="flex items-center gap-1.5 text-[13px] text-rosso-testo">
             <Lock size={12} strokeWidth={2.4} className="shrink-0" />
-            <span className="truncate">Aspetta: {bloccanti.map((b) => b.titolo).join(', ')}</span>
+            <span className="truncate">Waiting on: {bloccanti.map((b) => b.titolo).join(', ')}</span>
           </p>
         ) : (
-          <p className="truncate text-[13px] text-testo-2">{chi?.nome ?? 'Nessun responsabile'}, {testo}</p>
+          <p className="truncate text-[13px] text-testo-2">{chi?.nome ?? 'Unassigned'}, {testo}</p>
         )}
       </div>
     </li>
@@ -152,19 +152,19 @@ function DomandaRapida() {
     <Card className="p-5">
       <div className="flex items-center gap-2.5">
         <MarchioBrain size={24} />
-        <h2 className="text-[17px] font-semibold">Chiedi al Brain</h2>
+        <h2 className="text-[17px] font-semibold">Ask Agentonic</h2>
       </div>
-      <p className="mt-1.5 text-sm text-testo-2">Risponde solo con ciò che è approvato e che puoi vedere, e ti dice da dove lo sa.</p>
+      <p className="mt-1.5 text-sm text-testo-2">It answers only with what is approved and visible to you, and tells you where it knows it from.</p>
       <form onSubmit={(e) => { e.preventDefault(); if (testo.trim()) vai('/chiedi', { state: { domanda: testo } }) }}
         className="mt-4 flex h-11 items-center gap-2 rounded-full bg-riempimento pr-1.5 pl-4 focus-within:ring-3 focus-within:ring-accento/30">
-        <input value={testo} onChange={(e) => setTesto(e.target.value)} placeholder="Quanto budget resta?" aria-label="Domanda per il Brain"
+        <input value={testo} onChange={(e) => setTesto(e.target.value)} placeholder="Ask about the project…" aria-label="Question for Agentonic"
           className="min-w-0 flex-1 bg-transparent text-[15px] placeholder:text-testo-3 focus:outline-none" />
-        <button disabled={!testo.trim()} aria-label="Chiedi"
+        <button disabled={!testo.trim()} aria-label="Ask"
           className="grid h-8 w-8 place-items-center rounded-full bg-accento text-su-accento transition hover:bg-accento-premuto disabled:opacity-35">
           <ArrowUp size={16} strokeWidth={2.6} />
         </button>
       </form>
-      <Link to="/chiedi" className="mt-3 inline-block text-sm text-accento-testo hover:underline">Apri la conversazione</Link>
+      <Link to="/chiedi" className="mt-3 inline-block text-sm text-accento-testo hover:underline">Open the conversation</Link>
     </Card>
   )
 }

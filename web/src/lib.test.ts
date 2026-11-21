@@ -24,23 +24,23 @@ describe('scadenze rispetto a oggi', () => {
   })
 
   it.each([
-    ['2026-11-19', 'in ritardo di 2 g', 'rosso'],
-    ['2026-11-21', 'scade oggi', 'rosso'],
-    ['2026-11-22', 'scade domani', 'giallo'],
-    ['2026-11-25', 'tra 4 giorni', 'giallo'],
-    ['2026-11-28', 'tra 7 giorni', 'giallo'],
-    ['2026-12-15', 'tra 24 giorni', 'grigio'],
+    ['2026-11-19', '2 d overdue', 'rosso'],
+    ['2026-11-21', 'due today', 'rosso'],
+    ['2026-11-22', 'due tomorrow', 'giallo'],
+    ['2026-11-25', 'in 4 days', 'giallo'],
+    ['2026-11-28', 'in 7 days', 'giallo'],
+    ['2026-12-15', 'in 24 days', 'grigio'],
   ])('%s → «%s» (%s)', (iso, testo, tono) => {
     expect(scadenzaRelativa(iso)).toEqual({ testo, tono })
   })
 
   it('un task chiuso non è mai in ritardo', () => {
     expect(scadenzaRelativa('2026-11-01', 'fatto').tono).toBe('grigio')
-    expect(scadenzaRelativa('2026-11-01', 'annullato').testo).not.toContain('ritardo')
+    expect(scadenzaRelativa('2026-11-01', 'annullato').testo).not.toContain('overdue')
   })
 
   it('senza scadenza lo dice', () => {
-    expect(scadenzaRelativa(null)).toEqual({ testo: 'senza scadenza', tono: 'grigio' })
+    expect(scadenzaRelativa(null)).toEqual({ testo: 'no deadline', tono: 'grigio' })
   })
 })
 
@@ -99,25 +99,25 @@ describe('registro in italiano', () => {
   const titolo = (id: string) => (id === 'riu-001' ? 'Kick-off revamping linea 3' : null)
 
   it('racconta i passi del Brain con il titolo del documento', () => {
-    expect(descriviPasso(passo({ documento_id: 'riu-001' }), nome, titolo)).toBe('Il Brain ha letto «Kick-off revamping linea 3» e l\'ha diviso in interventi')
-    expect(descriviPasso(passo({ step: 'ingestion', input: { documento_id: 'riu-001' } }), nome, titolo)).toContain('ha letto «Kick-off')
-    expect(descriviPasso(passo({ step: 'incongruenze', documento_id: 'riu-009' }), nome, titolo)).toBe('Il Brain ha confrontato «riu-009» con le riunioni precedenti')
+    expect(descriviPasso(passo({ documento_id: 'riu-001' }), nome, titolo)).toBe('Agentonic read “Kick-off revamping linea 3” and split it into contributions')
+    expect(descriviPasso(passo({ step: 'ingestion', input: { documento_id: 'riu-001' } }), nome, titolo)).toContain('read “Kick-off')
+    expect(descriviPasso(passo({ step: 'incongruenze', documento_id: 'riu-009' }), nome, titolo)).toBe('Agentonic compared “riu-009” with earlier meetings')
   })
 
   it('racconta le decisioni delle persone', () => {
     expect(descriviPasso(passo({ tipo: 'decisione', attore: 'p-01', step: 'approva', input: { proposta_id: 'prop-001' } }), nome, titolo))
-      .toBe('Giulia Ferraris ha approvato la proposta prop-001')
-    expect(descriviPasso(passo({ tipo: 'domanda', attore: 'p-04', step: 'domanda' }), nome, titolo)).toBe('p-04 ha fatto una domanda al Brain')
+      .toBe('Giulia Ferraris approved proposal prop-001')
+    expect(descriviPasso(passo({ tipo: 'domanda', attore: 'p-04', step: 'domanda' }), nome, titolo)).toBe('p-04 asked Agentonic a question')
   })
 
   it('un passo sconosciuto non rompe nulla', () => {
-    expect(descriviPasso(passo({ step: 'nuovo_passo_futuro' }), nome, titolo)).toBe('Il Brain: nuovo passo futuro')
+    expect(descriviPasso(passo({ step: 'nuovo_passo_futuro' }), nome, titolo)).toBe('Agentonic: nuovo passo futuro')
   })
 
   it('riassume i risultati in parole, senza JSON', () => {
-    expect(riassuntoOutput({ segmenti: 16, punti_oscuri: 2, parte: '1/2', lista: [1, 2] })).toEqual(['16 segmenti', '2 punti oscuri', 'parte: 1/2'])
+    expect(riassuntoOutput({ segmenti: 16, punti_oscuri: 2, parte: '1/2', lista: [1, 2] })).toEqual(['16 segments', '2 unclear points', 'parte: 1/2'])
     expect(durata(850)).toBe('850 ms')
-    expect(durata(12345)).toBe('12,3 s')
+    expect(durata(12345)).toBe('12.3 s')
     expect(durata(null)).toBeNull()
   })
 })
@@ -144,8 +144,8 @@ describe('progetti: chi crea, chi modifica, cosa serve', () => {
   })
   it('spiega in italiano cosa manca', () => {
     expect(validaProgetto({ ...ok, nome: ' ', cliente: '', scadenza: '' }, '2026-11-21'))
-      .toEqual(['Dai un nome al progetto.', 'Indica il cliente (o «interno»).', 'Indica la scadenza.'])
-    expect(validaProgetto({ ...ok, scadenza: '2026-11-20' }, '2026-11-21')).toEqual(['La scadenza non può essere nel passato.'])
-    expect(validaProgetto({ ...ok, membri: ['p-04'] }, '2026-11-21')).toEqual(['Il manager deve essere tra i membri.'])
+      .toEqual(['Give the project a name.', 'Enter the client (or “internal”).', 'Enter the deadline.'])
+    expect(validaProgetto({ ...ok, scadenza: '2026-11-20' }, '2026-11-21')).toEqual(['The deadline cannot be in the past.'])
+    expect(validaProgetto({ ...ok, membri: ['p-04'] }, '2026-11-21')).toEqual(['The manager must be one of the members.'])
   })
 })

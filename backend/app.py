@@ -1,4 +1,4 @@
-"""API del Company Brain (contratto in docs/api.md).
+"""API di Agentonic (contratto in docs/api.md).
 
 Le garanzie stanno qui, non nel prompt:
 - l'identità arriva dall'header `X-Persona` o dal cookie `persona`, mai dal testo di una richiesta;
@@ -59,11 +59,11 @@ async def avvio(app: FastAPI):
     carica_env()
     db.inizializza()
     cfg = Config.da_ambiente()
-    print(f"Company Brain: modello «{cfg.modello or '-'}» con il provider «{cfg.provider}»; db {db.percorso_db()}", flush=True)
+    print(f"Agentonic: modello «{cfg.modello or '-'}» con il provider «{cfg.provider}»; db {db.percorso_db()}", flush=True)
     yield
 
 
-app = FastAPI(title="Company Brain · Automazioni Dora", version="0.3.0", lifespan=avvio)
+app = FastAPI(title="Agentonic · Automazioni Dora", version="0.3.0", lifespan=avvio)
 
 
 def get_db():

@@ -9,7 +9,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { finti } from '../api'
 import { useApp } from '../contesto'
 import { useDati } from '../dati'
-import { dataMedia, giorniA } from '../lib'
+import { dataMedia, giorniA, inInglese } from '../lib'
 import { PannelloAnalisi } from './Analisi'
 import { Protezione } from './Protezione'
 import { SceltaTema } from './Tema'
@@ -25,12 +25,12 @@ export function Layout() {
   const { pathname } = useLocation()
 
   const voci: Voce[] = [
-    { a: '/progetti', etichetta: 'Progetti', breve: 'Progetti', icona: FolderKanban, conteggio: progetti.length > 1 ? progetti.length : undefined },
-    { a: '/', etichetta: 'Panoramica', breve: 'Oggi', icona: LayoutGrid, conteggio: sonoManager ? segnalazioni : undefined },
-    { a: '/documenti', etichetta: 'Documenti', breve: 'Documenti', icona: FileText, conteggio: sonoManager ? inAttesa : undefined, attenzione: true },
-    { a: '/team', etichetta: 'Team e scadenze', breve: 'Team', icona: ChartGantt },
-    { a: '/chiedi', etichetta: 'Chiedi al Brain', breve: 'Chiedi', icona: MessageCircle },
-    { a: '/registro', etichetta: 'Registro', breve: 'Registro', icona: History, soloManager: true },
+    { a: '/progetti', etichetta: 'Projects', breve: 'Projects', icona: FolderKanban, conteggio: progetti.length > 1 ? progetti.length : undefined },
+    { a: '/', etichetta: 'Overview', breve: 'Today', icona: LayoutGrid, conteggio: sonoManager ? segnalazioni : undefined },
+    { a: '/documenti', etichetta: 'Documents', breve: 'Documents', icona: FileText, conteggio: sonoManager ? inAttesa : undefined, attenzione: true },
+    { a: '/team', etichetta: 'Team and deadlines', breve: 'Team', icona: ChartGantt },
+    { a: '/chiedi', etichetta: 'Ask Agentonic', breve: 'Ask', icona: MessageCircle },
+    { a: '/registro', etichetta: 'Log', breve: 'Log', icona: History, soloManager: true },
   ].filter((v) => !v.soloManager || sonoManager)
   const schede = voci.filter((v) => v.a !== '/progetti')
 
@@ -41,12 +41,12 @@ export function Layout() {
         <div className="flex items-center gap-2.5 px-2">
           <MarchioBrain size={30} parla={segnalazioni + inAttesa > 0} />
           <div>
-            <p className="text-[15px] leading-tight font-semibold tracking-[-0.01em]">Company Brain</p>
+            <p className="text-[15px] leading-tight font-semibold tracking-[-0.01em]">Agentonic</p>
             <p className="text-xs text-testo-2">Automazioni Dora</p>
           </div>
         </div>
         <SelettoreProgetto />
-        <nav aria-label="Sezioni" className="flex-1 space-y-0.5">
+        <nav aria-label="Sections" className="flex-1 space-y-0.5">
           {voci.map((v) => <VoceNav key={v.a} v={v} />)}
         </nav>
         <Scadenza />
@@ -74,7 +74,7 @@ export function Layout() {
       </div>
 
       {/* su telefono: barra delle schede in basso */}
-      <nav aria-label="Sezioni" className="vetro fixed inset-x-0 bottom-0 z-30 grid border-t border-separatore px-2 pt-1.5 pb-[max(env(safe-area-inset-bottom),10px)] lg:hidden"
+      <nav aria-label="Sections" className="vetro fixed inset-x-0 bottom-0 z-30 grid border-t border-separatore px-2 pt-1.5 pb-[max(env(safe-area-inset-bottom),10px)] lg:hidden"
         style={{ gridTemplateColumns: `repeat(${schede.length}, minmax(0, 1fr))` }}>
         {schede.map((v) => <VoceScheda key={v.a} v={v} />)}
       </nav>
@@ -126,7 +126,7 @@ function SelettoreProgetto({ compatto }: { compatto?: boolean }) {
         {aperto && (
           <motion.ul initial={{ opacity: 0, y: -4, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.16 }} className={clsx(POPOVER, 'top-full left-0 mt-2 w-80')}>
-            <li className="px-2.5 pt-1.5 pb-1 text-xs font-semibold text-testo-2">I tuoi progetti ({progetti.length})</li>
+            <li className="px-2.5 pt-1.5 pb-1 text-xs font-semibold text-testo-2">Your projects ({progetti.length})</li>
             {progetti.map((p) => {
               const attuale = p.id === progetto.id
               return (
@@ -135,8 +135,8 @@ function SelettoreProgetto({ compatto }: { compatto?: boolean }) {
                     className="flex w-full items-start gap-3 rounded-[10px] px-2.5 py-2 text-left hover:bg-riempimento">
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-semibold">{p.nome}</span>
-                      <span className="block truncate text-xs text-testo-2">{p.cliente}, {p.membri.length} persone</span>
-                      {p.manager_id === io.id && <span className="mt-1 inline-block text-xs font-medium text-viola-testo">Sei il manager</span>}
+                      <span className="block truncate text-xs text-testo-2">{p.cliente}, {p.membri.length} people</span>
+                      {p.manager_id === io.id && <span className="mt-1 inline-block text-xs font-medium text-viola-testo">You are the manager</span>}
                     </span>
                     {attuale && <Check size={16} strokeWidth={2.6} className="mt-0.5 shrink-0 text-accento-testo" />}
                   </button>
@@ -146,7 +146,7 @@ function SelettoreProgetto({ compatto }: { compatto?: boolean }) {
             <li className="mt-1 border-t border-separatore pt-1">
               <Link to="/progetti" onClick={() => setAperto(false)}
                 className="flex items-center justify-between rounded-[10px] px-2.5 py-2 text-sm text-accento-testo hover:bg-riempimento">
-                Tutti i progetti <ChevronRight size={15} />
+                All projects <ChevronRight size={15} />
               </Link>
             </li>
           </motion.ul>
@@ -162,9 +162,9 @@ function Scadenza() {
   const giorni = giorniA(progetto.scadenza)
   return (
     <div className="rounded-[14px] bg-superficie/70 p-3.5 shadow-card">
-      <p className="text-xs text-testo-2">Scadenza del progetto</p>
+      <p className="text-xs text-testo-2">Project deadline</p>
       <p className={clsx('mt-1 text-[22px] leading-none font-bold tracking-[-0.02em]', giorni <= 14 && 'text-rosso-testo')}>
-        {giorni >= 0 ? `tra ${giorni} giorni` : `${-giorni} giorni fa`}
+        {giorni >= 0 ? `in ${giorni} days` : `${-giorni} days ago`}
       </p>
       <p className="mt-1 text-xs text-testo-2">{dataMedia(progetto.scadenza)}</p>
     </div>
@@ -208,10 +208,10 @@ function CaricaRiunione() {
   const [aperto, setAperto] = useState(false)
   return (
     <>
-      <Bottone variante="primario" icona={Upload} onClick={() => setAperto(true)} aria-label="Carica riunione">
-        <span className="hidden sm:inline">Carica riunione</span>
+      <Bottone variante="primario" icona={Upload} onClick={() => setAperto(true)} aria-label="Upload meeting">
+        <span className="hidden sm:inline">Upload meeting</span>
       </Bottone>
-      <Modale aperto={aperto} onChiudi={() => setAperto(false)} titolo="Carica una riunione">
+      <Modale aperto={aperto} onChiudi={() => setAperto(false)} titolo="Upload a meeting">
         <PannelloAnalisi onChiudi={() => setAperto(false)} />
       </Modale>
     </>
@@ -223,9 +223,9 @@ function FintiInUso() {
   const elenco = useSyncExternalStore(finti.iscrivi, finti.elenco)
   if (!elenco) return null
   return (
-    <span title="Endpoint non ancora presenti nel backend: la UI mostra dati d'esempio (docs/proposte-contratto-ui.md)"
+    <span title="Endpoints not yet in the backend: the UI shows sample data (docs/proposte-contratto-ui.md)"
       className="hidden items-center gap-1.5 rounded-full bg-arancio-tenue px-2.5 py-1 text-xs font-medium text-arancio-testo sm:inline-flex">
-      <FlaskConical size={13} /> Dati d'esempio: {elenco}
+      <FlaskConical size={13} /> Sample data: {elenco}
     </span>
   )
 }
@@ -244,7 +244,7 @@ function MenuPersona() {
         <Avatar persona={io} size={32} />
         <span className="hidden text-left sm:block">
           <span className="block text-[13px] leading-tight font-semibold">{io.nome}</span>
-          <span className="block text-xs text-testo-2">{io.id === progetto.manager_id ? 'Manager del progetto' : io.ruolo}</span>
+          <span className="block text-xs text-testo-2">{io.id === progetto.manager_id ? 'Project manager' : inInglese(io.ruolo)}</span>
         </span>
         <ChevronDown size={14} className={clsx('text-testo-3 transition-transform', aperto && 'rotate-180')} />
       </button>
@@ -253,13 +253,13 @@ function MenuPersona() {
           <motion.div initial={{ opacity: 0, y: -4, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.16 }} className={clsx(POPOVER, 'right-0 mt-2 w-80 p-0')}>
             <div className="p-4">
-              <p className="text-xs text-testo-2">Le tue competenze: vedi solo ciò che rientra qui</p>
+              <p className="text-xs text-testo-2">Your areas: you only see what falls within them</p>
               <div className="mt-2 flex flex-wrap gap-1">{io.competenze.map((a) => <ChipArea key={a} area={a} />)}</div>
-              <p className="mt-4 mb-1.5 text-xs text-testo-2">Aspetto</p>
+              <p className="mt-4 mb-1.5 text-xs text-testo-2">Appearance</p>
               <SceltaTema piccolo />
             </div>
             <div className="border-t border-separatore">
-              <p className="px-4 pt-3 text-xs font-semibold text-testo-2">Entra come un'altra persona (demo)</p>
+              <p className="px-4 pt-3 text-xs font-semibold text-testo-2">Sign in as someone else (demo)</p>
               <ul className="max-h-72 overflow-y-auto p-1.5">
                 {[...membri, ...altri].map((p) => {
                   const fuori = !membri.some((m) => m.id === p.id)
@@ -270,10 +270,10 @@ function MenuPersona() {
                         <Avatar persona={p} size={28} />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-medium">{p.nome}</span>
-                          <span className="block truncate text-xs text-testo-2">{p.id === progetto.manager_id ? 'Manager' : p.ruolo}</span>
+                          <span className="block truncate text-xs text-testo-2">{p.id === progetto.manager_id ? 'Manager' : inInglese(p.ruolo)}</span>
                         </span>
                         {p.id === io.id ? <Check size={15} strokeWidth={2.6} className="text-accento-testo" />
-                          : fuori && <span className="text-[11px] text-testo-2">fuori progetto</span>}
+                          : fuori && <span className="text-[11px] text-testo-2">not on project</span>}
                       </button>
                     </li>
                   )
@@ -281,7 +281,7 @@ function MenuPersona() {
               </ul>
             </div>
             <button onClick={esci} className="flex w-full items-center gap-2 border-t border-separatore px-4 py-3 text-sm text-rosso-testo hover:bg-riempimento">
-              <LogOut size={15} /> Torna alla scelta della persona
+              <LogOut size={15} /> Back to choosing a person
             </button>
           </motion.div>
         )}

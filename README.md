@@ -1,4 +1,4 @@
-# Company Brain
+# Agentonic
 
 **The colleague who rereads every meeting for you, warns the people affected by what changed, and
 never acts without a person's yes.**

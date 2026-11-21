@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { format, parseISO } from 'date-fns'
-import { it } from 'date-fns/locale'
+import { enGB } from 'date-fns/locale'
 import { Check, X, type LucideIcon } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, type ButtonHTMLAttributes, type ReactNode } from 'react'
@@ -135,6 +135,17 @@ const COLORI_AREA: Record<Area, string> = {
   generale: '#8e8e93',
 }
 
+const NOMI_AREA: Record<Area, string> = {
+  sviluppo: 'development',
+  budget: 'budget',
+  commerciale: 'sales',
+  fornitori: 'suppliers',
+  personale: 'staff',
+  generale: 'general',
+}
+/** Nome dell'area per l'utente (in inglese); l'id resta quello del contratto. */
+export const nomeArea = (a: Area) => NOMI_AREA[a] ?? a
+
 /** Un'area di competenza. Cliccabile (chi può vedere una voce): piena se scelta. */
 export function ChipArea({ area, attiva = true, onClick }: { area: Area; attiva?: boolean; onClick?: () => void }) {
   if (onClick) {
@@ -142,24 +153,24 @@ export function ChipArea({ area, attiva = true, onClick }: { area: Area; attiva?
       <button type="button" onClick={onClick} aria-pressed={attiva}
         className={clsx('inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium transition',
           attiva ? 'bg-accento text-su-accento' : 'bg-riempimento text-testo-2 hover:text-testo')}>
-        {area}
+        {nomeArea(area)}
       </button>
     )
   }
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-riempimento px-2.5 py-0.5 text-xs font-medium text-testo">
       <span className="h-1.5 w-1.5 rounded-full" style={{ background: COLORI_AREA[area] }} />
-      {area}
+      {nomeArea(area)}
     </span>
   )
 }
 
 const STATI: Record<StatoTask, [string, Tono]> = {
-  da_fare: ['Da fare', 'grigio'],
-  in_corso: ['In corso', 'blu'],
-  bloccato: ['Bloccato', 'rosso'],
-  fatto: ['Fatto', 'verde'],
-  annullato: ['Annullato', 'grigio'],
+  da_fare: ['To do', 'grigio'],
+  in_corso: ['In progress', 'blu'],
+  bloccato: ['Blocked', 'rosso'],
+  fatto: ['Done', 'verde'],
+  annullato: ['Cancelled', 'grigio'],
 }
 export const etichettaStato = (s: StatoTask) => STATI[s][0]
 export const StatoBadge = ({ stato }: { stato: StatoTask }) => <Badge tono={STATI[stato][1]}>{STATI[stato][0]}</Badge>
@@ -172,7 +183,7 @@ export function Scadenza({ iso, stato }: { iso: string | null; stato?: StatoTask
 /** Una data come un foglio di calendario: mese in alto, giorno sotto. */
 export function FoglioCalendario({ iso, urgente }: { iso: string | null; urgente?: boolean }) {
   const d = iso ? parseISO(iso) : null
-  const mese = d ? format(d, 'MMM', { locale: it }).replace('.', '').toUpperCase() : '—'
+  const mese = d ? format(d, 'MMM', { locale: enGB }).replace('.', '').toUpperCase() : '—'
   return (
     <span aria-hidden className="w-11 shrink-0 overflow-hidden rounded-[10px] bg-superficie text-center shadow-[0_0_0_1px_var(--separatore)]">
       <span className={clsx('block py-0.5 text-[10px] font-bold text-white', urgente ? 'bg-rosso' : 'bg-testo-3')}>{mese}</span>
@@ -240,8 +251,8 @@ export function TagCitazione({ c }: { c: Citazione }) {
       </Link>
       <span className="pointer-events-none absolute bottom-full left-0 z-30 mb-2 hidden w-72 rounded-2xl bg-superficie p-3.5 text-[13px] leading-relaxed text-testo shadow-alta group-hover:block group-focus-within:block">
         <span className="block text-xs font-semibold text-testo-2">{c.speaker}</span>
-        «{c.frase}»
-        <span className="mt-1.5 block text-xs text-accento-testo">Apri il documento a questo punto</span>
+        “{c.frase}”
+        <span className="mt-1.5 block text-xs text-accento-testo">Open the document at this point</span>
       </span>
     </span>
   )
@@ -307,7 +318,7 @@ export function Modale({ aperto, onChiudi, titolo, children }: { aperto: boolean
           >
             <div className="flex items-center justify-between px-6 pt-5 pb-2">
               <h2 className="text-[19px] font-bold tracking-[-0.015em]">{titolo}</h2>
-              <button onClick={onChiudi} aria-label="Chiudi"
+              <button onClick={onChiudi} aria-label="Close"
                 className="grid h-7 w-7 place-items-center rounded-full bg-riempimento text-testo-2 hover:text-testo"><X size={15} strokeWidth={2.5} /></button>
             </div>
             <div className="px-6 pt-2 pb-6">{children}</div>

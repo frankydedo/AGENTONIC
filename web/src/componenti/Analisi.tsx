@@ -14,12 +14,12 @@ import { Badge, Bottone, MarchioBrain } from './ui'
 
 /** I passi fissi del workflow (solution.md §4): si mostrano mentre il Brain lavora. */
 const PREVISTI = [
-  ['Lettura', 'Divide la riunione in interventi; se è lunga, in parti «x/X»'],
-  ['Estrazione', 'Task, assegnatari, scadenze, decisioni e fatti'],
-  ['Chi è chi', 'Abbina i nomi detti alle persone del progetto; se non è sicuro, lo segnala'],
-  ['Lacune', 'Persone e contesti che non conosce'],
-  ['Incongruenze', 'Confronto con le riunioni precedenti'],
-  ['Proposte', 'Cosa cambia nella lista del progetto: decidi tu'],
+  ['Reading', 'Splits the meeting into contributions; if it is long, into parts “x/X”'],
+  ['Extraction', 'Tasks, assignees, deadlines, decisions and facts'],
+  ['Who is who', 'Matches the names mentioned to the project\'s people; if unsure, it flags it'],
+  ['Gaps', 'People and contexts it does not know'],
+  ['Inconsistencies', 'Comparison with earlier meetings'],
+  ['Proposals', 'What changes in the project\'s list: you decide'],
 ] as const
 
 type Stato =
@@ -76,8 +76,8 @@ export function PannelloAnalisi({ onChiudi }: { onChiudi?: () => void }) {
       >
         <input ref={input} type="file" accept=".md,.txt" className="hidden" onChange={(e) => e.target.files?.[0] && carica(e.target.files[0])} />
         <span className="grid h-12 w-12 place-items-center rounded-full bg-accento-tenue text-accento-testo"><UploadCloud size={24} strokeWidth={1.9} /></span>
-        <p className="mt-3 text-[17px] font-semibold">Trascina qui la minuta di una riunione</p>
-        <p className="mt-1 text-sm text-testo-2">oppure <span className="font-medium text-accento-testo">sfoglia i file</span>. Formati .md o .txt, per il progetto {progetto.nome}.</p>
+        <p className="mt-3 text-[17px] font-semibold">Drop meeting minutes here</p>
+        <p className="mt-1 text-sm text-testo-2">or <span className="font-medium text-accento-testo">browse files</span>. .md or .txt formats, for the project {progetto.nome}.</p>
       </label>
     )
   }
@@ -92,7 +92,7 @@ export function PannelloAnalisi({ onChiudi }: { onChiudi?: () => void }) {
           : <MarchioBrain size={40} parla={stato.fase === 'in_corso'} />}
         <div className="min-w-0">
           <p className="text-[17px] font-semibold">
-            {stato.fase === 'in_corso' ? 'Il Brain sta leggendo la riunione…' : stato.fase === 'errore' ? 'Il Brain non ha potuto leggere il file' : 'Analisi completata'}
+            {stato.fase === 'in_corso' ? 'Agentonic is reading the meeting…' : stato.fase === 'errore' ? 'Agentonic could not read the file' : 'Analysis complete'}
           </p>
           <p className="cifre truncate text-sm text-testo-2">{stato.file}</p>
         </div>
@@ -101,7 +101,7 @@ export function PannelloAnalisi({ onChiudi }: { onChiudi?: () => void }) {
       {stato.fase === 'errore' && (
         <div className="mt-4 rounded-2xl bg-rosso-tenue p-4 text-sm text-rosso-testo">
           <p className="font-semibold">{stato.messaggio}</p>
-          <p className="mt-1">Nessuna proposta è stata creata: il documento è stato rifiutato prima di arrivare al modello.</p>
+          <p className="mt-1">No proposals were created: the document was rejected before reaching the model.</p>
         </div>
       )}
 
@@ -128,12 +128,12 @@ export function PannelloAnalisi({ onChiudi }: { onChiudi?: () => void }) {
       {stato.fase === 'fatto' && (
         <>
           <div className="mt-5 grid grid-cols-2 gap-3">
-            <div className="rounded-2xl bg-accento-tenue p-4"><p className="cifre text-[34px] leading-none font-bold text-accento-testo">{stato.esito.proposte}</p><p className="mt-1.5 text-[13px] text-testo-2">proposte da decidere</p></div>
-            <div className="rounded-2xl bg-arancio-tenue p-4"><p className="cifre text-[34px] leading-none font-bold text-arancio-testo">{stato.esito.avvisi}</p><p className="mt-1.5 text-[13px] text-testo-2">avvisi (punti oscuri, incongruenze…)</p></div>
+            <div className="rounded-2xl bg-accento-tenue p-4"><p className="cifre text-[34px] leading-none font-bold text-accento-testo">{stato.esito.proposte}</p><p className="mt-1.5 text-[13px] text-testo-2">proposals to decide</p></div>
+            <div className="rounded-2xl bg-arancio-tenue p-4"><p className="cifre text-[34px] leading-none font-bold text-arancio-testo">{stato.esito.avvisi}</p><p className="mt-1.5 text-[13px] text-testo-2">alerts (unclear points, inconsistencies…)</p></div>
           </div>
-          <p className="mt-5 mb-2 text-[13px] font-semibold text-testo-2">Cosa ha fatto, passo per passo</p>
+          <p className="mt-5 mb-2 text-[13px] font-semibold text-testo-2">What it did, step by step</p>
           {stato.passi.length === 0 ? (
-            <p className="text-sm text-testo-2">Il backend non ha ancora registrato i passi di questo documento.</p>
+            <p className="text-sm text-testo-2">The backend has not logged the steps for this document yet.</p>
           ) : (
             <ol className="space-y-2">
               <AnimatePresence>
@@ -147,7 +147,7 @@ export function PannelloAnalisi({ onChiudi }: { onChiudi?: () => void }) {
                       <p className="text-sm font-semibold">{descriviPasso(p, nome, titolo)}</p>
                       <div className="mt-1 flex flex-wrap gap-1.5">
                         {riassuntoOutput(p.output).map((r) => <Badge key={r}>{r}</Badge>)}
-                        {p.modello && <Badge tono="viola">{p.provider === 'locale' ? 'modello locale' : p.provider === 'cloud' ? 'modello cloud' : 'modello finto'}: {p.modello}</Badge>}
+                        {p.modello && <Badge tono="viola">{p.provider === 'locale' ? 'local model' : p.provider === 'cloud' ? 'cloud model' : 'mock model'}: {p.modello}</Badge>}
                         {durata(p.durata_ms) && <Badge tono="blu">{durata(p.durata_ms)}</Badge>}
                       </div>
                       {p.motivo && <p className="mt-1 text-xs text-testo-2">{p.motivo}</p>}
@@ -164,10 +164,10 @@ export function PannelloAnalisi({ onChiudi }: { onChiudi?: () => void }) {
         <div className="mt-5 flex flex-wrap gap-2">
           {stato.fase === 'fatto' && (
             <Bottone variante="primario" icona={ArrowRight} onClick={() => { onChiudi?.(); vai(`/documenti/${stato.esito.documento_id}`) }}>
-              Rivedi le proposte
+              Review the proposals
             </Bottone>
           )}
-          <Bottone icona={RotateCcw} onClick={() => setStato({ fase: 'scelta' })}>Carica un altro file</Bottone>
+          <Bottone icona={RotateCcw} onClick={() => setStato({ fase: 'scelta' })}>Upload another file</Bottone>
         </div>
       )}
     </div>

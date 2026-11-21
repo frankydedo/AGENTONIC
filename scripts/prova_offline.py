@@ -86,7 +86,7 @@ def main() -> int:
         cfg = replace(base, registra=True, cartella_mock=risposte, timeout_s=args.timeout)
     rif = Config(provider="mock", cartella_mock=CARTELLA_MOCK)   # le attese: i mock della demo
 
-    scrivi(f"# Prova offline del Company Brain ({datetime.now():%d/%m/%Y %H:%M})")
+    scrivi(f"# Prova offline di Agentonic ({datetime.now():%d/%m/%Y %H:%M})")
     scrivi()
     scrivi(f"- provider: **{cfg.provider}**, modello: `{cfg.modello or '-'}`, "
            f"URL: {'impostato' if cfg.base_url else 'mancante'}, chiave: {'impostata' if cfg.api_key else 'assente'}")

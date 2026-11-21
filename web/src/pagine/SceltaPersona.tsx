@@ -1,6 +1,7 @@
 import { motion } from 'motion/react'
 import { SceltaTema } from '../componenti/Tema'
 import { Avatar, MarchioBrain } from '../componenti/ui'
+import { inInglese } from '../lib'
 import type { Persona } from '../tipi'
 
 /**
@@ -15,14 +16,14 @@ export function SceltaPersona({ persone, managerId, membri, onScegli }: {
       <div className="absolute top-4 right-4"><SceltaTema piccolo /></div>
       <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
         <MarchioBrain size={72} parla className="shadow-[0_14px_44px_rgba(94,92,230,0.38)]" />
-        <h1 className="titolo-grande mt-7 text-[44px] sm:text-[60px]">Company Brain</h1>
+        <h1 className="titolo-grande mt-7 text-[44px] sm:text-[60px]">Agentonic</h1>
         <p className="mt-4 max-w-xl text-[19px] leading-snug text-testo-2 sm:text-[21px]">
-          Il membro del team che legge le riunioni, tiene la memoria del progetto e ti dice cosa richiede la tua attenzione.
-          Chiede sempre prima di agire.
+          The team member who reads your meetings, keeps the project's memory and tells you what needs your attention.
+          It always asks before acting.
         </p>
 
-        <h2 className="mt-16 text-[22px] font-semibold tracking-[-0.01em]">Chi sei?</h2>
-        <p className="mt-1.5 text-[15px] text-testo-2">Ognuno vede solo ciò che rientra nelle sue competenze.</p>
+        <h2 className="mt-16 text-[22px] font-semibold tracking-[-0.01em]">Who are you?</h2>
+        <p className="mt-1.5 text-[15px] text-testo-2">Everyone sees only what falls within their areas.</p>
 
         <ul className="mt-9 grid w-full grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-3 lg:grid-cols-4">
           {persone.map((p, i) => {
@@ -37,9 +38,9 @@ export function SceltaPersona({ persone, managerId, membri, onScegli }: {
                     <Avatar persona={p} size={84} />
                   </span>
                   <span className="mt-1 text-[17px] font-semibold">{p.nome}</span>
-                  <span className="-mt-1.5 text-[13px] text-testo-2 first-letter:uppercase">{p.ruolo}</span>
+                  <span className="-mt-1.5 text-[13px] text-testo-2 first-letter:uppercase">{inInglese(p.ruolo)}</span>
                   {manager && <span className="rounded-[7px] bg-viola-tenue px-2 py-0.5 text-xs font-semibold text-viola-testo">Manager</span>}
-                  {fuori && <span className="rounded-[7px] bg-riempimento px-2 py-0.5 text-xs font-semibold text-testo-2">Fuori progetto</span>}
+                  {fuori && <span className="rounded-[7px] bg-riempimento px-2 py-0.5 text-xs font-semibold text-testo-2">Not on project</span>}
                 </button>
               </motion.li>
             )

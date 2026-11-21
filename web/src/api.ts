@@ -65,7 +65,7 @@ async function senzaRiserva<T>(azione: string, chiamata: () => Promise<T>): Prom
   try {
     return await chiamata()
   } catch (e) {
-    if (rottaMancante(e)) throw new ErroreApi(501, `Il backend non permette ancora di ${azione}: endpoint da aggiungere (docs/proposte-contratto-ui.md §8).`)
+    if (rottaMancante(e)) throw new ErroreApi(501, `The backend cannot ${azione} yet: endpoint still to be added (docs/proposte-contratto-ui.md §8).`)
     throw e
   }
 }
@@ -96,10 +96,10 @@ export const api = {
 
   /** Solo chi ha ruolo «project manager» (lo controlla il backend). */
   creaProgetto: (dati: DatiProgetto) =>
-    senzaRiserva('creare progetti', () => chiama<Progetto>('/progetti', json(dati))),
+    senzaRiserva('create projects', () => chiama<Progetto>('/progetti', json(dati))),
   /** Solo il manager del progetto (lo controlla il backend). */
   modificaProgetto: (id: string, dati: DatiProgetto) =>
-    senzaRiserva('modificare i progetti', () => chiama<Progetto>(`/progetti/${id}`, { method: 'PATCH', body: JSON.stringify(dati) })),
+    senzaRiserva('edit projects', () => chiama<Progetto>(`/progetti/${id}`, { method: 'PATCH', body: JSON.stringify(dati) })),
 
   documenti: (progettoId: string) =>
     conRiserva('documenti', () => chiama<Documento[]>(`/documenti?progetto_id=${progettoId}`),
@@ -107,7 +107,7 @@ export const api = {
   documento: (id: string) =>
     conRiserva('documenti', () => chiama<Documento>(`/documenti/${encodeURIComponent(id)}`), () => {
       const d = DOC_FINTI.find((x) => x.id === id)
-      if (!d) throw new ErroreApi(404, 'Documento non trovato.')
+      if (!d) throw new ErroreApi(404, 'Document not found.')
       return d
     }),
   caricaRiunione(progettoId: string, file: File) {

@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { addDays, differenceInCalendarDays, format, isWeekend, parseISO } from 'date-fns'
-import { it } from 'date-fns/locale'
+import { enGB } from 'date-fns/locale'
 import { Flag, Lock } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '../contesto'
@@ -85,13 +85,13 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
   const giorniArr = Array.from({ length: giorni }, (_, i) => addDays(inizio, i))
   const mesi: { etichetta: string; da: number; n: number }[] = []
   for (const [i, d] of giorniArr.entries()) {
-    const m = format(d, 'LLLL yyyy', { locale: it })
+    const m = format(d, 'LLLL yyyy', { locale: enGB })
     if (mesi.at(-1)?.etichetta === m) mesi.at(-1)!.n++
     else mesi.push({ etichetta: m, da: i, n: 1 })
   }
   const larghezza = giorni * GIORNO
 
-  if (!righe.length) return <p className="p-8 text-center text-sm text-testo-2">Nessun task da mostrare.</p>
+  if (!righe.length) return <p className="p-8 text-center text-sm text-testo-2">No tasks to show.</p>
 
   return (
     <>
@@ -100,7 +100,7 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
           {/* intestazione: mesi e giorni */}
           <div className="sticky top-0 z-30 flex border-b border-separatore bg-superficie/90 backdrop-blur-xl">
             <div style={{ width: SINISTRA }} className="sticky left-0 z-10 flex shrink-0 items-end border-r border-separatore bg-superficie px-4 pb-2 text-xs font-semibold text-testo-2">
-              Persona e task
+              Person and task
             </div>
             <div style={{ width: larghezza }}>
               <div className="relative h-6">
@@ -115,7 +115,7 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
                 {giorniArr.map((d) => (
                   <span key={+d} style={{ width: GIORNO }}
                     className={clsx('cifre shrink-0 py-1 text-center text-[11px] leading-tight', +d === +oggi() ? 'rounded-t-md bg-arancio font-bold text-testo' : isWeekend(d) ? 'text-testo-3' : 'text-testo-2')}>
-                    {format(d, 'EEEEE', { locale: it })}<br />{format(d, 'd')}
+                    {format(d, 'EEEEE', { locale: enGB })}<br />{format(d, 'd')}
                   </span>
                 ))}
               </div>
@@ -130,7 +130,7 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
               <div className="absolute top-0 bottom-0 w-[2px] bg-arancio" style={{ left: xOggi + GIORNO / 2 }} />
               <div className="absolute top-0 bottom-0 border-l-2 border-separatore-forte" style={{ left: xCollaudo + GIORNO / 2 }}>
                 <span className="absolute top-1 left-0 inline-flex items-center gap-1 rounded-r-md bg-accento px-1.5 py-0.5 text-[11px] font-bold whitespace-nowrap text-white">
-                  <Flag size={10} /> Collaudo
+                  <Flag size={10} /> Acceptance test
                 </span>
               </div>
             </div>
@@ -158,7 +158,7 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
               <div key={`g${i}`} className="flex border-b border-separatore bg-riempimento/70" style={{ height: GRUPPO }}>
                 <div style={{ width: SINISTRA }} className="sticky left-0 z-20 flex shrink-0 items-center gap-2 border-r border-separatore bg-riempimento px-4">
                   <Avatar persona={r.persona} size={24} />
-                  <span className="truncate text-sm font-bold">{r.persona?.nome ?? 'Senza responsabile'}</span>
+                  <span className="truncate text-sm font-bold">{r.persona?.nome ?? 'Unassigned'}</span>
                   <span className="cifre ml-auto text-xs text-testo-2">{r.n}</span>
                 </div>
               </div>
@@ -190,13 +190,13 @@ export function Gantt({ task, filtro }: { task: Task[]; filtro?: string }) {
         {(['da_fare', 'in_corso', 'bloccato', 'fatto'] as StatoTask[]).map((s) => (
           <span key={s} className="inline-flex items-center gap-1.5"><span className={clsx('h-2.5 w-2.5 rounded-full', COLORI[s])} />{etichettaStato(s)}</span>
         ))}
-        <span className="inline-flex items-center gap-1.5"><span className="h-3 w-[2px] bg-arancio" />Oggi</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-3 border-l-2 border-separatore-forte" />Collaudo</span>
-        <span className="inline-flex items-center gap-1.5"><span className="w-4 border-t-2 border-dashed border-rosso" />Dipendenza</span>
-        <span className="ml-auto">La barra va dalla riunione in cui nasce il task alla sua scadenza.</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-3 w-[2px] bg-arancio" />Today</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-3 border-l-2 border-separatore-forte" />Acceptance test</span>
+        <span className="inline-flex items-center gap-1.5"><span className="w-4 border-t-2 border-dashed border-rosso" />Dependency</span>
+        <span className="ml-auto">Each bar runs from the meeting where the task was created to its deadline.</span>
       </div>
 
-      <Modale aperto={!!scelto} onChiudi={() => setScelto(null)} titolo="Dettaglio del task">
+      <Modale aperto={!!scelto} onChiudi={() => setScelto(null)} titolo="Task details">
         {scelto && <RigaTask t={scelto} />}
       </Modale>
     </>
