@@ -1,0 +1,165 @@
+{
+  "id": "riu-001",
+  "progetto_id": "prj-01",
+  "tipo": "riunione",
+  "formato": "minuta",
+  "titolo": "Kick-off revamping linea 3",
+  "data": "2026-11-16",
+  "ora_inizio": "09:30",
+  "partecipanti": [
+    "Giulia Ferraris",
+    "Marco Bianchi",
+    "Marco Rinaldi",
+    "Sara Colombo",
+    "Luca Gallo",
+    "Elena Russo",
+    "Davide Conti"
+  ],
+  "segmenti": [
+    {
+      "id": "riu-001#s001",
+      "documento_id": "riu-001",
+      "speaker": "Giulia Ferraris",
+      "persona_id": "p-01",
+      "inizio": null,
+      "fine": null,
+      "testo": "Buongiorno a tutti. Partiamo ufficialmente con il revamping della linea 3 del Pastificio Valsangone. L'obiettivo è il collaudo presso il cliente entro il 20 gennaio."
+    },
+    {
+      "id": "riu-001#s002",
+      "documento_id": "riu-001",
+      "speaker": "Luca Gallo",
+      "persona_id": "p-05",
+      "inizio": null,
+      "fine": null,
+      "testo": "Confermo, il cliente ha firmato l'ordine venerdì. Chiedono un SAL ogni mese, il primo entro il 15 dicembre. Lo preparo io, come al solito."
+    },
+    {
+      "id": "riu-001#s003",
+      "documento_id": "riu-001",
+      "speaker": "Giulia Ferraris",
+      "persona_id": "p-01",
+      "inizio": null,
+      "fine": null,
+      "testo": "Perfetto. Sul budget: l'ordine vale 48.000 euro di budget interno approvato, a oggi ne abbiamo già impegnati 12.500 per la progettazione. Teniamolo d'occhio, il margine è stretto."
+    },
+    {
+      "id": "riu-001#s004",
+      "documento_id": "riu-001",
+      "speaker": "Marco Bianchi",
+      "persona_id": "p-02",
+      "inizio": null,
+      "fine": null,
+      "testo": "Lato software abbiamo deciso: PLC Siemens S7-1500 al posto del vecchio S7-300. Il programma lo riscriviamo, non conviene migrare quello vecchio."
+    },
+    {
+      "id": "riu-001#s005",
+      "documento_id": "riu-001",
+      "speaker": "Giulia Ferraris",
+      "persona_id": "p-01",
+      "inizio": null,
+      "fine": null,
+      "testo": "D'accordo, è deciso. Rinaldi, il quadro elettrico nuovo quando è pronto?"
+    },
+    {
+      "id": "riu-001#s006",
+      "documento_id": "riu-001",
+      "speaker": "Marco Rinaldi",
+      "persona_id": "p-03",
+      "inizio": null,
+      "fine": null,
+      "testo": "Se il materiale arriva in tempo, il quadro è cablato e pronto per il collaudo in officina il 10 dicembre."
+    },
+    {
+      "id": "riu-001#s007",
+      "documento_id": "riu-001",
+      "speaker": "Elena Russo",
+      "persona_id": "p-06",
+      "inizio": null,
+      "fine": null,
+      "testo": "Per il materiale: gli inverter li prendiamo da Elettrotecnica Piemonte. Il preventivo è di 6.200 euro, consegna in tre settimane dall'ordine. L'ordine lo faccio entro mercoledì."
+    },
+    {
+      "id": "riu-001#s008",
+      "documento_id": "riu-001",
+      "speaker": "Sara Colombo",
+      "persona_id": "p-04",
+      "inizio": null,
+      "fine": null,
+      "testo": "Per la nuova HMI mi serve la lista dei tag del PLC. Senza quella non posso collegare le schermate."
+    },
+    {
+      "id": "riu-001#s009",
+      "documento_id": "riu-001",
+      "speaker": "Giulia Ferraris",
+      "persona_id": "p-01",
+      "inizio": null,
+      "fine": null,
+      "testo": "Giusto. Marco, la lista dei tag la prepari tu entro il 25 novembre?"
+    },
+    {
+      "id": "riu-001#s010",
+      "documento_id": "riu-001",
+      "speaker": "Marco Bianchi",
+      "persona_id": "p-02",
+      "inizio": null,
+      "fine": null,
+      "testo": "Va bene."
+    },
+    {
+      "id": "riu-001#s011",
+      "documento_id": "riu-001",
+      "speaker": "Giulia Ferraris",
+      "persona_id": "p-01",
+      "inizio": null,
+      "fine": null,
+      "testo": "Sara, allora le schermate della HMI pronte entro il 4 dicembre, appena hai i tag."
+    },
+    {
+      "id": "riu-001#s012",
+      "documento_id": "riu-001",
+      "speaker": "Sara Colombo",
+      "persona_id": "p-04",
+      "inizio": null,
+      "fine": null,
+      "testo": "Ok, il 4 dicembre ci sto, se i tag arrivano il 25."
+    },
+    {
+      "id": "riu-001#s013",
+      "documento_id": "riu-001",
+      "speaker": "Davide Conti",
+      "persona_id": "p-07",
+      "inizio": null,
+      "fine": null,
+      "testo": "Io intanto faccio il sopralluogo sulla linea dal cliente, giovedì 19, per verificare spazi e cablaggi esistenti."
+    },
+    {
+      "id": "riu-001#s014",
+      "documento_id": "riu-001",
+      "speaker": "Giulia Ferraris",
+      "persona_id": "p-01",
+      "inizio": null,
+      "fine": null,
+      "testo": "Bene. Un'ultima cosa: bisogna aggiornare il manuale d'uso per gli operatori del cliente, quello attuale è del 2014. Qualcuno se ne deve occupare entro il collaudo."
+    },
+    {
+      "id": "riu-001#s015",
+      "documento_id": "riu-001",
+      "speaker": "Luca Gallo",
+      "persona_id": "p-05",
+      "inizio": null,
+      "fine": null,
+      "testo": "Il cliente ci tiene molto, l'hanno chiesto anche in trattativa."
+    },
+    {
+      "id": "riu-001#s016",
+      "documento_id": "riu-001",
+      "speaker": "Giulia Ferraris",
+      "persona_id": "p-01",
+      "inizio": null,
+      "fine": null,
+      "testo": "Ne riparliamo. Ci rivediamo lunedì prossimo per l'avanzamento. Grazie a tutti."
+    }
+  ],
+  "url_file": null
+}

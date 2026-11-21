@@ -73,3 +73,14 @@
 - Creata `analyses/wbs.md` (proposta): interfacce I1-I5 da fissare entro le 13:30, pacchetti di
   Franky (F1-F11), Pietro (P1-P11) e Mauro (M1.1-M1.10), percorso critico verso M1 e M2.
 - Aperto: chi possiede la ricerca tra le voci approvate (Pietro in P6 o Franky in F6).
+
+## [2026-11-21 13:50] decisione | Interfaccia senza fixture, direttamente sullo stub di Pietro
+- `web/` (React 19 + TS + Vite 6 + Tailwind v4) chiama il backend tramite il proxy di Vite (`/api/*` → `BACKEND_URL`, default `:8000`); le risposte d'esempio di `backend/esempi.py` sostituiscono i JSON in `web/src/fixtures/` previsti da I4.
+- Tipi TS in `web/src/tipi.ts`, specchio di `backend/modelli.py`: se cambia il contratto, vanno aggiornati insieme.
+- Viste: manager (carica minuta, proposte con aree modificabili, avvisi SSE, registro), membro (to-do del giorno, lista del progetto), «Chiedi al Brain» con citazioni cliccabili per tutti.
+
+## [2026-11-21 14:00] decisione | Interfaccia a pagine e proposte di contratto per il backend
+- `web/` diventa un'app a pagine (react-router): Panoramica, Documenti, documento con fonte evidenziata, Team e scadenze (Gantt + per persona), Chiedi al Brain, Registro. Librerie: lucide-react, motion, sonner, date-fns, Inter.
+- Le citazioni aprono `/documenti/{id}?seg=sNNN` con il segmento evidenziato; il manager corregge una proposta (assegnatario, scadenza, titolo, aree) prima di approvarla, anche dal punto oscuro.
+- Servono aggiunte al contratto, **da concordare con Pietro**: `docs/proposte-contratto-ui.md` (`GET /documenti`, `GET /documenti/{id}`, `Documento.url_file`, `Decisione.modifiche`, `Avviso.proposta_id`, to-do del giorno leggibile dal manager). Finché mancano, la UI usa dati d'esempio dichiarati a schermo.
+- Corretto: lo stream SSE si chiude su `pagehide`; prima ogni ricaricamento lasciava una connessione aperta e dopo 6 Chrome bloccava le chiamate al backend.

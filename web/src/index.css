@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-padding-top: 5rem;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+  font-feature-settings: "cv11", "ss01", "ss03";
+}
+
+/* La fonte selezionata lampeggia quando la si apre da una citazione. */
+@keyframes evidenzia {
+  0%, 30% { background-color: var(--color-indigo-200); }
+  100% { background-color: var(--color-indigo-50); }
+}
+.segmento-evidenziato {
+  animation: evidenzia 1.8s ease-out;
+}
