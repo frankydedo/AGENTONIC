@@ -15,20 +15,20 @@ from backend.modelli import (Avviso, Citazione, ContestoProgetto, Documento, Pas
 
 # (titolo, assegnatario_id, scadenza, aree, segmenti, sicurezza, dipende_da); il rif è «riu-001:t<posizione>»
 _TASK_RIU_001 = [
-    ("Preparare il primo SAL per il cliente", "p-05", "2026-12-15", ["commerciale"], [2], "alta", []),
+    ("Prepare the first progress report for the client", "p-05", "2026-12-15", ["commerciale"], [2], "alta", []),
     ("Quadro elettrico cablato e pronto per il collaudo in officina", "p-03", "2026-12-10", ["sviluppo"], [5, 6], "alta", []),
-    ("Ordinare gli inverter a Elettrotecnica Piemonte", "p-06", "2026-11-18", ["fornitori"], [7], "alta", []),
-    ("Preparare la lista dei tag del PLC", None, "2026-11-25", ["sviluppo"], [9, 10], "bassa", []),
+    ("Order the inverters from Elettrotecnica Piemonte", "p-06", "2026-11-18", ["fornitori"], [7], "alta", []),
+    ("Prepare the PLC tag list", None, "2026-11-25", ["sviluppo"], [9, 10], "bassa", []),
     ("Schermate della nuova HMI", "p-04", "2026-12-04", ["sviluppo"], [11, 12], "alta", ["riu-001:t4"]),
     ("Sopralluogo sulla linea dal cliente", "p-07", "2026-11-19", ["sviluppo"], [13], "alta", []),
     ("Aggiornare il manuale d'uso per gli operatori", None, "2027-01-20", ["generale"], [14, 15], "bassa", []),
 ]
 # (soggetto, attributo, valore, aree, segmenti)
 _FATTI_RIU_001 = [
-    ("progetto", "scadenza", "collaudo presso il cliente entro il 2027-01-20", ["generale"], [1]),
-    ("progetto", "budget", "48.000 € di budget interno approvato, 12.500 € già impegnati per la progettazione", ["budget"], [3]),
+    ("progetto", "scadenza", "acceptance test at the client's site by 2027-01-20", ["generale"], [1]),
+    ("progetto", "budget", "€48,000 of approved internal budget, €12,500 already committed for the design", ["budget"], [3]),
     ("PLC", "decisione", "Siemens S7-1500 al posto del vecchio S7-300; il programma si riscrive", ["sviluppo"], [4, 5]),
-    ("inverter", "fornitore", "Elettrotecnica Piemonte, preventivo 6.200 €, consegna in tre settimane dall'ordine", ["fornitori", "budget"], [7]),
+    ("inverter", "fornitore", "Elettrotecnica Piemonte, preventivo 6,200 €, consegna in tre settimane dall'ordine", ["fornitori", "budget"], [7]),
     ("cliente", "requisito", "un SAL ogni mese, il primo entro il 15 dicembre", ["commerciale"], [2]),
 ]
 
@@ -55,9 +55,9 @@ def analizza_documento(doc: Documento, contesto: ContestoProgetto) -> RisultatoA
     avvisi = [
         Avviso(progetto_id=prj, documento_id=doc.id, tipo="punto_oscuro", citazioni=cita([9, 10]), aree=["sviluppo"],
                testo="«Marco» è ambiguo: nel progetto ci sono Marco Bianchi e Marco Rinaldi. "
-                     "Chi prepara la lista dei tag del PLC?"),
+                     "Who is preparing the PLC tag list?"),
         Avviso(progetto_id=prj, documento_id=doc.id, tipo="punto_oscuro", citazioni=cita([14]), aree=["generale"],
-               testo="L'aggiornamento del manuale d'uso per gli operatori non ha un responsabile."),
+               testo="L'aggiornamento del manuale d'uso per gli operatori has no owner."),
     ]
     passi = [PassoRegistro(quando=datetime.now(), tipo="workflow", attore="brain", step="estrazione",
                            provider="mock", modello="finto-dei-test", input={"parte": "1/1"},

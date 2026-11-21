@@ -43,14 +43,14 @@ def _chiavi(p: Persona) -> set[str]:
 
 
 def _elenco(nomi: list[str]) -> str:
-    return nomi[0] if len(nomi) == 1 else f"{', '.join(nomi[:-1])} o {nomi[-1]}"
+    return nomi[0] if len(nomi) == 1 else f"{', '.join(nomi[:-1])} or {nomi[-1]}"
 
 
 def abbina_nome(nome: str | None, persone: list[Persona]) -> Abbinamento:
     """Nome detto -> persona. Univoco -> id; più candidati -> None + motivo; nessuno -> None + motivo."""
     chiave = normalizza(nome or "")
     if not chiave:
-        return Abbinamento(motivo="nessun nome indicato")
+        return Abbinamento(motivo="no name given")
     trovate: dict[str, Persona] = {}
     for p in persone:
         if chiave in _chiavi(p):
@@ -60,8 +60,8 @@ def abbina_nome(nome: str | None, persone: list[Persona]) -> Abbinamento:
         return Abbinamento(persona_id=next(iter(trovate)), candidati=list(trovate))
     if len(trovate) > 1:
         nomi = [p.nome for p in trovate.values()]
-        return Abbinamento(candidati=list(trovate), motivo=f'"{detto}" è ambiguo: {_elenco(nomi)}')
-    return Abbinamento(motivo=f'"{detto}" non è un membro del progetto')
+        return Abbinamento(candidati=list(trovate), motivo=f'"{detto}" is ambiguous: {_elenco(nomi)}')
+    return Abbinamento(motivo=f'"{detto}" is not a project member')
 
 
 def abbina_speaker(doc: Documento, persone: list[Persona]) -> Documento:

@@ -1,9 +1,9 @@
 {
   "fatti": [
     {
-      "soggetto": "cablaggi esistenti verso i motori",
+      "soggetto": "existing wiring to the motors",
       "attributo": "altro",
-      "valore": "riutilizzabili, verificato al sopralluogo",
+      "valore": "reusable, checked during the site survey",
       "aree": [
         "sviluppo"
       ],
@@ -15,7 +15,7 @@
     {
       "soggetto": "Davide Conti",
       "attributo": "altro",
-      "valore": "in ferie dal 2026-12-22 al 2027-01-06, ferie già approvate",
+      "valore": "on holiday from 2026-12-22 to 2027-01-06, holidays already approved",
       "aree": [
         "personale"
       ],

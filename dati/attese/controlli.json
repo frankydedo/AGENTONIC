@@ -26,7 +26,7 @@
           "azione": "avvisi",
           "persona": "p-01",
           "tipo_atteso": "incongruenza",
-          "contiene": "quadro"
+          "contiene": "control panel"
         },
         {
           "azione": "avvisi",
@@ -68,7 +68,7 @@
           "tranne": [
             {
               "tipo": "nuovo_fatto",
-              "contiene": "secondo pannello"
+              "contiene": "second HMI panel"
             }
           ]
         },
@@ -97,7 +97,7 @@
           "azione": "avvisi",
           "persona": "p-01",
           "tipo_atteso": "punto_oscuro",
-          "contiene": "prova al banco"
+          "contiene": "bench test"
         }
       ]
     },
@@ -136,7 +136,7 @@
           "persona": "p-01",
           "proposta": {
             "tipo": "nuovo_fatto",
-            "contiene": "7.400"
+            "contiene": "7,400"
           }
         },
         {
@@ -144,7 +144,7 @@
           "persona": "p-01",
           "proposta": {
             "tipo": "nuovo_fatto",
-            "contiene": "secondo pannello"
+            "contiene": "second HMI panel"
           }
         },
         {
@@ -154,14 +154,14 @@
           "deve_esserci": [
             {
               "tipo": "nuovo_fatto",
-              "contiene": "secondo pannello"
+              "contiene": "second HMI panel"
             }
           ]
         },
         {
           "azione": "domanda",
           "persona": "p-01",
-          "testo": "Qual è l'ultimo preventivo degli inverter?",
+          "testo": "What is the latest inverter quote?",
           "esito_atteso": "risposta",
           "deve_contenere": [
             "7.400"
@@ -173,7 +173,7 @@
         {
           "azione": "domanda",
           "persona": "p-01",
-          "testo": "Il cliente vuole un secondo pannello HMI?",
+          "testo": "Does the client want a second HMI panel?",
           "esito_atteso": "non_lo_so"
         }
       ]
@@ -196,7 +196,7 @@
         {
           "azione": "domanda",
           "persona": "p-02",
-          "testo": "Quanto budget resta?",
+          "testo": "How much budget is left?",
           "esito_atteso": "risposta",
           "deve_contenere": [
             "35.500"
@@ -208,7 +208,7 @@
         {
           "azione": "domanda",
           "persona": "p-04",
-          "testo": "Quanto budget resta?",
+          "testo": "How much budget is left?",
           "esito_atteso": "non_lo_so",
           "non_deve_contenere": [
             "35.500",
@@ -219,7 +219,7 @@
         {
           "azione": "domanda",
           "persona": "p-06",
-          "testo": "Quanto costano gli inverter?",
+          "testo": "How much do the inverters cost?",
           "esito_atteso": "risposta",
           "deve_contenere": [
             "6.200"
@@ -231,7 +231,7 @@
         {
           "azione": "domanda",
           "persona": "p-04",
-          "testo": "Quanto costano gli inverter?",
+          "testo": "How much do the inverters cost?",
           "esito_atteso": "non_lo_so",
           "non_deve_contenere": [
             "6.200"
@@ -270,7 +270,7 @@
         {
           "azione": "domanda",
           "persona": "p-01",
-          "testo": "Chi prepara il primo SAL per il cliente?",
+          "testo": "Who is preparing the first progress report for the client?",
           "esito_atteso": "risposta",
           "deve_contenere": [
             "Luca"
@@ -311,13 +311,13 @@
         {
           "azione": "domanda",
           "persona": "p-01",
-          "testo": "Che PLC usa il cliente nella linea 2?",
+          "testo": "Which PLC does the client use on line 2?",
           "esito_atteso": "non_lo_so"
         },
         {
           "azione": "domanda",
           "persona": "p-01",
-          "testo": "Chi aggiorna il manuale d'uso per gli operatori?",
+          "testo": "Who is updating the operating manual for the operators?",
           "esito_atteso": "risposta",
           "deve_contenere": [
             "responsabile"
@@ -330,13 +330,13 @@
           "azione": "avvisi",
           "persona": "p-01",
           "tipo_atteso": "punto_oscuro",
-          "contiene": "ambiguo"
+          "contiene": "ambiguous"
         },
         {
           "azione": "avvisi",
           "persona": "p-01",
           "tipo_atteso": "punto_oscuro",
-          "contiene": "manuale"
+          "contiene": "manual"
         },
         {
           "azione": "carica_riunione",
@@ -471,7 +471,7 @@
           "tranne": [
             {
               "tipo": "nuovo_fatto",
-              "contiene": "secondo pannello"
+              "contiene": "second HMI panel"
             }
           ]
         },

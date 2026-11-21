@@ -3,57 +3,85 @@
     {
       "soggetto": "HMI",
       "attributo": "requisito",
-      "valore": "bilingue italiano e inglese, cambio lingua dalla schermata principale senza riavvio, allarmi tradotti in entrambe le lingue",
-      "aree": ["sviluppo"],
-      "segmenti": ["doc-001#p01s04"],
+      "valore": "bilingual Italian and English, language switch on the main screen without restarting, alarms translated into both languages",
+      "aree": [
+        "sviluppo"
+      ],
+      "segmenti": [
+        "doc-001#p01s04"
+      ],
       "sicurezza": "alta"
     },
     {
-      "soggetto": "collaudo di accettazione",
+      "soggetto": "acceptance test",
       "attributo": "requisito",
-      "valore": "presso il cliente con tre formati di pasta (penne rigate, fusilli, spaghetti), due ore consecutive per formato alla velocità nominale senza fermi dell'automazione",
-      "aree": ["sviluppo"],
-      "segmenti": ["doc-001#p01s05"],
+      "valore": "at the client's site with three pasta shapes (penne rigate, fusilli, spaghetti), two consecutive hours per shape at nominal speed with no automation stops",
+      "aree": [
+        "sviluppo"
+      ],
+      "segmenti": [
+        "doc-001#p01s05"
+      ],
       "sicurezza": "alta"
     },
     {
-      "soggetto": "progetto",
+      "soggetto": "project",
       "attributo": "scadenza",
-      "valore": "collaudo di accettazione presso il cliente entro il 2027-01-15",
-      "aree": ["generale"],
-      "segmenti": ["doc-001#p01s06"],
+      "valore": "acceptance test at the client's site by 2027-01-15",
+      "aree": [
+        "generale"
+      ],
+      "segmenti": [
+        "doc-001#p01s06"
+      ],
       "sicurezza": "alta"
     },
     {
-      "soggetto": "penale per ritardo",
+      "soggetto": "late penalty",
       "attributo": "rischio",
-      "valore": "0,5% del valore dell'ordine per ogni giorno lavorativo di ritardo sul collaudo, fino a un massimo del 10%",
-      "aree": ["commerciale"],
-      "segmenti": ["doc-001#p02s01"],
+      "valore": "0.5% of the order value for each working day of delay on the acceptance test, up to a maximum of 10%",
+      "aree": [
+        "commerciale"
+      ],
+      "segmenti": [
+        "doc-001#p02s01"
+      ],
       "sicurezza": "alta"
     },
     {
-      "soggetto": "motori",
+      "soggetto": "motors",
       "attributo": "fornitore",
-      "valore": "Motori Canavese S.r.l., fornitore preferito del cliente; altri marchi solo con approvazione scritta dell'ufficio acquisti del cliente",
-      "aree": ["fornitori"],
-      "segmenti": ["doc-001#p02s02"],
+      "valore": "Motori Canavese S.r.l., the client's preferred supplier; other brands only with written approval from the client's purchasing office",
+      "aree": [
+        "fornitori"
+      ],
+      "segmenti": [
+        "doc-001#p02s02"
+      ],
       "sicurezza": "alta"
     },
     {
-      "soggetto": "referente tecnico del cliente",
+      "soggetto": "client technical contact",
       "attributo": "responsabile",
-      "valore": "ing. Venturi, responsabile manutenzione dello stabilimento; approva il verbale di collaudo",
-      "aree": ["generale"],
-      "segmenti": ["doc-001#p02s03"],
+      "valore": "Mr Venturi, the plant's maintenance manager; approves the acceptance test report",
+      "aree": [
+        "generale"
+      ],
+      "segmenti": [
+        "doc-001#p02s03"
+      ],
       "sicurezza": "alta"
     },
     {
-      "soggetto": "manuale d'uso operatori",
+      "soggetto": "operating manual",
       "attributo": "requisito",
-      "valore": "in italiano e in inglese, da consegnare al cliente almeno una settimana prima del collaudo",
-      "aree": ["sviluppo"],
-      "segmenti": ["doc-001#p02s04"],
+      "valore": "in Italian and English, to be delivered to the client at least one week before the acceptance test",
+      "aree": [
+        "sviluppo"
+      ],
+      "segmenti": [
+        "doc-001#p02s04"
+      ],
       "sicurezza": "alta"
     }
   ]

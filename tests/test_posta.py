@@ -7,7 +7,7 @@ from backend.posta import _casella
 from backend.posta.casella import Indirizzo, Mail
 from backend.posta.chiedi import TESTO_NEUTRO_POSTA, messaggi
 
-RIASSUNTO = "Riassumi questa mail"
+RIASSUNTO = "Summarise this email"
 
 
 def chiedi_mail(client, mail_id, testo=RIASSUNTO, chi=GIULIA, progetto="prj-01"):
@@ -41,7 +41,7 @@ def test_aprire_una_mail_la_segna_letta(client):
 
 def test_risposta_sulla_mail_con_fonte_e_registro_senza_testo(client):
     r = chiedi_mail(client, "m-101").json()
-    assert r["esito"] == "risposta" and r["cita_email"] is True and "7.400" in r["testo"]
+    assert r["esito"] == "risposta" and r["cita_email"] is True and "7,400" in r["testo"]
     passo = client.get("/registro?progetto_id=prj-01", headers=GIULIA).json()[0]
     assert passo["step"] == "domanda_su_mail" and passo["input"]["mail_id"] == "m-101"
     assert RIASSUNTO not in json.dumps(passo) and "Elettrotecnica" not in json.dumps(passo)

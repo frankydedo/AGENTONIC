@@ -23,7 +23,7 @@ ATTESE = {
     "riu-003": ({"nuovo_task": 1, "aggiorna_task": 2, "nuovo_fatto": 4}, {"punto_oscuro": 1, "incongruenza": 4}),
     "riu-004": ({"chiudi_task": 2, "aggiorna_task": 3, "nuovo_fatto": 1}, {}),
     "riu-005": ({"nuovo_task": 2, "aggiorna_task": 1, "nuovo_fatto": 2}, {"punto_oscuro": 1, "incongruenza": 1}),
-    # 4 punti oscuri: due «non ha un responsabile» del codice, più velocità nominale e penale del modello
+    # 4 punti oscuri: due «has no owner» del codice, più velocità nominale e penale del modello
     "doc-001": ({"nuovo_task": 2, "nuovo_fatto": 7}, {"punto_oscuro": 4, "sconosciuto": 1, "incongruenza": 1}),
 }
 
@@ -68,8 +68,8 @@ def test_incongruenze_della_demo(percorso):
     per_doc = _per_doc(percorso)
     def testi(did):
         return [a.testo for a in per_doc[did][1].avvisi if a.tipo == "incongruenza"]
-    assert any("quadro elettrico" in t and "18/12/2026" in t for t in testi("riu-002"))
-    assert any("7.400" in t and "6.200" in t for t in testi("riu-003"))
+    assert any("control panel" in t and "18/12/2026" in t for t in testi("riu-002"))
+    assert any("7,400" in t and "6,200" in t for t in testi("riu-003"))
     assert any("2027-01-15" in t and "2027-01-20" in t for t in testi("doc-001"))
     collaudo = next(a for a in per_doc["doc-001"][1].avvisi if a.tipo == "incongruenza")
     assert {c.documento_id for c in collaudo.citazioni} == {"doc-001", "riu-001"}
@@ -77,14 +77,14 @@ def test_incongruenze_della_demo(percorso):
 
 def test_paola_greco_fuori_progetto(percorso):
     _, r = _per_doc(percorso)["riu-002"]
-    assert any("Paola Greco" in a.testo and "non fa parte del progetto" in a.testo
+    assert any("Paola Greco" in a.testo and "is not part of the project" in a.testo
                for a in r.avvisi if a.tipo == "sconosciuto")
 
 
 def test_punti_oscuri_non_doppi(percorso):
     _, r = _per_doc(percorso)["riu-001"]
     testi = [a.testo for a in r.avvisi]
-    assert any('"Marco" è ambiguo' in t for t in testi) and any("non ha un responsabile" in t for t in testi)
+    assert any('"Marco" is ambiguous' in t for t in testi) and any("has no owner" in t for t in testi)
     assert len(testi) == 2
 
 
@@ -95,8 +95,8 @@ def test_punto_oscuro_su_altro_negli_stessi_segmenti_resta(percorso):
     su_p01s05 = [a.testo for a in r.avvisi if a.tipo == "punto_oscuro"
                  and [c.segmento_id for c in a.citazioni] == ["doc-001#p01s05"]]
     assert len(su_p01s05) == 2
-    assert "non ha un responsabile" in su_p01s05[0] and "velocità nominale" in su_p01s05[1]
-    assert any("valore dell'ordine" in a.testo for a in r.avvisi if a.tipo == "punto_oscuro")
+    assert "has no owner" in su_p01s05[0] and "nominal speed" in su_p01s05[1]
+    assert any("order value" in a.testo for a in r.avvisi if a.tipo == "punto_oscuro")
     assert r.passi[-1].output["punti_oscuri_doppi_tolti"] == 0
 
 
@@ -121,12 +121,12 @@ def test_nessun_testo_dei_documenti_nei_passi(percorso):
 def test_memoria_finale_coerente_con_il_readme(percorso):
     sim = percorso[0]
     assert len(sim.task) == 13 and len(sim.fatti) == 21
-    assert sim.task["task-009"].titolo.startswith("Chiedere al cliente una conferma scritta")
+    assert sim.task["task-009"].titolo.startswith("Ask the client for written confirmation")
     assert (sim.task["task-004"].assegnatario_id, sim.task["task-004"].stato) == ("p-02", "fatto")
     assert sim.task["task-005"].dipende_da == ["task-004"] and sim.task["task-011"].dipende_da == ["task-010"]
-    assert sim.fatti["fat-009"].valore.startswith("7.400")
+    assert sim.fatti["fat-009"].valore.startswith("€7,400")
     rifiutate = {d.id: e["rifiutate"] for d, _, e in percorso[1]}
-    assert rifiutate["riu-003"] == ["cliente"]
+    assert rifiutate["riu-003"] == ["client"]
 
 
 def test_mock_mancanti_nessuna_eccezione_e_avvisi_di_analisi_non_riuscita(tmp_path):
@@ -134,7 +134,7 @@ def test_mock_mancanti_nessuna_eccezione_e_avvisi_di_analisi_non_riuscita(tmp_pa
     r = sim.analizza(documenti_demo()[0], Config(provider="mock", cartella_mock=tmp_path))
     assert r.proposte == []
     assert [a.testo for a in r.avvisi] == [
-        f"L'analisi di {n} non è riuscita: il documento va ricontrollato a mano." for n in ("task", "fatti", "lacune")]
+        f"The {n} analysis failed: the document needs checking by hand." for n in ("task", "fatti", "lacune")]
     assert all(a.tipo == "punto_oscuro" and a.solo_manager and not a.citazioni for a in r.avvisi)
     esiti = {p.step: p.esito for p in r.passi}
     assert esiti["estrazione_task"] == esiti["estrazione_fatti"] == esiti["estrazione_lacune"] == "errore"
@@ -147,7 +147,7 @@ def test_un_estrattore_fallisce_gli_altri_proseguono(monkeypatch):
     monkeypatch.setattr(estrazione, "estrai_fatti", rotto)
     r = Simulatore().analizza(documenti_demo()[0], MOCK)
     assert conta(r.proposte) == {"nuovo_task": 7}
-    assert sum("L'analisi di fatti non è riuscita" in a.testo for a in r.avvisi) == 1
+    assert sum("The fatti analysis failed" in a.testo for a in r.avvisi) == 1
     passo = next(p for p in r.passi if p.step == "estrazione_fatti")
     assert passo.esito == "errore" and "boom" not in (passo.motivo or "")
 
@@ -157,32 +157,32 @@ def test_deduplica_punti_oscuri_del_modello(tmp_path):
     doc = documenti_demo()[0]
     s9, s14 = ["riu-001#s009"], ["riu-001#s014"]
     for agente, dati in {
-        "task": {"task": [{"rif": "t1", "titolo": "Preparare la lista dei tag del PLC", "assegnatario_detto": "Marco",
+        "task": {"task": [{"rif": "t1", "titolo": "Prepare the PLC tag list", "assegnatario_detto": "Marco",
                            "scadenza": "fine mese", "aree": ["sviluppo"], "segmenti": s9, "sicurezza": "alta"},
                           {"rif": "t2", "titolo": "Aggiornare il manuale", "assegnatario_detto": None,
                            "scadenza": None, "aree": ["generale"], "segmenti": s14, "sicurezza": "alta"}],
                  "aggiornamenti": []},
         "fatti": {"fatti": []},
         "lacune": {"punti_oscuri": [
-            {"descrizione": "Marco chi?", "segmenti": s9},                                   # doppione: responsabile
-            {"descrizione": "«Fine mese» è una scadenza vaga.", "segmenti": s9},             # doppione: data
-            {"descrizione": "Non si sa quale versione del PLC usare.", "segmenti": s9},      # altra cosa: resta
-            {"descrizione": "Non si sa quale versione del PLC usare.", "segmenti": s9},      # ripetizione identica
-            {"descrizione": "Nessuno ha preso l'incarico del manuale.", "segmenti": s14},    # doppione: responsabile
-            {"descrizione": "Non si sa entro quando serve il manuale.", "segmenti": s14},    # qui il codice non parla di date: resta
-            {"descrizione": "Altro dubbio.", "segmenti": ["riu-001#s003"]}],                 # segmenti nuovi: resta
+            {"descrizione": "Marco who?", "segmenti": s9},                                   # doppione: responsabile
+            {"descrizione": "“End of month” is a vague deadline.", "segmenti": s9},             # doppione: data
+            {"descrizione": "Nobody knows which PLC version to use.", "segmenti": s9},      # altra cosa: resta
+            {"descrizione": "Nobody knows which PLC version to use.", "segmenti": s9},      # ripetizione identica
+            {"descrizione": "Nobody is in charge of the manual.", "segmenti": s14},    # doppione: responsabile
+            {"descrizione": "Nobody knows when the manual is needed.", "segmenti": s14},    # qui il codice non parla di date: resta
+            {"descrizione": "Another doubt.", "segmenti": ["riu-001#s003"]}],                 # segmenti nuovi: resta
                    "sconosciuti": []},
     }.items():
         (tmp_path / f"{agente}_riu-001_1di1.json").write_text(json.dumps(dati), encoding="utf-8")
     r = Simulatore().analizza(doc, Config(provider="mock", cartella_mock=tmp_path))
     testi = [a.testo for a in r.avvisi]
     # quelli del codice (nome ambiguo, data non chiara, nessun responsabile) restano sempre
-    assert any("ambiguo" in t for t in testi) and any("non è una data chiara" in t for t in testi)
-    assert any("non ha un responsabile" in t for t in testi)
-    for tolto in ("Marco chi?", "«Fine mese» è una scadenza vaga.", "Nessuno ha preso l'incarico del manuale."):
+    assert any("ambiguous" in t for t in testi) and any("is not a clear date" in t for t in testi)
+    assert any("has no owner" in t for t in testi)
+    for tolto in ("Marco who?", "“End of month” is a vague deadline.", "Nobody is in charge of the manual."):
         assert tolto not in testi, tolto
-    assert testi.count("Non si sa quale versione del PLC usare.") == 1
-    assert "Non si sa entro quando serve il manuale." in testi and "Altro dubbio." in testi
+    assert testi.count("Nobody knows which PLC version to use.") == 1
+    assert "Nobody knows when the manual is needed." in testi and "Another doubt." in testi
     assert r.passi[-1].output["punti_oscuri_doppi_tolti"] == 4
     assert r.passi[-1].output["avvisi"] == {"punto_oscuro": 6}
     assert r.proposte[0].contenuto["scadenza"] is None
@@ -196,13 +196,13 @@ def test_errore_inatteso_nelle_incongruenze_avvisa_il_manager(monkeypatch):
     r = Simulatore().analizza(documenti_demo()[0], MOCK)
     assert conta(r.proposte) == ATTESE["riu-001"][0]                      # le proposte restano
     assert [a.testo for a in r.avvisi].count(
-        "L'analisi di incongruenze non è riuscita: il documento va ricontrollato a mano.") == 1
+        "The incongruenze analysis failed: the document needs checking by hand.") == 1
     passo = next(p for p in r.passi if p.step == "incongruenze")
     assert passo.esito == "errore" and "boom" not in (passo.motivo or "")
     risultato = r.passi[-1]
     assert risultato.step == "risultato" and risultato.esito == "errore"
     assert risultato.output["analisi_non_riuscite"] == ["incongruenze"]
-    assert risultato.motivo == "Analisi non riuscita: incongruenze."
+    assert risultato.motivo == "Analysis failed: incongruenze."
 
 
 def test_modello_delle_incongruenze_non_disponibile_restano_quelle_deterministiche(tmp_path):
@@ -217,9 +217,9 @@ def test_modello_delle_incongruenze_non_disponibile_restano_quelle_deterministic
     r = sim.analizza(riu_003, Config(provider="mock", cartella_mock=tmp_path))
     assert conta(r.proposte) == ATTESE["riu-003"][0]
     incongruenze_trovate = [a.testo for a in r.avvisi if a.tipo == "incongruenza"]
-    assert len(incongruenze_trovate) == 2 and all("La scadenza di" in t for t in incongruenze_trovate)
+    assert len(incongruenze_trovate) == 2 and all("The deadline of" in t for t in incongruenze_trovate)
     assert [a.testo for a in r.avvisi].count(
-        "L'analisi di incongruenze non è riuscita: il documento va ricontrollato a mano.") == 1
+        "The incongruenze analysis failed: the document needs checking by hand.") == 1
     falliti = [p for p in r.passi if p.step == "incongruenze"]
     assert falliti and all(p.esito == "errore" for p in falliti)
     assert (r.passi[-1].esito, r.passi[-1].output["analisi_non_riuscite"]) == ("errore", ["incongruenze"])
@@ -251,7 +251,7 @@ def test_date_non_chiare():
                      aree=["commerciale"], segmenti=s, sicurezza="alta")])
     proposte, avvisi, passo = in_proposte(estr, doc, ctx)
     assert [p.contenuto["scadenza"] for p in proposte] == [None, "2026-12-15"]
-    assert [a.testo for a in avvisi] == ['La scadenza "2026-02-30" di "Fare il SAL" non è una data chiara.']
+    assert [a.testo for a in avvisi] == ['The deadline "2026-02-30" of "Fare il SAL" is not a clear date.']
     assert passo.output["date_non_chiare"] == 1
 
     # aggiornamento con una data non chiara: solo l'avviso
@@ -259,6 +259,6 @@ def test_date_non_chiare():
     estr = EstrazioneRiunione(aggiornamenti=[
         AggiornamentoTask(task_id="task-001", campo="scadenza", valore="dopo Natale", segmenti=s, sicurezza="alta")])
     proposte, avvisi, passo = in_proposte(estr, doc, ctx)
-    assert proposte == [] and avvisi[0].testo == 'La scadenza "dopo Natale" di "SAL" non è una data chiara.'
+    assert proposte == [] and avvisi[0].testo == 'The deadline "dopo Natale" of "SAL" is not a clear date.'
     assert passo.output["date_non_chiare"] == 1
     assert data_valida("2026-12-15") and not data_valida("15/12/2026") and not data_valida(None)

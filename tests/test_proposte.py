@@ -38,12 +38,12 @@ def fatto(soggetto, attributo, valore, aree, segmenti, sicurezza="alta"):
 # Estrazione attesa per riu-001 (dati/attese/riu-001.md), come la restituirebbe il modello.
 ESTR_RIU_001 = EstrazioneRiunione(
     task=[
-        task("t1", "Preparare il primo SAL per il cliente", "Luca Gallo", "2026-12-15", ["commerciale"], s(2)),
+        task("t1", "Prepare the first progress report for the client", "Luca Gallo", "2026-12-15", ["commerciale"], s(2)),
         task("t2", "Quadro elettrico cablato, pronto al collaudo in officina", "Rinaldi", "2026-12-10",
              ["sviluppo"], s(5, 6)),
-        task("t3", "Ordinare gli inverter a Elettrotecnica Piemonte", "Elena Russo", "2026-11-18",
+        task("t3", "Order the inverters from Elettrotecnica Piemonte", "Elena Russo", "2026-11-18",
              ["fornitori"], s(7)),
-        task("t4", "Preparare la lista dei tag del PLC", "Marco", "2026-11-25", ["sviluppo"], s(9, 10), "media"),
+        task("t4", "Prepare the PLC tag list", "Marco", "2026-11-25", ["sviluppo"], s(9, 10), "media"),
         task("t5", "Schermate della nuova HMI", "Sara", "2026-12-04", ["sviluppo"], s(11, 12),
              dipende_da=["t4"]),
         task("t6", "Sopralluogo sulla linea dal cliente", "Davide Conti", "2026-11-19", ["sviluppo"], s(13)),
@@ -51,10 +51,10 @@ ESTR_RIU_001 = EstrazioneRiunione(
              s(14, 15), "media"),
     ],
     fatti=[
-        fatto("progetto", "scadenza", "collaudo presso il cliente entro il 2027-01-20", ["generale"], s(1)),
-        fatto("progetto", "budget", "48.000 euro approvati, 12.500 già impegnati", ["budget"], s(3)),
+        fatto("progetto", "scadenza", "acceptance test at the client's site by 2027-01-20", ["generale"], s(1)),
+        fatto("progetto", "budget", "48,000 euro approvati, 12,500 già impegnati", ["budget"], s(3)),
         fatto("PLC", "decisione", "Siemens S7-1500 al posto dell'S7-300, programma riscritto", ["sviluppo"], s(4, 5)),
-        fatto("inverter", "costo", "Elettrotecnica Piemonte, 6.200 euro, consegna in 3 settimane",
+        fatto("inverter", "costo", "Elettrotecnica Piemonte, 6,200 euro, consegna in 3 settimane",
               ["fornitori", "budget"], s(7)),                      # come nei mock della demo
         fatto("cliente", "requisito", "un SAL ogni mese", ["commerciale"], s(2)),
     ],
@@ -75,7 +75,7 @@ def test_riu_001_sette_task_e_cinque_fatti():
     assert len(nuovi) == 7 and len([p for p in proposte if p.tipo == "nuovo_fatto"]) == 5
     assert [p.contenuto["assegnatario_id"] for p in nuovi] == ["p-05", "p-03", "p-06", None, "p-04", "p-07", None]
     sal = nuovi[0]
-    assert sal.contenuto == {"progetto_id": "prj-01", "titolo": "Preparare il primo SAL per il cliente",
+    assert sal.contenuto == {"progetto_id": "prj-01", "titolo": "Prepare the first progress report for the client",
                              "assegnatario_id": "p-05", "scadenza": "2026-12-15", "stato": "da_fare",
                              "aree": ["commerciale"], "dipende_da": [], "rif": "riu-001:t1"}
     for p in proposte:
@@ -89,10 +89,10 @@ def test_riu_001_sette_task_e_cinque_fatti():
 
 def test_riu_001_punto_oscuro_su_marco():
     proposte, avvisi, _ = analizza(ESTR_RIU_001)
-    assert per_titolo(proposte, "Preparare la lista dei tag del PLC").contenuto["assegnatario_id"] is None
-    marco = [a for a in avvisi if '"Marco" è ambiguo' in a.testo]
+    assert per_titolo(proposte, "Prepare the PLC tag list").contenuto["assegnatario_id"] is None
+    marco = [a for a in avvisi if '"Marco" is ambiguous' in a.testo]
     assert len(marco) == 1 and marco[0].tipo == "punto_oscuro"
-    assert "Marco Bianchi o Marco Rinaldi" in marco[0].testo and "lista dei tag" in marco[0].testo
+    assert "Marco Bianchi or Marco Rinaldi" in marco[0].testo and "tag list" in marco[0].testo
     assert [c.segmento_id for c in marco[0].citazioni] == s(9, 10)
 
 
@@ -101,7 +101,7 @@ def test_riu_001_manuale_senza_responsabile():
     manuale = per_titolo(proposte, "Aggiornare il manuale d'uso per gli operatori")
     assert manuale.contenuto["assegnatario_id"] is None and manuale.aree_proposte == ["generale"]
     testi = [a.testo for a in avvisi]
-    assert "Il task \"Aggiornare il manuale d'uso per gli operatori\" non ha un responsabile. Chi se ne occupa?" in testi
+    assert "The task \"Aggiornare il manuale d'uso per gli operatori\" has no owner. Who will take care of it?" in testi
     assert len(avvisi) == 2
     for a in avvisi:
         assert a.solo_manager and a.id is None and a.creato_il is None and a.citazioni
@@ -113,7 +113,7 @@ def test_riu_001_fatti_e_inverter_con_budget():
     inverter = fatti["inverter"]
     assert inverter.aree_proposte == ["fornitori", "budget"] and inverter.contenuto["aree"] == ["fornitori", "budget"]
     assert inverter.contenuto == {"progetto_id": "prj-01", "soggetto": "inverter", "attributo": "costo",
-                                  "valore": "Elettrotecnica Piemonte, 6.200 euro, consegna in 3 settimane",
+                                  "valore": "Elettrotecnica Piemonte, 6,200 euro, consegna in 3 settimane",
                                   "aree": ["fornitori", "budget"]}
     assert fatti["cliente"].aree_proposte == ["commerciale"]
     assert [c.segmento_id for c in fatti["PLC"].citazioni] == s(4, 5)
@@ -122,7 +122,7 @@ def test_riu_001_fatti_e_inverter_con_budget():
 def test_riu_001_dipendenza_hmi_dalla_lista_dei_tag():
     proposte, _, _ = analizza(ESTR_RIU_001)
     assert per_titolo(proposte, "Schermate della nuova HMI").contenuto["dipende_da"] == ["riu-001:t4"]
-    assert per_titolo(proposte, "Preparare la lista dei tag del PLC").contenuto["rif"] == "riu-001:t4"
+    assert per_titolo(proposte, "Prepare the PLC tag list").contenuto["rif"] == "riu-001:t4"
 
 
 def test_dipendenze_esistenti_tenute_inventate_tolte():
@@ -154,9 +154,9 @@ def test_regole_sulle_aree():
 def test_costo_o_budget_con_area_sbagliata_solo_budget():
     """Segnalazione 5: un costo con l'area sbagliata non deve restare visibile a quell'area."""
     estr = EstrazioneRiunione(fatti=[
-        fatto("inverter", "costo", "6.200 euro", ["sviluppo"], s(7)),
-        fatto("progetto", "budget", "48.000 euro", ["generale"], s(3)),
-        fatto("inverter", "costo", "7.400 euro", ["fornitori", "budget"], s(7)),
+        fatto("inverter", "costo", "6,200 euro", ["sviluppo"], s(7)),
+        fatto("progetto", "budget", "48,000 euro", ["generale"], s(3)),
+        fatto("inverter", "costo", "7,400 euro", ["fornitori", "budget"], s(7)),
         fatto("trasferta", "costo", "forse 300 euro", ["sviluppo"], s(13), "bassa"),
     ])
     proposte, avvisi, _ = analizza(estr)
@@ -168,7 +168,7 @@ def test_costo_o_budget_con_area_sbagliata_solo_budget():
 
 def test_aree_applicate_a_proposta_e_contenuto():
     estr = EstrazioneRiunione(
-        fatti=[fatto("progetto", "budget", "48.000 euro", ["budget", "generale"], s(3)),
+        fatti=[fatto("progetto", "budget", "48,000 euro", ["budget", "generale"], s(3)),
                fatto("progetto", "rischio", "margine stretto", [], s(3))],
         task=[task("t1", "Preparare il SAL", "Luca", "2026-12-15", ["generale", "commerciale"], s(2))],
     )
@@ -236,7 +236,7 @@ def test_aggiorna_task_scadenza_e_assegnatario():
     assert proposte[1].contenuto == {"task_id": "task-002", "campo": "assegnatario", "valore": "p-07"}
     assert proposte[1].sicurezza == "media"
     assert all(p.aree_proposte == ["sviluppo"] for p in proposte)        # aree del task esistente
-    assert len(avvisi) == 1 and avvisi[0].tipo == "punto_oscuro" and '"Marco" è ambiguo' in avvisi[0].testo
+    assert len(avvisi) == 1 and avvisi[0].tipo == "punto_oscuro" and '"Marco" is ambiguous' in avvisi[0].testo
 
 
 def test_chiudi_task():
@@ -260,7 +260,7 @@ def test_assegnatario_non_membro():
     estr = EstrazioneRiunione(task=[task("t1", "Aggiornare le ferie", "Paola Greco", None, ["personale"], s(13))])
     proposte, avvisi, _ = analizza(estr)
     assert proposte[0].contenuto["assegnatario_id"] is None
-    assert "non è un membro del progetto" in avvisi[0].testo and avvisi[0].tipo == "punto_oscuro"
+    assert "is not a project member" in avvisi[0].testo and avvisi[0].tipo == "punto_oscuro"
 
 
 def test_sconosciuti_e_punti_oscuri():
@@ -275,7 +275,7 @@ def test_sconosciuti_e_punti_oscuri():
     _, avvisi, passo = analizza(estr)
     assert [a.tipo for a in avvisi] == ["punto_oscuro", "sconosciuto", "sconosciuto"]
     assert avvisi[0].testo == "Non è chiaro chi approva il SAL lato cliente."
-    assert "Paola Greco" in avvisi[1].testo and "non fa parte del progetto" in avvisi[1].testo
-    assert avvisi[2].testo.startswith('"Ing. Venturi" non è tra le persone o i contesti noti del progetto.')
+    assert "Paola Greco" in avvisi[1].testo and "is not part of the project" in avvisi[1].testo
+    assert avvisi[2].testo.startswith('"Ing. Venturi" is not among the project\'s known people or contexts.')
     assert all(a.solo_manager and a.aree == [] for a in avvisi)
     assert passo.output["motivi_scarto"] == {"membro_del_progetto": 1}

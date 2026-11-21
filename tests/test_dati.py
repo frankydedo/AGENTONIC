@@ -23,36 +23,36 @@ DATA = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 # Id che il backend assegna seguendo il percorso della demo (README): task -> (riunione, rif, titolo).
 TASK = {
-    "task-001": ("riu-001", "t1", "Preparare il primo SAL per il cliente"),
-    "task-002": ("riu-001", "t2", "Cablare il quadro elettrico e prepararlo per il collaudo in officina"),
-    "task-003": ("riu-001", "t3", "Ordinare gli inverter a Elettrotecnica Piemonte"),
-    "task-004": ("riu-001", "t4", "Preparare la lista dei tag del PLC"),
-    "task-005": ("riu-001", "t5", "Preparare le schermate della nuova HMI"),
-    "task-006": ("riu-001", "t6", "Fare il sopralluogo sulla linea dal cliente"),
-    "task-007": ("riu-001", "t7", "Aggiornare il manuale d'uso per gli operatori del cliente"),
-    "task-008": ("riu-002", "t1", "Inviare a Giulia i contatti dell'ingegner Venturi"),
-    "task-009": ("riu-003", "t1", "Chiedere al cliente una conferma scritta sul secondo pannello HMI"),
-    "task-010": ("riu-005", "t1", "Correggere l'interblocco dell'arresto d'emergenza nel programma PLC"),
-    "task-011": ("riu-005", "t2", "Ripetere la prova al banco del programma PLC corretto"),
+    "task-001": ("riu-001", "t1", "Prepare the first progress report for the client"),
+    "task-002": ("riu-001", "t2", "Wire the control panel and prepare it for the factory acceptance test"),
+    "task-003": ("riu-001", "t3", "Order the inverters from Elettrotecnica Piemonte"),
+    "task-004": ("riu-001", "t4", "Prepare the PLC tag list"),
+    "task-005": ("riu-001", "t5", "Prepare the new HMI screens"),
+    "task-006": ("riu-001", "t6", "Do the site survey on the client's line"),
+    "task-007": ("riu-001", "t7", "Update the operating manual for the client's operators"),
+    "task-008": ("riu-002", "t1", "Send Giulia Mr Venturi's contact details"),
+    "task-009": ("riu-003", "t1", "Ask the client for written confirmation about the second HMI panel"),
+    "task-010": ("riu-005", "t1", "Fix the emergency stop interlock in the PLC program"),
+    "task-011": ("riu-005", "t2", "Repeat the bench test of the fixed PLC program"),
 }
 # fatto -> (riunione, indice nel mock da 1, soggetto, attributo)
 FATTI = {
-    "fat-001": ("riu-001", 1, "progetto", "scadenza"),
-    "fat-002": ("riu-001", 2, "progetto", "budget"),
+    "fat-001": ("riu-001", 1, "project", "scadenza"),
+    "fat-002": ("riu-001", 2, "project", "budget"),
     "fat-003": ("riu-001", 3, "PLC", "decisione"),
     "fat-004": ("riu-001", 4, "inverter", "fornitore"),
     "fat-005": ("riu-001", 5, "inverter", "costo"),
-    "fat-006": ("riu-001", 6, "cliente", "requisito"),
-    "fat-007": ("riu-002", 1, "cablaggi esistenti verso i motori", "altro"),
+    "fat-006": ("riu-001", 6, "client", "requisito"),
+    "fat-007": ("riu-002", 1, "existing wiring to the motors", "altro"),
     "fat-008": ("riu-002", 2, "Davide Conti", "altro"),
     "fat-009": ("riu-003", 1, "inverter", "costo"),
     "fat-010": ("riu-003", 2, "inverter", "decisione"),
-    "fat-011": ("riu-003", 3, "progetto", "budget"),
+    "fat-011": ("riu-003", 3, "project", "budget"),
     "fat-012": ("riu-004", 1, "inverter", "scadenza"),
-    "fat-013": ("riu-005", 1, "programma PLC", "rischio"),
-    "fat-014": ("riu-005", 2, "banco di prova", "altro"),
+    "fat-013": ("riu-005", 1, "PLC program", "rischio"),
+    "fat-014": ("riu-005", 2, "test bench", "altro"),
 }
-RIFIUTATI = {("riu-003", "nuovo_fatto", "secondo pannello")}     # proposte che il manager rifiuta nel percorso della demo
+RIFIUTATI = {("riu-003", "nuovo_fatto", "second HMI panel")}     # proposte che il manager rifiuta nel percorso della demo
 
 
 def _json(nome: str) -> dict:
@@ -187,7 +187,7 @@ def test_percorso_della_demo_produce_gli_id_attesi():
                 setattr(task[c["task_id"]], campo, c["valore"])
         if rid == "riu-002":
             testi = [a.testo for a in avvisi if a.tipo == "sconosciuto"]
-            assert any("Paola Greco" in t and "non fa parte del progetto" in t for t in testi)
+            assert any("Paola Greco" in t and "is not part of the project" in t for t in testi)
             assert any("Venturi" in t for t in testi) and any("MES" in t for t in testi)
 
     assert {tid: t.titolo for tid, t in task.items()} == {tid: v[2] for tid, v in TASK.items()}

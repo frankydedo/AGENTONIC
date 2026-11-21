@@ -2,7 +2,7 @@
   "task": [
     {
       "rif": "t1",
-      "titolo": "Correggere l'interblocco dell'arresto d'emergenza nel programma PLC",
+      "titolo": "Fix the emergency stop interlock in the PLC program",
       "assegnatario_detto": "Marco Bianchi",
       "scadenza": "2026-12-02",
       "aree": [
@@ -17,7 +17,7 @@
     },
     {
       "rif": "t2",
-      "titolo": "Ripetere la prova al banco del programma PLC corretto",
+      "titolo": "Repeat the bench test of the fixed PLC program",
       "assegnatario_detto": "Davide",
       "scadenza": "2026-12-03",
       "aree": [

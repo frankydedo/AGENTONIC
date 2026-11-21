@@ -3,7 +3,7 @@
     {
       "soggetto": "inverter",
       "attributo": "costo",
-      "valore": "7.400 € (preventivo aggiornato di Elettrotecnica Piemonte, prima 6.200 €)",
+      "valore": "€7,400 (updated Elettrotecnica Piemonte quote, previously €6,200)",
       "aree": [
         "fornitori",
         "budget"
@@ -16,7 +16,7 @@
     {
       "soggetto": "inverter",
       "attributo": "decisione",
-      "valore": "si resta su Elettrotecnica Piemonte; scartata Forniture Industriali Canavese (6.900 €, consegna in sei settimane)",
+      "valore": "staying with Elettrotecnica Piemonte; Forniture Industriali Canavese rejected (€6,900, six-week delivery)",
       "aree": [
         "fornitori",
         "budget"
@@ -28,9 +28,9 @@
       "sicurezza": "alta"
     },
     {
-      "soggetto": "progetto",
+      "soggetto": "project",
       "attributo": "budget",
-      "valore": "48.000 € approvati, 19.900 € impegnati con gli inverter, restano 28.100 €",
+      "valore": "€48,000 approved, €19,900 committed with the inverters, €28,100 left",
       "aree": [
         "budget"
       ],
@@ -40,9 +40,9 @@
       "sicurezza": "alta"
     },
     {
-      "soggetto": "cliente",
+      "soggetto": "client",
       "attributo": "requisito",
-      "valore": "secondo pannello HMI a bordo linea, solo accennato al telefono: nessuna richiesta scritta",
+      "valore": "second HMI panel at the line, only mentioned on the phone: no written request",
       "aree": [
         "commerciale"
       ],

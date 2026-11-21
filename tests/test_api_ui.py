@@ -11,7 +11,7 @@ def test_progetti_della_persona(client):
     assert [p["id"] for p in client.get("/progetti", headers=PAOLA).json()] == ["prj-03"]
     assert client.get("/progetti").status_code == 401
     assert client.get("/progetti/prj-02", headers=GIULIA).status_code == 403
-    assert client.get("/persone").json()[0]["reparto"] == "Direzione progetti"
+    assert client.get("/persone").json()[0]["reparto"] == "Project management"
 
 
 def test_documento_solo_i_segmenti_che_la_persona_puo_vedere(client):
@@ -40,7 +40,7 @@ def test_avviso_inoltrato_apre_i_suoi_segmenti(client):
 
 def test_il_manager_corregge_prima_di_approvare(client):
     carica(client)
-    tag = trova(client, titolo="Preparare la lista dei tag del PLC")
+    tag = trova(client, titolo="Prepare the PLC tag list")
     assert approva(client, tag, modifiche={"assegnatario_id": "p-08"}).status_code == 422      # non è nel progetto
     assert approva(client, tag, modifiche={"scadenza": "fra un po'"}).status_code == 422
     assert approva(client, tag, modifiche={"valore": "x"}).status_code == 422                  # non è un fatto
@@ -59,9 +59,9 @@ def test_il_manager_corregge_prima_di_approvare(client):
     assert sopralluogo["contenuto"]["assegnatario_id"] is None and sopralluogo["contenuto"]["scadenza"] is None
 
     fatto = trova(client, attributo="fornitore")
-    approva(client, fatto, modifiche={"valore": "Elettrotecnica Piemonte, preventivo 7.400 €"})
+    approva(client, fatto, modifiche={"valore": "Elettrotecnica Piemonte, preventivo 7,400 €"})
     risposta = client.post("/domande", headers=GIULIA, json={"progetto_id": "prj-01", "testo": "preventivo inverter"}).json()
-    assert "7.400" in risposta["testo"]
+    assert "7,400" in risposta["testo"]
 
     registro = client.get("/registro?progetto_id=prj-01", headers=GIULIA).json()
     corretta = next(p for p in registro if p["step"] == "approva" and p["input"]["proposta_id"] == tag["id"])
@@ -71,7 +71,7 @@ def test_il_manager_corregge_prima_di_approvare(client):
 def test_punto_oscuro_collegato_alla_proposta_da_correggere(client):
     carica(client)
     avvisi = client.get("/avvisi?progetto_id=prj-01&flusso=false", headers=GIULIA).json()
-    tag = trova(client, titolo="Preparare la lista dei tag del PLC")
+    tag = trova(client, titolo="Prepare the PLC tag list")
     assert [a["tipo"] for a in avvisi] == ["punto_oscuro", "punto_oscuro"]
     assert avvisi[0]["proposta_id"] == tag["id"]
     assert client.get("/avvisi?progetto_id=prj-01&flusso=false", headers=SARA).json() == []
@@ -79,7 +79,7 @@ def test_punto_oscuro_collegato_alla_proposta_da_correggere(client):
 
 def test_il_manager_vede_la_todo_dei_suoi(client):
     carica(client)
-    approva(client, trova(client, titolo="Preparare la lista dei tag del PLC"), assegnatario_id="p-02")
+    approva(client, trova(client, titolo="Prepare the PLC tag list"), assegnatario_id="p-02")
     approva(client, trova(client, titolo="Schermate della nuova HMI"))
     di_sara = client.get("/persone/p-04/todo-oggi", headers=GIULIA)
     assert di_sara.status_code == 200 and [t["titolo"] for t in di_sara.json()["task"]] == ["Schermate della nuova HMI"]
@@ -93,7 +93,7 @@ def test_dipendenza_da_una_proposta_in_attesa_o_rifiutata(client):
     approva(client, trova(client, titolo="Schermate della nuova HMI"))                  # dipende da riu-001:t4, non ancora deciso
     hmi = lambda: client.get("/progetti/prj-01/todo", headers=GIULIA).json()[0]
     assert (hmi()["stato"], hmi()["dipende_da"]) == ("bloccato", ["riu-001:t4"])
-    tag = trova(client, titolo="Preparare la lista dei tag del PLC")
+    tag = trova(client, titolo="Prepare the PLC tag list")
     client.post(f"/proposte/{tag['id']}/rifiuta", headers=GIULIA, json={})
     assert (hmi()["stato"], hmi()["dipende_da"]) == ("da_fare", [])                    # rifiutata: la dipendenza cade
 
@@ -104,7 +104,7 @@ def test_chiudi_e_aggiorna_task(client, monkeypatch):
     import finti
 
     carica(client)
-    approva(client, trova(client, titolo="Preparare il primo SAL per il cliente"))      # task-001
+    approva(client, trova(client, titolo="Prepare the first progress report for the client"))      # task-001
     approva(client, trova(client, titolo="Sopralluogo sulla linea dal cliente"))        # task-002
 
     def seconda(doc, contesto):

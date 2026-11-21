@@ -4,13 +4,13 @@
       "candidato_id": "fat-001",
       "stessa_cosa": true,
       "in_conflitto": true,
-      "spiegazione": "Stessa data di collaudo presso il cliente: il capitolato chiede il 15 gennaio 2027, il progetto ha il 20 gennaio 2027."
+      "spiegazione": "Same acceptance test at the client's site: the specification asks for 15 January 2027, the project has 20 January 2027."
     },
     {
       "candidato_id": "fat-012",
       "stessa_cosa": false,
       "in_conflitto": false,
-      "spiegazione": "La consegna degli inverter non è la scadenza del collaudo."
+      "spiegazione": "The inverter delivery isn't the acceptance test deadline."
     }
   ]
 }

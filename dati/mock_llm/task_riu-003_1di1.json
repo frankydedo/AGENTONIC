@@ -2,7 +2,7 @@
   "task": [
     {
       "rif": "t1",
-      "titolo": "Chiedere al cliente una conferma scritta sul secondo pannello HMI",
+      "titolo": "Ask the client for written confirmation about the second HMI panel",
       "assegnatario_detto": "Luca",
       "scadenza": "2026-11-27",
       "aree": [

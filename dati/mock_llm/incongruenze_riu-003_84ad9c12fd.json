@@ -1,0 +1,10 @@
+{
+  "giudizi": [
+    {
+      "candidato_id": "fat-002",
+      "stessa_cosa": true,
+      "in_conflitto": true,
+      "spiegazione": "Same project budget: the committed amount goes from €12,500 to €19,900, the remainder needs updating."
+    }
+  ]
+}

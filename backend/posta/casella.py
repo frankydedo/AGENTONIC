@@ -11,7 +11,7 @@ from typing import Literal, Protocol
 from pydantic import BaseModel
 
 IdCartella = Literal["in_arrivo", "inviata", "archivio"]
-CARTELLE: dict[IdCartella, str] = {"in_arrivo": "In arrivo", "inviata": "Inviata", "archivio": "Archivio"}
+CARTELLE: dict[IdCartella, str] = {"in_arrivo": "Inbox", "inviata": "Sent", "archivio": "Archive"}
 
 
 class CasellaNonConfigurata(RuntimeError):

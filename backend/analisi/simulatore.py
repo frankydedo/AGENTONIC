@@ -27,7 +27,7 @@ RIUNIONI = ["riu-001", "riu-002", "riu-003", "riu-004", "riu-005"]
 TITOLO_PDF = "Capitolato tecnico del cliente Pastificio Valsangone per il revamping della linea 3"
 DATA_PDF = "2026-11-18"          # data del capitolato (inviato dal cliente), caricato dopo riu-005
 # (documento, tipo di proposta, testo nel contenuto): proposte che il manager rifiuta
-RIFIUTATE = [("riu-003", "nuovo_fatto", "secondo pannello")]
+RIFIUTATE = [("riu-003", "nuovo_fatto", "second hmi panel")]
 
 
 def carica_azienda() -> tuple[Progetto, list[Persona], list[Persona]]:

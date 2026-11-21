@@ -15,7 +15,7 @@ from backend.modelli import Proposta
 from conftest import GIULIA, MARCO_B, PAOLA, SARA
 
 ELENA = {"X-Persona": "p-06"}
-NEUTRO = "Non ho informazioni che puoi vedere su questo. Puoi chiedere a Giulia Ferraris."
+NEUTRO = "I don't have any information you can see about this. You can ask Giulia Ferraris."
 
 
 def carica_demo(client, doc_id: str):
@@ -102,7 +102,7 @@ def test_i_sette_controlli(client_vero):
     in_attesa = client.get("/proposte?progetto_id=prj-01", headers=GIULIA).json()
     assert in_attesa and all(p["stato"] == "in_attesa" for p in in_attesa)
     assert client.get("/progetti/prj-01/todo", headers=GIULIA).json() == []
-    assert chiedi(client, MARCO_B, "Quanto budget resta?")["esito"] == "non_lo_so"
+    assert chiedi(client, MARCO_B, "How much budget is left?")["esito"] == "non_lo_so"
 
     # 1. Parla per primo: gli avvisi sono nati dal caricamento, nessuno li ha chiesti; solo al manager.
     assert {a["tipo"] for a in avvisi(client)} == {"punto_oscuro"} and avvisi(client, SARA) == []
@@ -119,33 +119,33 @@ def test_i_sette_controlli(client_vero):
     # 4. Cita: la risposta porta il segmento della riunione, con la frase vera.
     # (il mock della risposta cita fat-002: in questo test il budget è il primo fatto approvato, fat-001,
     #  quindi qui si controlla il filtro; la risposta con il testo sta nel test del percorso completo)
-    assert chiedi(client, SARA, "Quanto budget resta?") == {"esito": "non_lo_so", "testo": NEUTRO, "citazioni": []}
+    assert chiedi(client, SARA, "How much budget is left?") == {"esito": "non_lo_so", "testo": NEUTRO, "citazioni": []}
     assert client.get("/persone/p-04/todo-oggi", headers=SARA).json()["task"] == []
 
     # 5. Ammette le lacune: stessa identica risposta per ciò che non c'è e per ciò che è stato rifiutato.
-    assert chiedi(client, GIULIA, "Che PLC usa il cliente nella linea 2?") == {"esito": "non_lo_so", "testo": NEUTRO, "citazioni": []}
-    assert chiedi(client, ELENA, "Quanto costano gli inverter?")["esito"] == "non_lo_so"   # rifiutato: non esiste
+    assert chiedi(client, GIULIA, "Which PLC does the client use on line 2?") == {"esito": "non_lo_so", "testo": NEUTRO, "citazioni": []}
+    assert chiedi(client, ELENA, "How much do the inverters cost?")["esito"] == "non_lo_so"   # rifiutato: non esiste
 
 
 def test_domande_dopo_il_percorso_completo(percorso):
     client, _ = percorso
 
     # 3 e 4: budget al senior e agli acquisti con la citazione, non alla sviluppatrice
-    marco = chiedi(client, MARCO_B, "Quanto budget resta?")
-    assert marco["esito"] == "risposta" and "35.500" in marco["testo"]
+    marco = chiedi(client, MARCO_B, "How much budget is left?")
+    assert marco["esito"] == "risposta" and "35,500" in marco["testo"]
     assert [c["segmento_id"] for c in marco["citazioni"]] == ["riu-001#s003"]
-    assert "48.000 euro" in marco["citazioni"][0]["frase"] and marco["citazioni"][0]["titolo"] == "Kick-off revamping linea 3"
-    sara = chiedi(client, SARA, "Quanto budget resta?")
+    assert "48,000 euro" in marco["citazioni"][0]["frase"] and marco["citazioni"][0]["titolo"] == "Line 3 revamping kick-off"
+    sara = chiedi(client, SARA, "How much budget is left?")
     assert sara == {"esito": "non_lo_so", "testo": NEUTRO, "citazioni": []}
-    assert chiedi(client, PAOLA, "Quanto budget resta?").get("detail")           # fuori dal progetto: 403
+    assert chiedi(client, PAOLA, "How much budget is left?").get("detail")           # fuori dal progetto: 403
 
     # 5: fuori dai dati -> identica alla risposta per un dato riservato
-    assert chiedi(client, GIULIA, "Che PLC usa il cliente nella linea 2?") == sara
+    assert chiedi(client, GIULIA, "Which PLC does the client use on line 2?") == sara
 
     # 2: dopo riu-003 vale il preventivo nuovo; il secondo pannello HMI è stato rifiutato dal manager
-    ultimo = chiedi(client, GIULIA, "Qual è l'ultimo preventivo degli inverter?")
-    assert ultimo["esito"] == "risposta" and "7.400" in ultimo["testo"]
-    assert chiedi(client, GIULIA, "Il cliente vuole un secondo pannello HMI?")["esito"] == "non_lo_so"
+    ultimo = chiedi(client, GIULIA, "What is the latest inverter quote?")
+    assert ultimo["esito"] == "risposta" and "7,400" in ultimo["testo"]
+    assert chiedi(client, GIULIA, "Does the client want a second HMI panel?")["esito"] == "non_lo_so"
 
     # il registro dice il motivo vero, la risposta no
     domande = [p for p in client.get("/registro?progetto_id=prj-01", headers=GIULIA).json() if p["tipo"] == "domanda"]

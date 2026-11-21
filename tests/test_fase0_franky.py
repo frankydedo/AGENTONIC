@@ -23,7 +23,7 @@ def test_segmenta_riu001():
     assert doc.id == "riu-001" and doc.progetto_id == "prj-01" and doc.data == "2026-11-16"
     assert len(doc.segmenti) == 16
     assert doc.segmenti[0].id == "riu-001#s001" and doc.segmenti[0].speaker == "Giulia Ferraris"
-    assert doc.segmenti[9].speaker == "Marco Bianchi" and doc.segmenti[9].testo == "Va bene."
+    assert doc.segmenti[9].speaker == "Marco Bianchi" and doc.segmenti[9].testo == "Fine."
     assert all(s.persona_id is None for s in doc.segmenti)   # l'abbinamento è uno step successivo
     assert len(doc.partecipanti) == 7
 
@@ -31,7 +31,7 @@ def test_segmenta_riu001():
 def test_citazione_solo_da_segmenti_esistenti():
     doc = segmenta(RIU1)
     c = citazione(doc, "riu-001#s003")
-    assert c.speaker == "Giulia Ferraris" and "48.000" in c.frase and c.orario == "09:30"
+    assert c.speaker == "Giulia Ferraris" and "48,000" in c.frase and c.orario == "09:30"
     with pytest.raises(KeyError):
         citazione(doc, "riu-001#s999")
 
@@ -60,18 +60,18 @@ def test_analisi_propone_senza_id_e_traccia_i_passi():
 
 def test_rispondi_senza_voci_testo_neutro(tmp_path):
     cfg = Config(provider="mock", cartella_mock=tmp_path)            # cartella vuota: nessuna chiamata
-    r = rispondi("Quanto budget resta?", PERSONE["p-04"], [], "Giulia Ferraris", cfg)
+    r = rispondi("How much budget is left?", PERSONE["p-04"], [], "Giulia Ferraris", cfg)
     assert r.esito == "non_lo_so" and "Giulia Ferraris" in r.testo and r.citazioni == []
 
 
 def test_rispondi_con_voce_cita_sempre(tmp_path):
     cfg = Config(provider="mock", cartella_mock=tmp_path)
-    for domanda in ("Quanto budget resta?", "?"):
+    for domanda in ("How much budget is left?", "?"):
         (tmp_path / f"{chiave_domanda(domanda)}.json").write_text(
-            '{"esito": "risposta", "testo": "Restano 35.500 €.", "voci_usate": ["fat-001"]}')
+            '{"esito": "risposta", "testo": "Restano 35,500 €.", "voci_usate": ["fat-001"]}')
     c = citazione(segmenta(RIU1), "riu-001#s003")
-    voce = Voce(id="fat-001", tipo="fatto", testo="Budget: 48.000 €, impegnati 12.500 €.", aree=["budget"], citazioni=[c])
-    r = rispondi("Quanto budget resta?", PERSONE["p-02"], [voce], "Giulia Ferraris", cfg)
+    voce = Voce(id="fat-001", tipo="fatto", testo="Budget: 48,000 €, impegnati 12,500 €.", aree=["budget"], citazioni=[c])
+    r = rispondi("How much budget is left?", PERSONE["p-02"], [voce], "Giulia Ferraris", cfg)
     assert r.esito == "risposta" and r.citazioni == [c]
     senza_fonti = voce.model_copy(update={"citazioni": []})
     assert rispondi("?", PERSONE["p-02"], [senza_fonti], "Giulia Ferraris", cfg).esito == "non_lo_so"
@@ -166,7 +166,7 @@ def test_neutralizza_mai_minore_o_maggiore(testo):
 
 def test_neutralizza_lascia_stare_il_testo_normale():
     from backend.analisi.ingestione import neutralizza
-    for testo in ["Budget: 48.000 €, R&D e AT&T. Già fatto: sì, perché «così» va bene.",
+    for testo in ["Budget: 48,000 €, R&D e AT&T. Già fatto: sì, perché «così» va bene.",
                   "Sconto del 5% su https://esempio.it/?a=1&copy=2&region=3"]:
         assert neutralizza(testo) == testo
     assert neutralizza("3 < 5 e 7 > 2") == "3 ‹ 5 e 7 › 2"

@@ -9,8 +9,8 @@ import { dataMedia } from '../lib'
 import type { Documento } from '../tipi'
 
 export const FORMATI: Record<Documento['formato'], [string, LucideIcon]> = {
-  minuta: ['Minuta', FileText],
-  trascrizione: ['Trascrizione', FileText],
+  minuta: ['Minutes', FileText],
+  trascrizione: ['Transcript', FileText],
   audio: ['Audio', FileAudio],
   video: ['Video', Video],
   pdf: ['PDF', FileType],
@@ -23,12 +23,12 @@ export function Documenti() {
 
   return (
     <>
-      <TitoloPagina titolo="Documenti"
-        sottotitolo="Le riunioni e i documenti letti dal Brain. Ogni proposta, task e risposta rimanda al punto preciso da cui nasce." />
+      <TitoloPagina titolo="Documents"
+        sottotitolo="The meetings and documents the Brain has read. Every proposal, task and answer links back to the exact point it comes from." />
       {sonoManager && <PannelloAnalisiInline />}
       <Card className="mt-6">
         {!pronto ? <Scheletro /> : ordinati.length === 0 ? (
-          <Vuoto icona={Inbox} titolo="Ancora nessun documento" testo="Carica la minuta di una riunione per iniziare." />
+          <Vuoto icona={Inbox} titolo="No documents yet" testo="Upload the minutes of a meeting to get started." />
         ) : (
           <ul className="divide-y divide-separatore">
             {ordinati.map((d) => <RigaDocumento key={d.id} d={d} />)}
@@ -51,16 +51,16 @@ function RigaDocumento({ d }: { d: Documento }) {
 
   return (
     <li>
-      <Link to={`/documenti/${d.id}`} className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-riempimento">
+      <Link to={`/documents/${d.id}`} className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-riempimento">
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[12px] bg-accento-tenue text-accento-testo"><Icona size={20} strokeWidth={1.9} /></span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-[16px] font-semibold">{d.titolo}</p>
             <Badge>{formato}</Badge>
-            <Badge tono={d.tipo === 'riunione' ? 'blu' : 'viola'}>{d.tipo === 'riunione' ? 'Riunione' : 'Integrativo'}</Badge>
+            <Badge tono={d.tipo === 'riunione' ? 'blu' : 'viola'}>{d.tipo === 'riunione' ? 'Meeting' : 'Supporting doc'}</Badge>
           </div>
           <p className="cifre mt-1 flex flex-wrap gap-x-3 text-sm text-testo-2">
-            <span>{dataMedia(d.data)}{d.ora_inizio && `, ore ${d.ora_inizio}`}</span><span className="text-testo-3">{d.id}</span>
+            <span>{dataMedia(d.data)}{d.ora_inizio && `, ${d.ora_inizio}`}</span><span className="text-testo-3">{d.id}</span>
           </p>
         </div>
         <div className="hidden -space-x-1.5 md:flex">
@@ -70,14 +70,14 @@ function RigaDocumento({ d }: { d: Documento }) {
         {sonoManager && (
           <div className="hidden w-48 sm:block">
             <div className="flex justify-between text-xs text-testo-2">
-              <span>{conta('in_attesa') ? <b className="text-testo">{conta('in_attesa')} da decidere</b> : 'Tutto deciso'}</span>
+              <span>{conta('in_attesa') ? <b className="text-testo">{conta('in_attesa')} to decide</b> : 'All decided'}</span>
               <span className="cifre">{decise}/{sue.length}</span>
             </div>
             {/* una tacca per proposta: piena se decisa, gialla se aspetta te */}
             <div className="mt-1.5 flex gap-[3px]">
               {sue.map((p) => <span key={p.id} className={clsx('h-2 flex-1 rounded-sm', p.stato === 'in_attesa' ? 'bg-arancio' : p.stato === 'approvata' ? 'bg-verde' : 'bg-testo-3')} />)}
             </div>
-            {aperti > 0 && <p className="mt-1 text-xs text-arancio-testo">{aperti} avvisi aperti</p>}
+            {aperti > 0 && <p className="mt-1 text-xs text-arancio-testo">{aperti} open alerts</p>}
           </div>
         )}
         <ChevronRight size={18} className="text-testo-3 transition group-hover:translate-x-0.5 group-hover:text-testo" />

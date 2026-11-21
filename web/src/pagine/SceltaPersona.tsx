@@ -20,16 +20,16 @@ export function SceltaPersona({ persone, managerId, membri, onScegli }: {
         <MarchioBrain size={72} parla className="shadow-[0_14px_44px_rgba(94,92,230,0.38)]" />
         <h1 className="titolo-grande mt-7 text-[44px] sm:text-[60px]">Company Brain</h1>
         <p className="mt-4 max-w-xl text-[19px] leading-snug text-testo-2 sm:text-[21px]">
-          Il membro del team che legge le riunioni, tiene la memoria del progetto e ti dice cosa richiede la tua attenzione.
-          Chiede sempre prima di agire.
+          The team member who reads the meetings, keeps the project’s memory and tells you what needs your attention.
+          It always asks before acting.
         </p>
 
-        <h2 className="mt-16 text-[22px] font-semibold tracking-[-0.01em]">Chi sei?</h2>
-        <p className="mt-1.5 text-[15px] text-testo-2">Ognuno vede solo ciò che rientra nelle sue competenze.</p>
+        <h2 className="mt-16 text-[22px] font-semibold tracking-[-0.01em]">Who are you?</h2>
+        <p className="mt-1.5 text-[15px] text-testo-2">Everyone only sees what falls within their areas.</p>
 
         {persone.length > 8 && (
-          <input value={cerca} onChange={(e) => setCerca(e.target.value)} placeholder={`Cerca tra ${persone.length} persone…`}
-            aria-label="Cerca una persona" className="mt-8 w-full max-w-sm rounded-xl bg-riempimento px-4 py-2.5 text-[15px] focus:outline-none" />
+          <input value={cerca} onChange={(e) => setCerca(e.target.value)} placeholder={`Search ${persone.length} people…`}
+            aria-label="Search for a person" className="mt-8 w-full max-w-sm rounded-xl bg-riempimento px-4 py-2.5 text-[15px] focus:outline-none" />
         )}
         <ul className="mt-9 grid max-h-[60vh] w-full grid-cols-2 gap-x-3 gap-y-4 overflow-y-auto sm:grid-cols-3 lg:grid-cols-4">
           {persone.filter((p) => corrisponde(`${p.nome} ${p.ruolo}`, cerca)).map((p, i) => {
@@ -46,7 +46,7 @@ export function SceltaPersona({ persone, managerId, membri, onScegli }: {
                   <span className="mt-1 text-[17px] font-semibold">{p.nome}</span>
                   <span className="-mt-1.5 text-[13px] text-testo-2 first-letter:uppercase">{p.ruolo}</span>
                   {manager && <span className="rounded-[7px] bg-viola-tenue px-2 py-0.5 text-xs font-semibold text-viola-testo">Manager</span>}
-                  {fuori && <span className="rounded-[7px] bg-riempimento px-2 py-0.5 text-xs font-semibold text-testo-2">Fuori progetto</span>}
+                  {fuori && <span className="rounded-[7px] bg-riempimento px-2 py-0.5 text-xs font-semibold text-testo-2">Not on a project</span>}
                 </button>
               </motion.li>
             )

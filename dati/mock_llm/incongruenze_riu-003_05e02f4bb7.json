@@ -1,0 +1,10 @@
+{
+  "giudizi": [
+    {
+      "candidato_id": "fat-005",
+      "stessa_cosa": true,
+      "in_conflitto": true,
+      "spiegazione": "Same inverter supply from Elettrotecnica Piemonte with two different prices: the quote has been updated."
+    }
+  ]
+}

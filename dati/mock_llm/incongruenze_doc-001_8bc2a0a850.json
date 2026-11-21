@@ -4,7 +4,7 @@
       "candidato_id": "fat-006",
       "stessa_cosa": false,
       "in_conflitto": false,
-      "spiegazione": "Il secondo pannello HMI e il SAL mensile sono richieste diverse del cliente."
+      "spiegazione": "The acceptance tests and the monthly progress report are different requirements."
     }
   ]
 }

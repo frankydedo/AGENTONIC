@@ -28,7 +28,7 @@ export function Registro() {
     api.registro(progetto.id).then(setPassi).catch((e) => setErrore(e.message))
   }, [progetto.id, sonoManager, proposte])
 
-  if (!sonoManager) return <Card><Vuoto icona={UserCheck} titolo="Solo per il manager" testo="Il registro completo dei passi è visibile al manager del progetto." /></Card>
+  if (!sonoManager) return <Card><Vuoto icona={UserCheck} titolo="Manager only" testo="The full log of steps is visible to the project manager." /></Card>
 
   const nome = (id: string) => persone[id]?.nome ?? id
   const titolo = (id: string) => documenti.find((d) => d.id === id)?.titolo ?? null
@@ -41,31 +41,31 @@ export function Registro() {
 
   return (
     <>
-      <TitoloPagina titolo="Registro" sottotitolo="Il diario di bordo del progetto: cosa ha fatto il Brain e cosa hanno deciso le persone, in ordine." />
+      <TitoloPagina titolo="Activity log" sottotitolo="The project’s logbook: what the Brain did and what people decided, in order." />
 
       <Card className="mb-6 flex max-w-4xl gap-3 p-4 text-sm leading-relaxed text-testo-2">
         <ScrollText size={18} className="mt-0.5 shrink-0 text-testo" />
         <p>
-          Ogni volta che il Brain legge un documento, estrae informazioni o confronta riunioni, e ogni volta che qualcuno
-          approva, rifiuta o fa una domanda, qui resta una riga. Così puoi sempre verificare <b className="text-testo">da dove viene</b> una proposta,
-          <b className="text-testo"> quale modello</b> l'ha prodotta e <b className="text-testo">chi l'ha approvata</b>. Nulla entra nella memoria senza lasciare traccia.
+          Every time the Brain reads a document, extracts information or compares meetings, and every time someone
+          approves, rejects or asks a question, a line stays here. So you can always check <b className="text-testo">where</b> a proposal comes from,
+          <b className="text-testo"> which model</b> produced it and <b className="text-testo">who approved it</b>. Nothing enters the memory without leaving a trace.
         </p>
       </Card>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <Segmentato etichetta="Chi" valore={filtro} onCambia={setFiltro}
-          opzioni={[['tutti', 'Tutto'], ['brain', 'Solo il Brain'], ['persone', 'Solo le persone']] as const} />
+        <Segmentato etichetta="Who" valore={filtro} onCambia={setFiltro}
+          opzioni={[['tutti', 'Everything'], ['brain', 'Only the Brain'], ['persone', 'Only people']] as const} />
         {docsNelRegistro.length > 0 && (
-          <select value={documento} onChange={(e) => setDocumento(e.target.value)} aria-label="Filtra per documento" className="h-9 rounded-full bg-riempimento-2/80 pr-8 pl-3.5 text-sm font-medium text-testo focus:ring-3 focus:ring-accento/30 focus:outline-none">
-            <option value="">Tutti i documenti</option>
+          <select value={documento} onChange={(e) => setDocumento(e.target.value)} aria-label="Filter by document" className="h-9 rounded-full bg-riempimento-2/80 pr-8 pl-3.5 text-sm font-medium text-testo focus:ring-3 focus:ring-accento/30 focus:outline-none">
+            <option value="">All documents</option>
             {docsNelRegistro.map((d) => <option key={d} value={d}>{titolo(d) ?? d}</option>)}
           </select>
         )}
       </div>
 
       <Card>
-        {errore ? <Vuoto icona={UserCheck} titolo="Registro non disponibile" testo={errore} /> : !passi ? <Scheletro /> : visibili.length === 0 ? (
-          <Vuoto icona={ScrollText} titolo="Nessun passo da mostrare" testo="Carica una riunione: ogni passo del Brain comparirà qui." />
+        {errore ? <Vuoto icona={UserCheck} titolo="Log not available" testo={errore} /> : !passi ? <Scheletro /> : visibili.length === 0 ? (
+          <Vuoto icona={ScrollText} titolo="No steps to show" testo="Upload a meeting: every step of the Brain will appear here." />
         ) : (
           <ol className="p-6">
             {visibili.map((p, i) => {
@@ -83,22 +83,22 @@ export function Registro() {
                       <span className="cifre text-sm text-testo-2">{dataBreve(p.quando)}, {oraDi(p.quando)}</span>
                     </div>
                     <div className="mt-1.5 flex flex-wrap gap-1.5">
-                      {problema && <Badge tono={p.esito === 'errore' ? 'rosso' : 'giallo'} icona={CircleAlert}>{p.esito === 'errore' ? 'Errore' : 'Scartato'}</Badge>}
+                      {problema && <Badge tono={p.esito === 'errore' ? 'rosso' : 'giallo'} icona={CircleAlert}>{p.esito === 'errore' ? 'Error' : 'Discarded'}</Badge>}
                       {riassuntoOutput(p.output).map((r) => <Badge key={r}>{r}</Badge>)}
-                      {p.modello && <Badge tono="viola">{p.provider === 'locale' ? 'modello locale' : p.provider === 'cloud' ? 'modello cloud' : 'modello finto'}: {p.modello}</Badge>}
+                      {p.modello && <Badge tono="viola">{p.provider === 'locale' ? 'local model' : p.provider === 'cloud' ? 'cloud model' : 'mock model'}: {p.modello}</Badge>}
                       {durata(p.durata_ms) && <Badge tono="blu">{durata(p.durata_ms)}</Badge>}
-                      {(p.tentativi ?? 1) > 1 && <Badge tono="giallo">{p.tentativi} tentativi</Badge>}
+                      {(p.tentativi ?? 1) > 1 && <Badge tono="giallo">{p.tentativi} attempts</Badge>}
                     </div>
                     {p.motivo && <p className={clsx('mt-1.5 text-sm', problema ? 'text-arancio-testo' : 'text-testo-2')}>{p.motivo}</p>}
                     <details className="group mt-2">
                       <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-xs font-medium text-testo-2 hover:text-testo">
-                        <ChevronRight size={12} className="transition group-open:rotate-90" /> Dettagli tecnici
+                        <ChevronRight size={12} className="transition group-open:rotate-90" /> Technical details
                       </summary>
                       <div className="mt-2 grid gap-2 text-xs sm:grid-cols-2">
                         <pre className="overflow-x-auto rounded-lg border border-separatore bg-riempimento p-2.5 text-testo-2"><span className="font-sans font-semibold text-testo">Input </span>{JSON.stringify(p.input, null, 1)}</pre>
                         <pre className="overflow-x-auto rounded-lg border border-separatore bg-riempimento p-2.5 text-testo-2"><span className="font-sans font-semibold text-testo">Output </span>{JSON.stringify(p.output, null, 1)}</pre>
                       </div>
-                      {p.versione_prompt && <p className="mt-1 text-xs text-testo-3">Versione del prompt: {p.versione_prompt}</p>}
+                      {p.versione_prompt && <p className="mt-1 text-xs text-testo-3">Prompt version: {p.versione_prompt}</p>}
                     </details>
                   </div>
                 </li>

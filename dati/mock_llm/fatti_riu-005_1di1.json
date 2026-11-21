@@ -1,9 +1,9 @@
 {
   "fatti": [
     {
-      "soggetto": "programma PLC",
+      "soggetto": "PLC program",
       "attributo": "rischio",
-      "valore": "nella prova al banco l'arresto d'emergenza della pesatrice non ferma il nastro a valle: manca un interblocco nel codice",
+      "valore": "in the bench test the weighing machine's emergency stop doesn't stop the downstream conveyor: an interlock is missing from the code",
       "aree": [
         "sviluppo"
       ],
@@ -14,9 +14,9 @@
       "sicurezza": "alta"
     },
     {
-      "soggetto": "banco di prova",
+      "soggetto": "test bench",
       "attributo": "altro",
-      "valore": "libero solo il 2026-12-03, poi occupato da un'altra commessa fino al 2026-12-15",
+      "valore": "free only on 2026-12-03, then taken by another job until 2026-12-15",
       "aree": [
         "sviluppo"
       ],

@@ -1,11 +1,10 @@
 import clsx from 'clsx'
 import {
-  ChartGantt, Check, Mail, ChevronDown, ChevronRight, ChevronsUpDown, FileText, FlaskConical, Folder, FolderKanban, LayoutGrid, LogOut, MessageCircle, History, Upload, Settings, type LucideIcon,
+  ChartGantt, Check, Mail, ChevronDown, ChevronRight, ChevronsUpDown, FileText, Folder, FolderKanban, LayoutGrid, LogOut, MessageCircle, History, Upload, Settings, type LucideIcon,
 } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
-import { useEffect, useRef, useState, useSyncExternalStore, type RefObject } from 'react'
+import { useEffect, useRef, useState, type RefObject } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
-import { finti } from '../api'
 import { useApp } from '../contesto'
 import { useDati } from '../dati'
 import { useNonLette } from '../posta'
@@ -27,17 +26,17 @@ export function Layout() {
   const { pathname } = useLocation()
 
   const voci: Voce[] = [
-    { a: '/progetti', etichetta: 'Progetti', breve: 'Progetti', icona: FolderKanban, conteggio: progetti.length > 1 ? progetti.length : undefined },
-    { a: '/', etichetta: 'Panoramica', breve: 'Oggi', icona: LayoutGrid, conteggio: sonoManager ? segnalazioni : undefined },
-    { a: '/posta', etichetta: 'Posta', breve: 'Posta', icona: Mail, conteggio: nonLette || undefined },
-    { a: '/documenti', etichetta: 'Documenti', breve: 'Documenti', icona: FileText, conteggio: sonoManager ? inAttesa : undefined, attenzione: true },
-    { a: '/team', etichetta: 'Team e scadenze', breve: 'Team', icona: ChartGantt },
-    { a: '/chiedi', etichetta: 'Chiedi al Brain', breve: 'Chiedi', icona: MessageCircle },
-    { a: '/registro', etichetta: 'Registro', breve: 'Registro', icona: History, soloManager: true },
-    { a: '/impostazioni', etichetta: 'Impostazioni', breve: 'Impostazioni', icona: Settings },
+    { a: '/projects', etichetta: 'Projects', breve: 'Projects', icona: FolderKanban, conteggio: progetti.length > 1 ? progetti.length : undefined },
+    { a: '/', etichetta: 'Overview', breve: 'Today', icona: LayoutGrid, conteggio: sonoManager ? segnalazioni : undefined },
+    { a: '/mail', etichetta: 'Mail', breve: 'Mail', icona: Mail, conteggio: nonLette || undefined },
+    { a: '/documents', etichetta: 'Documents', breve: 'Docs', icona: FileText, conteggio: sonoManager ? inAttesa : undefined, attenzione: true },
+    { a: '/team', etichetta: 'Team & deadlines', breve: 'Team', icona: ChartGantt },
+    { a: '/ask', etichetta: 'Ask the Brain', breve: 'Ask', icona: MessageCircle },
+    { a: '/log', etichetta: 'Activity log', breve: 'Log', icona: History, soloManager: true },
+    { a: '/settings', etichetta: 'Settings', breve: 'Settings', icona: Settings },
   ].filter((v) => !v.soloManager || sonoManager)
   // su telefono la barra resta corta: i progetti si cambiano dal selettore in alto, il registro dal computer
-  const schede = voci.filter((v) => v.a !== '/progetti' && v.a !== '/registro')
+  const schede = voci.filter((v) => v.a !== '/projects' && v.a !== '/log')
 
   return (
     <div className="flex min-h-screen">
@@ -51,7 +50,7 @@ export function Layout() {
           </div>
         </div>
         <SelettoreProgetto />
-        <nav aria-label="Sezioni" className="flex-1 space-y-0.5">
+        <nav aria-label="Sections" className="flex-1 space-y-0.5">
           {voci.map((v) => <VoceNav key={v.a} v={v} />)}
         </nav>
         <Scadenza />
@@ -64,7 +63,6 @@ export function Layout() {
               <MarchioBrain size={26} parla={segnalazioni + inAttesa > 0} />
               <SelettoreProgetto compatto />
             </div>
-            <FintiInUso />
             <div className="ml-auto flex items-center gap-2">
               {sonoManager && <CaricaRiunione />}
               <MenuPersona />
@@ -79,7 +77,7 @@ export function Layout() {
       </div>
 
       {/* su telefono: barra delle schede in basso */}
-      <nav aria-label="Sezioni" className="vetro fixed inset-x-0 bottom-0 z-30 grid border-t border-separatore px-2 pt-1.5 pb-[max(env(safe-area-inset-bottom),10px)] lg:hidden"
+      <nav aria-label="Sections" className="vetro fixed inset-x-0 bottom-0 z-30 grid border-t border-separatore px-2 pt-1.5 pb-[max(env(safe-area-inset-bottom),10px)] lg:hidden"
         style={{ gridTemplateColumns: `repeat(${schede.length}, minmax(0, 1fr))` }}>
         {schede.map((v) => <VoceScheda key={v.a} v={v} />)}
       </nav>
@@ -131,7 +129,7 @@ function SelettoreProgetto({ compatto }: { compatto?: boolean }) {
       )}
       <Sovrapposto ancora={ancora} aperto={aperto} onChiudi={() => setAperto(false)} larghezza={320}>
           <ul>
-            <li className="px-2.5 pt-1.5 pb-1 text-xs font-semibold text-testo-2">Aperti di recente</li>
+            <li className="px-2.5 pt-1.5 pb-1 text-xs font-semibold text-testo-2">Recently opened</li>
             {recenti.map((p) => {
               const attuale = p.id === progetto.id
               return (
@@ -140,8 +138,8 @@ function SelettoreProgetto({ compatto }: { compatto?: boolean }) {
                     className="flex w-full items-start gap-3 rounded-[10px] px-2.5 py-2 text-left hover:bg-riempimento">
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-semibold">{p.nome}</span>
-                      <span className="block truncate text-xs text-testo-2">{p.cliente}, {p.membri.length} persone</span>
-                      {p.manager_id === io.id && <span className="mt-1 inline-block text-xs font-medium text-viola-testo">Sei il manager</span>}
+                      <span className="block truncate text-xs text-testo-2">{p.cliente}, {p.membri.length} people</span>
+                      {p.manager_id === io.id && <span className="mt-1 inline-block text-xs font-medium text-viola-testo">You’re the manager</span>}
                     </span>
                     {attuale && <Check size={16} strokeWidth={2.6} className="mt-0.5 shrink-0 text-accento-testo" />}
                   </button>
@@ -149,9 +147,9 @@ function SelettoreProgetto({ compatto }: { compatto?: boolean }) {
               )
             })}
             <li className="mt-1 border-t border-separatore pt-1">
-              <Link to="/progetti" onClick={() => setAperto(false)}
+              <Link to="/projects" onClick={() => setAperto(false)}
                 className="flex items-center justify-between rounded-[10px] px-2.5 py-2 text-sm text-accento-testo hover:bg-riempimento">
-                Tutti i progetti ({progetti.length}) <ChevronRight size={15} />
+                All projects ({progetti.length}) <ChevronRight size={15} />
               </Link>
             </li>
           </ul>
@@ -166,9 +164,9 @@ function Scadenza() {
   const giorni = giorniA(progetto.scadenza)
   return (
     <div className="rounded-[14px] bg-superficie/70 p-3.5 shadow-card">
-      <p className="text-xs text-testo-2">Scadenza del progetto</p>
+      <p className="text-xs text-testo-2">Project deadline</p>
       <p className={clsx('mt-1 text-[22px] leading-none font-bold tracking-[-0.02em]', giorni <= 14 && 'text-rosso-testo')}>
-        {giorni >= 0 ? `tra ${giorni} giorni` : `${-giorni} giorni fa`}
+        {giorni >= 0 ? `in ${giorni} days` : `${-giorni} days ago`}
       </p>
       <p className="mt-1 text-xs text-testo-2">{dataMedia(progetto.scadenza)}</p>
     </div>
@@ -212,25 +210,13 @@ function CaricaRiunione() {
   const [aperto, setAperto] = useState(false)
   return (
     <>
-      <Bottone variante="primario" icona={Upload} onClick={() => setAperto(true)} aria-label="Carica riunione">
-        <span className="hidden sm:inline">Carica riunione</span>
+      <Bottone variante="primario" icona={Upload} onClick={() => setAperto(true)} aria-label="Upload meeting">
+        <span className="hidden sm:inline">Upload meeting</span>
       </Bottone>
-      <Modale aperto={aperto} onChiudi={() => setAperto(false)} titolo="Carica una riunione">
+      <Modale aperto={aperto} onChiudi={() => setAperto(false)} titolo="Upload a meeting">
         <PannelloAnalisi onChiudi={() => setAperto(false)} />
       </Modale>
     </>
-  )
-}
-
-/** Trasparenza: dice quando una parte della UI usa dati d'esempio perché il backend non ha ancora l'endpoint. */
-function FintiInUso() {
-  const elenco = useSyncExternalStore(finti.iscrivi, finti.elenco)
-  if (!elenco) return null
-  return (
-    <span title="Endpoint non ancora presenti nel backend: la UI mostra dati d'esempio (docs/proposte-contratto-ui.md)"
-      className="hidden items-center gap-1.5 rounded-full bg-arancio-tenue px-2.5 py-1 text-xs font-medium text-arancio-testo sm:inline-flex">
-      <FlaskConical size={13} /> Dati d'esempio: {elenco}
-    </span>
   )
 }
 
@@ -250,7 +236,7 @@ function MenuPersona() {
         <Avatar persona={io} size={32} />
         <span className="hidden text-left sm:block">
           <span className="block text-[13px] leading-tight font-semibold">{io.nome}</span>
-          <span className="block text-xs text-testo-2">{io.id === progetto.manager_id ? 'Manager del progetto' : io.ruolo}</span>
+          <span className="block text-xs text-testo-2">{io.id === progetto.manager_id ? 'Project manager' : io.ruolo}</span>
         </span>
         <ChevronDown size={14} className={clsx('text-testo-3 transition-transform', aperto && 'rotate-180')} />
       </button>
@@ -259,15 +245,15 @@ function MenuPersona() {
           <motion.div initial={{ opacity: 0, y: -4, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.16 }} className={clsx(POPOVER, 'right-0 mt-2 w-80 p-0')}>
             <div className="p-4">
-              <p className="text-xs text-testo-2">Le tue competenze: vedi solo ciò che rientra qui</p>
+              <p className="text-xs text-testo-2">Your areas: you only see what falls within them</p>
               <div className="mt-2 flex flex-wrap gap-1">{io.competenze.map((a) => <ChipArea key={a} area={a} />)}</div>
-              <p className="mt-4 mb-1.5 text-xs text-testo-2">Aspetto</p>
+              <p className="mt-4 mb-1.5 text-xs text-testo-2">Appearance</p>
               <SceltaTema piccolo />
             </div>
             <div className="border-t border-separatore">
-              <p className="px-4 pt-3 text-xs font-semibold text-testo-2">Entra come un'altra persona (demo)</p>
-              <input value={cerca} onChange={(e) => setCerca(e.target.value)} placeholder={`Cerca tra ${membri.length + altri.length} persone…`}
-                aria-label="Cerca una persona" className="mx-4 mt-2 w-[calc(100%-2rem)] rounded-lg bg-riempimento px-3 py-1.5 text-sm focus:outline-none" />
+              <p className="px-4 pt-3 text-xs font-semibold text-testo-2">Sign in as someone else (demo)</p>
+              <input value={cerca} onChange={(e) => setCerca(e.target.value)} placeholder={`Search ${membri.length + altri.length} people…`}
+                aria-label="Search for a person" className="mx-4 mt-2 w-[calc(100%-2rem)] rounded-lg bg-riempimento px-3 py-1.5 text-sm focus:outline-none" />
               <ul className="max-h-72 overflow-y-auto p-1.5">
                 {elenco.length === 0 && <li className="px-2.5 py-2 text-sm text-testo-2">Nessuno trovato.</li>}
                 {elenco.map((p) => {
@@ -282,7 +268,7 @@ function MenuPersona() {
                           <span className="block truncate text-xs text-testo-2">{p.id === progetto.manager_id ? 'Manager' : p.ruolo}</span>
                         </span>
                         {p.id === io.id ? <Check size={15} strokeWidth={2.6} className="text-accento-testo" />
-                          : fuori && <span className="text-[11px] text-testo-2">fuori progetto</span>}
+                          : fuori && <span className="text-[11px] text-testo-2">not on this project</span>}
                       </button>
                     </li>
                   )
@@ -290,7 +276,7 @@ function MenuPersona() {
               </ul>
             </div>
             <button onClick={esci} className="flex w-full items-center gap-2 border-t border-separatore px-4 py-3 text-sm text-rosso-testo hover:bg-riempimento">
-              <LogOut size={15} /> Torna alla scelta della persona
+              <LogOut size={15} /> Back to choosing a person
             </button>
           </motion.div>
         )}

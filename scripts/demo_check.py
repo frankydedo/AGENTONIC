@@ -116,7 +116,7 @@ def esegui(demo: Demo, mock: bool) -> list[tuple[int, str, bool, str]]:
         assert proposte and all(p["stato"] == "in_attesa" for p in proposte), "non ci sono proposte in attesa"
         assert demo.lista() == [], "la lista del progetto non è vuota prima dell'approvazione"
         assert demo.oggi("p-04", SARA)["task"] == [], "Sara ha già dei task prima dell'approvazione"
-        assert demo.chiedi(ELENA, "Quanto budget resta?")["esito"] == "non_lo_so", \
+        assert demo.chiedi(ELENA, "How much budget is left?")["esito"] == "non_lo_so", \
             "una proposta non approvata ha già risposto a una domanda"
         stato["avvisi_1"] = demo.avvisi()
         stato["avvisi_1_sara"] = demo.avvisi(SARA)
@@ -155,11 +155,11 @@ def esegui(demo: Demo, mock: bool) -> list[tuple[int, str, bool, str]]:
         stati = {p["id"]: p["stato"] for p in demo.c.get(
             "/proposte", params={"progetto_id": PRJ, "stato": "tutte"}, headers=GIULIA).json()}
         assert stati[approvata["id"]] == "approvata" and stati[rifiutata["id"]] == "rifiutata"
-        si = demo.chiedi(GIULIA, "Qual è l'ultimo preventivo degli inverter?")
-        no = demo.chiedi(GIULIA, "Il cliente vuole un secondo pannello HMI?")
+        si = demo.chiedi(GIULIA, "What is the latest inverter quote?")
+        no = demo.chiedi(GIULIA, "Does the client want a second HMI panel?")
         assert si["esito"] == "risposta" and any(c["documento_id"] == "riu-003" for c in si["citazioni"]), \
             "la voce approvata non risponde con la sua citazione"
-        assert not mock or "7.400" in si["testo"], "la risposta non riporta il preventivo approvato"
+        assert not mock or "7,400" in si["testo"], "la risposta non riporta il preventivo approvato"
         assert no["esito"] == "non_lo_so" and no["citazioni"] == [], "la voce rifiutata ha risposto"
         return (f"approvato il fatto «{approvata['contenuto']['valore'][:60]}», rifiutato il secondo pannello HMI; "
                 "alla prima domanda risponde la voce approvata, alla seconda «non lo so»")
@@ -176,10 +176,10 @@ def esegui(demo: Demo, mock: bool) -> list[tuple[int, str, bool, str]]:
 
     def sa_chi_chiede() -> str:
         assert "errore_percorso" not in stato, stato.get("errore_percorso")
-        domanda = "Quanto budget resta?"
+        domanda = "How much budget is left?"
         elena, marco, sara = (demo.chiedi(chi, domanda) for chi in (ELENA, MARCO_B, SARA))
         assert elena["esito"] == "risposta" and marco["esito"] == "risposta", "chi ha la competenza budget non riceve risposta"
-        assert not mock or "35.500" in elena["testo"]
+        assert not mock or "35,500" in elena["testo"]
         assert sara["esito"] == "non_lo_so" and sara["citazioni"] == [], "la sviluppatrice ha ricevuto il budget"
         assert "budget" not in sara["testo"].lower() and "48" not in sara["testo"], "la risposta neutra rivela il dato"
         motivi = [p["motivo"] or "" for p in demo.registro() if p["tipo"] == "domanda" and p["attore"] == "p-04"]
@@ -198,7 +198,7 @@ def esegui(demo: Demo, mock: bool) -> list[tuple[int, str, bool, str]]:
             assert vera.status_code == 200, f"il segmento citato {citazione['segmento_id']} non esiste"
             assert vera.json()["frase"] == citazione["frase"], "la frase citata non è quella del documento"
         prima = risposta["citazioni"][0]
-        assert not mock or "48.000" in prima["frase"]
+        assert not mock or "48,000" in prima["frase"]
         riservato = demo.c.get("/segmenti/" + prima["segmento_id"].replace("#", "%23"), headers=SARA)
         assert riservato.status_code == 404, "chi non può vedere la voce apre comunque il segmento citato"
         con_pagina = [c for t in demo.lista() + demo.c.get(f"/documenti/doc-001", headers=GIULIA).json()["segmenti"]
@@ -210,7 +210,7 @@ def esegui(demo: Demo, mock: bool) -> list[tuple[int, str, bool, str]]:
     controllo(4, "Cita", cita)
 
     def ammette_le_lacune() -> str:
-        domanda = "Che PLC usa il cliente nella linea 2?"
+        domanda = "Which PLC does the client use on line 2?"
         risposta = demo.chiedi(GIULIA, domanda)
         assert risposta["esito"] == "non_lo_so" and risposta["citazioni"] == [], "ha risposto a una domanda fuori dai dati"
         assert stato.get("neutra") and risposta["testo"] == stato["neutra"]["testo"], \

@@ -51,17 +51,17 @@ mock di domande e incongruenze. Tutto è sintetico: Automazioni Dora S.r.l., pro
 
 | id | titolo | riunione | assegnatario | scadenza (poi) | aree | dipende da |
 |---|---|---|---|---|---|---|
-| task-001 | Preparare il primo SAL per il cliente | riu-001 | p-05 Luca Gallo | 2026-12-15 | commerciale | |
-| task-002 | Cablare il quadro elettrico e prepararlo per il collaudo in officina | riu-001 | p-03 Marco Rinaldi | 2026-12-10 → 2026-12-18 (riu-002) | sviluppo | |
-| task-003 | Ordinare gli inverter a Elettrotecnica Piemonte | riu-001 | p-06 Elena Russo | 2026-11-18 → 2026-11-27 (riu-003) | fornitori | |
-| task-004 | Preparare la lista dei tag del PLC | riu-001 | nessuno («Marco» ambiguo) → p-02 Marco Bianchi (riu-002) | 2026-11-25 → 2026-11-27 (riu-003) | sviluppo | |
-| task-005 | Preparare le schermate della nuova HMI | riu-001 | p-04 Sara Colombo | 2026-12-04 → 2026-12-09 (riu-005) | sviluppo | task-004 |
-| task-006 | Fare il sopralluogo sulla linea dal cliente | riu-001 | p-07 Davide Conti | 2026-11-19 | sviluppo | |
-| task-007 | Aggiornare il manuale d'uso per gli operatori del cliente | riu-001 | nessuno (resta aperto) | 2027-01-20 | generale | |
-| task-008 | Inviare a Giulia i contatti dell'ingegner Venturi | riu-002 | p-07 Davide Conti | 2026-11-23 | sviluppo | |
-| task-009 | Chiedere al cliente una conferma scritta sul secondo pannello HMI | riu-003 | p-05 Luca Gallo | 2026-11-27 | commerciale | |
-| task-010 | Correggere l'interblocco dell'arresto d'emergenza nel programma PLC | riu-005 | p-02 Marco Bianchi | 2026-12-02 | sviluppo | |
-| task-011 | Ripetere la prova al banco del programma PLC corretto | riu-005 | p-07 Davide Conti | 2026-12-03 | sviluppo | task-010 |
+| task-001 | Prepare the first progress report for the client | riu-001 | p-05 Luca Gallo | 2026-12-15 | commerciale | |
+| task-002 | Wire the control panel and prepare it for the factory acceptance test | riu-001 | p-03 Marco Rinaldi | 2026-12-10 → 2026-12-18 (riu-002) | sviluppo | |
+| task-003 | Order the inverters from Elettrotecnica Piemonte | riu-001 | p-06 Elena Russo | 2026-11-18 → 2026-11-27 (riu-003) | fornitori | |
+| task-004 | Prepare the PLC tag list | riu-001 | nessuno («Marco» ambiguo) → p-02 Marco Bianchi (riu-002) | 2026-11-25 → 2026-11-27 (riu-003) | sviluppo | |
+| task-005 | Prepare the new HMI screens | riu-001 | p-04 Sara Colombo | 2026-12-04 → 2026-12-09 (riu-005) | sviluppo | task-004 |
+| task-006 | Do the site survey on the client's line | riu-001 | p-07 Davide Conti | 2026-11-19 | sviluppo | |
+| task-007 | Update the operating manual for the client's operators | riu-001 | nessuno (resta aperto) | 2027-01-20 | generale | |
+| task-008 | Send Giulia Mr Venturi's contact details | riu-002 | p-07 Davide Conti | 2026-11-23 | sviluppo | |
+| task-009 | Ask the client for written confirmation about the second HMI panel | riu-003 | p-05 Luca Gallo | 2026-11-27 | commerciale | |
+| task-010 | Fix the emergency stop interlock in the PLC program | riu-005 | p-02 Marco Bianchi | 2026-12-02 | sviluppo | |
+| task-011 | Repeat the bench test of the fixed PLC program | riu-005 | p-07 Davide Conti | 2026-12-03 | sviluppo | task-010 |
 
 Stati alla fine: task-006 `fatto` (riu-002), task-005 `bloccato` (riu-002) → `in_corso` (riu-004),
 task-004 e task-003 `fatto` (riu-004), task-002 e task-009 `in_corso` (riu-004); gli altri `da_fare`.
@@ -70,20 +70,20 @@ task-004 e task-003 `fatto` (riu-004), task-002 e task-009 `in_corso` (riu-004);
 
 | id | soggetto · attributo | valore (breve) | riunione | aree |
 |---|---|---|---|---|
-| fat-001 | progetto · scadenza | collaudo presso il cliente entro il 2027-01-20 | riu-001 s001 | generale |
-| fat-002 | progetto · budget | 48.000 € approvati, 12.500 € impegnati | riu-001 s003 | budget |
+| fat-001 | project · scadenza | acceptance test at the client's site by 2027-01-20 | riu-001 s001 | generale |
+| fat-002 | project · budget | 48.000 € approvati, 12.500 € impegnati | riu-001 s003 | budget |
 | fat-003 | PLC · decisione | Siemens S7-1500, programma riscritto | riu-001 s004-s005 | sviluppo |
 | fat-004 | inverter · fornitore | Elettrotecnica Piemonte, tre settimane | riu-001 s007 | fornitori |
 | fat-005 | inverter · costo | 6.200 € | riu-001 s007 | fornitori, budget |
-| fat-006 | cliente · requisito | un SAL al mese, il primo entro il 2026-12-15 | riu-001 s002 | commerciale |
-| fat-007 | cablaggi esistenti verso i motori · altro | riutilizzabili | riu-002 s004 | sviluppo |
+| fat-006 | client · requisito | one progress report a month, the first by 2026-12-15 | riu-001 s002 | commerciale |
+| fat-007 | existing wiring to the motors · altro | riutilizzabili | riu-002 s004 | sviluppo |
 | fat-008 | Davide Conti · altro | ferie dal 2026-12-22 al 2027-01-06 | riu-002 s012 | personale |
 | fat-009 | inverter · costo | 7.400 € (prima 6.200 €) | riu-003 s002 | fornitori, budget |
 | fat-010 | inverter · decisione | si resta su Elettrotecnica Piemonte | riu-003 s003-s004 | fornitori, budget |
-| fat-011 | progetto · budget | 19.900 € impegnati, restano 28.100 € | riu-003 s006 | budget |
+| fat-011 | project · budget | 19.900 € impegnati, restano 28.100 € | riu-003 s006 | budget |
 | fat-012 | inverter · scadenza | consegna confermata per il 2026-12-11 | riu-004 s006 | fornitori |
-| fat-013 | programma PLC · rischio | l'arresto d'emergenza non ferma il nastro | riu-005 s002-s003 | sviluppo |
-| fat-014 | banco di prova · altro | libero solo il 2026-12-03 | riu-005 s006 | sviluppo |
+| fat-013 | PLC program · rischio | l'arresto d'emergenza non ferma il nastro | riu-005 s002-s003 | sviluppo |
+| fat-014 | test bench · altro | libero solo il 2026-12-03 | riu-005 s006 | sviluppo |
 
 Rifiutato (nessun id): `cliente · requisito` «secondo pannello HMI, solo accennato» (riu-003 s008).
 
@@ -94,7 +94,7 @@ Rifiutato (nessun id): `cliente · requisito` «secondo pannello HMI, solo accen
 | task chiaro e assegnato | riu-001 s002 (SAL, Luca) |
 | task senza responsabile | riu-001 s014-s016 (manuale, task-007) |
 | nome ambiguo (due «Marco») | riu-001 s009-s010; **chiarito** in riu-002 s008-s010 (è Marco Bianchi) |
-| persona e sistema mai visti | riu-002 s005 (ingegner Venturi, MES del cliente) |
+| persona e sistema mai visti | riu-002 s005 (Mr Venturi, MES del cliente) |
 | persona dell'azienda fuori dal progetto | riu-002 s012 (Paola Greco, ferie di Davide) |
 | scadenza che cambia tra riunioni | riu-002 s002-s003 (quadro 10 → 18 dic); anche riu-003 s005 (ordine inverter), riu-003 s007 (tag), riu-005 s008-s009 (HMI) |
 | fatto in conflitto | riu-003 s002 (inverter 6.200 → 7.400 €), riu-003 s006 (budget impegnato) |

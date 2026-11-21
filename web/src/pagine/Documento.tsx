@@ -55,7 +55,7 @@ export function Documento() {
     ...avvisi.flatMap((a) => a.citazioni.map((c) => c.segmento_id)),
   ]), [sue, taskDaQui, avvisi])
 
-  if (errore) return <Card><Vuoto icona={Inbox} titolo="Documento non disponibile" testo={errore} azione={<LinkSobrio a="/documenti">Torna ai documenti</LinkSobrio>} /></Card>
+  if (errore) return <Card><Vuoto icona={Inbox} titolo="Document not available" testo={errore} azione={<LinkSobrio a="/documents">Back to documents</LinkSobrio>} /></Card>
   if (!doc) return <Card><Scheletro righe={6} /></Card>
 
   const [formato, Icona] = FORMATI[doc.formato] ?? FORMATI.minuta
@@ -70,14 +70,14 @@ export function Documento() {
 
   return (
     <div>
-      <Link to="/documenti" className="inline-flex items-center gap-0.5 text-[15px] text-accento-testo hover:underline"><ChevronLeft size={18} strokeWidth={2.4} /> Documenti</Link>
+      <Link to="/documents" className="inline-flex items-center gap-0.5 text-[15px] text-accento-testo hover:underline"><ChevronLeft size={18} strokeWidth={2.4} /> Documents</Link>
       <div className="mt-2 mb-7 flex flex-wrap items-end gap-4">
         <div className="min-w-0 flex-1">
           <h1 className="titolo-grande text-[30px] sm:text-[36px]">{doc.titolo}</h1>
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px] text-testo-2">
             <span className="inline-flex items-center gap-1.5"><Icona size={15} /> {formato}</span>
-            <span>{dataMedia(doc.data)}{doc.ora_inizio && `, ore ${doc.ora_inizio}`}</span>
-            <span>{doc.segmenti.length} interventi</span>
+            <span>{dataMedia(doc.data)}{doc.ora_inizio && `, ${doc.ora_inizio}`}</span>
+            <span>{doc.segmenti.length} contributions</span>
           </p>
         </div>
         <div className="flex -space-x-1.5">
@@ -122,8 +122,8 @@ export function Documento() {
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
                         <span className="font-semibold">{s.speaker}</span>
                         <span className="cifre text-testo-2">{s.inizio != null ? secondi(s.inizio) : s.id.split('#')[1]}</span>
-                        {citati.has(s.id) && !evidenziato && <span className="inline-flex items-center gap-1 text-xs text-testo-2"><Quote size={11} /> citato</span>}
-                        {evidenziato && <span className="rounded-[7px] bg-evidenza-segno px-2 py-0.5 text-xs font-semibold text-evidenza-testo">Fonte selezionata</span>}
+                        {citati.has(s.id) && !evidenziato && <span className="inline-flex items-center gap-1 text-xs text-testo-2"><Quote size={11} /> cited</span>}
+                        {evidenziato && <span className="rounded-[7px] bg-evidenza-segno px-2 py-0.5 text-xs font-semibold text-evidenza-testo">Selected source</span>}
                       </div>
                       <p className={clsx('mt-0.5 max-w-[68ch] text-[16px] leading-relaxed', evidenziato && 'font-medium')}>{s.testo}</p>
                     </div>
@@ -137,22 +137,22 @@ export function Documento() {
         <div className="space-y-6">
           {sonoManager ? (
             <Card>
-              <IntestazioneCard icona={Gavel} titolo="Proposte da questo documento"
-                sottotitolo="Passa sopra una proposta per vedere da quali frasi nasce." />
+              <IntestazioneCard icona={Gavel} titolo="Proposals from this document"
+                sottotitolo="Hover over a proposal to see which sentences it comes from." />
               {sue.length === 0
-                ? <Vuoto icona={Inbox} titolo="Nessuna proposta" testo="Il Brain non ha estratto nulla da questo documento." />
+                ? <Vuoto icona={Inbox} titolo="No proposals" testo="The Brain extracted nothing from this document." />
                 : <ProposteACassetti proposte={sue} onEvidenzia={setSuHover} />}
             </Card>
           ) : (
             <Card>
-              <IntestazioneCard icona={ListTodo} titolo="Task nati da questo documento" sottotitolo="Solo quelli approvati che puoi vedere" />
+              <IntestazioneCard icona={ListTodo} titolo="Tasks from this document" sottotitolo="Only the approved ones you can see" />
               {taskDaQui.length === 0
-                ? <Vuoto icona={Inbox} titolo="Nessun task visibile" />
+                ? <Vuoto icona={Inbox} titolo="No visible tasks" />
                 : <ul className="divide-y divide-separatore">{taskDaQui.map((t) => <li key={t.id} className="px-5 py-3.5"><RigaTask t={t} compatta /></li>)}</ul>}
             </Card>
           )}
           <Card>
-            <IntestazioneCard icona={BellRing} titolo="Avvisi su questo documento" />
+            <IntestazioneCard icona={BellRing} titolo="Alerts on this document" />
             <ListaAvvisi documentoId={id} />
           </Card>
         </div>

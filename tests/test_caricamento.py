@@ -39,17 +39,17 @@ def test_id_duplicato_rifiutato_e_kick_off_intatto(client):
     approva(client, trova(client, attributo="budget"))
     prima = stato_db()
 
-    altro = TESTO.replace("Kick-off revamping linea 3", "Riunione che vuole sostituire il kick-off") \
+    altro = TESTO.replace("Line 3 revamping kick-off", "Riunione che vuole sostituire il kick-off") \
                  .replace("Buongiorno a tutti.", "Testo completamente diverso.").encode("utf-8")
     r = carica(client, contenuto=altro, nome="un-altro-file.md")
     assert r.status_code == 409
-    assert "riu-001" in r.json()["detail"] and "Kick-off revamping linea 3" in r.json()["detail"]
+    assert "riu-001" in r.json()["detail"] and "Line 3 revamping kick-off" in r.json()["detail"]
     assert carica(client).status_code == 409                       # anche lo stesso identico file
     assert carica(client, percorso="/documenti").status_code == 409   # e anche dall'altro endpoint
 
     assert stato_db() == prima                                     # nulla è stato toccato
     doc = client.get("/documenti/riu-001", headers=GIULIA).json()
-    assert doc["titolo"] == "Kick-off revamping linea 3" and doc["segmenti"][0]["testo"].startswith("Buongiorno")
+    assert doc["titolo"] == "Line 3 revamping kick-off" and doc["segmenti"][0]["testo"].startswith("Good morning")
 
 
 def test_id_duplicato_in_un_altro_progetto_rifiutato_senza_rivelare_nulla(client):
@@ -100,7 +100,7 @@ def test_documenti_non_validi_rifiutati_senza_salvare(client):
             minuta(id="riu 001"), b"\xff\xfe\x00binario", b""]
     for contenuto in casi:
         r = carica(client, contenuto=contenuto)
-        assert r.status_code == 422 and r.json()["detail"].startswith("Documento non valido"), contenuto[:30]
+        assert r.status_code == 422 and r.json()["detail"].startswith("Invalid document"), contenuto[:30]
     assert all(v == [] for v in stato_db().values())
 
 
